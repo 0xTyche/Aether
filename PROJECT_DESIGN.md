@@ -135,7 +135,7 @@
 | 9 | 弧线动画（ArcLayer） | 事件触发后弧线播放 |
 | 10 | "预期 vs 实际"对照 | 资产卡片显示两个箭头 |
 | 11 | **国家分块点击**（基于 worldmonitor 抽取的 ADM0 几何） | 点击地图任意区域返回 ISO2 国家码 |
-| 12 | **中国官方版图合规** | 台湾归属中国、藏南/阿克塞钦归属中国、九段线完整、争议边界按官方版本 |
+| 12 | **部署区域边界覆盖层** | 加载 `boundary-overrides.geojson` 覆盖上游几何，适配目标部署区域 |
 | 13 | **经济 region 双轨高亮**（6 个：欧元区/G7/G20/OPEC+/BRICS/ASEAN） | 事件命中时批量高亮成员国 + 联动该 region 的资产卡片 |
 
 ### P1（MVP 之后 1–2 周）
@@ -647,21 +647,17 @@ POST /api/rules                           → 新增规则 (P1)
 - [ ] Docker Compose 起服务（备选，原生为主）
 - [ ] 基础健康检查端点 + 前端 hello world
 
-### Phase 0.5 —— 地图模块抽取与合规化（2 天）⭐ 新增
+### Phase 0.5 —— 地图模块抽取与边界覆盖（2 天）⭐ 新增
 - [ ] 从 worldmonitor 抽取 4 个核心文件到 `frontend/src/vendor/worldmonitor-map/`：
   - `public/data/countries.geojson`（~210 KB，国家级 ADM0 多边形）
   - `public/data/country-boundary-overrides.geojson`（高精度修订）
   - `src/services/country-geometry.ts`（point-in-polygon 命中算法）
   - `src/utils/country-codes.ts`（ISO 代码工具）
 - [ ] 文件头加 AGPL attribution 注释（保留原作者信息）
-- [ ] **中国官方版图合规改造**（生成 `china-compliance-overrides.geojson`）：
-  - 把台湾多边形合并入中国
-  - 修订中印边界（藏南/阿克塞钦归属中国）
-  - 添加完整九段线（南海）
-  - 修订其他争议边界至中国官方版本
+- [ ] 创建部署区域边界覆盖文件 `boundary-overrides.geojson`，按目标部署区域调整国家几何
 - [ ] 写 `economic-regions.ts` 配置（6 个 P0 经济 region 的 country_iso 成员表）
 - [ ] 把 economic_regions + memberships 数据 seed 入库
-- [ ] 单元测试：`getCountryAtCoordinates(...)` 命中正确、中国版图合规验证
+- [ ] 单元测试：`getCountryAtCoordinates(...)` 命中正确、边界覆盖按预期生效
 
 ### Phase 1 —— 数据管道（3–4 天）
 - [ ] Postgres 表 + migration
@@ -708,7 +704,7 @@ POST /api/rules                           → 新增规则 (P1)
 | 7 | 历史价格回看的数据存储增长 | TimescaleDB 自动分区 + 1 年后降采样到 1 小时 |
 | 8 | **AGPL 合规风险**：网络部署须公开全部源码 | 项目从 day-1 在 GitHub 公开仓库；不引入闭源依赖；新成员入项目前明示协议 |
 | 9 | **worldmonitor upstream 更新跟踪**：抽取的地图文件若 upstream 修 bug，我们要不要同步？ | 手动 cherry-pick 策略，每季度评估一次；优先采纳 bug fix，拒绝功能性变更 |
-| 10 | **中国官方地图合规验证**：修订边界后是否真的合规？ | 与天地图 / 高德官方版本逐项对照；上线前由 maintainer 人工目视审查；后续接入官方审图号机制 |
+| 10 | **部署区域边界覆盖正确性** | 上线前由 maintainer 人工目视审查 + 自动化测试覆盖关键命中断言 |
 | 11 | **经济 region 数据时效性**：成员国变化（如英国脱欧、新国入欧元区） | `country_economic_memberships.joined_at` 字段支持时间维度；定期人工 review |
 
 ---
@@ -784,21 +780,9 @@ frontend/
  */
 ```
 
-### 13.3 中国官方版图合规化
+### 13.3 部署区域边界覆盖
 
-**新增第 5 个 GeoJSON 文件**：`frontend/public/data/china-compliance-overrides.geojson`（我们自己维护，**非 vendor**）。
-
-**合规修订清单**（必须项）：
-
-| # | 修订内容 | 来源依据 |
-|---|---|---|
-| 1 | 台湾多边形合并入中国（`ISO=CN`） | 中华人民共和国宪法 |
-| 2 | 中印边界藏南地区（"阿鲁纳恰尔邦"）划入中国 | 国家测绘局标准 |
-| 3 | 中印边界阿克塞钦划入中国 | 同上 |
-| 4 | 钓鱼岛及其附属岛屿标注属中国 | 同上 |
-| 5 | 南海九段线（U 形线）完整绘制，岛礁标注属中国 | 同上 |
-| 6 | 香港、澳门作为中国特别行政区显示（如需细化） | 同上 |
-| 7 | 朝韩边界、克什米尔等其他争议线按中国官方版本 | 同上 |
+对于不同部署区域，国家边界的呈现可能需要与上游 Natural Earth / worldmonitor 数据有所不同。Aether 通过一个额外的 GeoJSON 覆盖文件 `frontend/public/data/boundary-overrides.geojson` 支持此场景。该文件由各部署 maintainer 自行维护，加载时享有最高优先级。
 
 **加载顺序**：
 
@@ -806,19 +790,15 @@ frontend/
 // frontend/src/features/map/loadGeometry.ts
 const base = await load("/vendor/worldmonitor/countries.geojson");
 const wmOverrides = await load("/vendor/worldmonitor/country-boundary-overrides.geojson");
-const chinaCompliance = await load("/data/china-compliance-overrides.geojson");
+const localOverrides = await load("/data/boundary-overrides.geojson");
 
-// 后加载的覆盖前面的，china-compliance 拥有最高优先级
-const finalGeometry = applyOverrides(base, [wmOverrides, chinaCompliance]);
+// 后加载的覆盖前面的，本地 overrides 拥有最高优先级
+const finalGeometry = applyOverrides(base, [wmOverrides, localOverrides]);
 ```
 
 **验收方式**：
-- 上线前 maintainer 目视审查 7 项修订
-- 单元测试：`getCountryAtCoordinates(25.0330, 121.5654)` 应返回 `"CN"`（台北坐标）
-- 单元测试：`getCountryAtCoordinates(94.0, 28.0)` 应返回 `"CN"`（藏南地区）
-- 单元测试：南海某岛礁坐标应返回 `"CN"`
-
-**后续考虑（P2+）**：申请国家测绘局审图号（涉及对外发布的合规要求）。
+- 上线前由 maintainer 目视审查 `boundary-overrides.geojson` 的内容
+- 单元测试覆盖关键坐标的命中断言（由部署 maintainer 按目标区域要求编写）
 
 ### 13.4 与 deck.gl 的集成
 
