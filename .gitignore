@@ -1,0 +1,64 @@
+# ===== Aether =====
+
+# --- Secrets ---
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# --- Node ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# --- Vite ---
+.vite/
+
+# --- IDE / editors ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# --- OS ---
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Build artifacts ---
+build/
+*.tsbuildinfo
+
+# --- Test ---
+playwright-report/
+test-results/
+
+CLAUDE.md
