@@ -1,0 +1,27 @@
+id: boj_ycc_change
+name: Bank of Japan adjusts Yield Curve Control
+description: BoJ tweaks the YCC band or shifts policy stance on the long end.
+priority: 95
+trigger:
+  source: [BoJ]
+  keywords_any: ["yield curve control", "YCC", "10-year yield target"]
+  severity: high
+origin:
+  country: JP
+  lat: 35.6864
+  lng: 139.7034
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: down
+    magnitude: large
+    confidence: 0.85
+  - asset: JP10Y
+    direction: up
+    magnitude: large
+    confidence: 0.9
+    rationale: 政策框架松绑 → 长端定价回归市场
+  - asset: NKY
+    direction: down
+    magnitude: medium
+    confidence: 0.65

@@ -1,0 +1,27 @@
+id: fed_chair_hawkish
+name: Fed Chair makes hawkish remarks
+description: Powell speech with hawkish tone — implies tighter policy ahead.
+priority: 75
+trigger:
+  source: [Fed]
+  keywords_all: ["Powell"]
+  keywords_any: ["hawkish", "tighter", "more restrictive", "vigilant on inflation"]
+  severity: medium
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: up
+    magnitude: small
+    confidence: 0.7
+  - asset: SPX
+    direction: down
+    magnitude: small
+    confidence: 0.6
+  - asset: US10Y
+    direction: up
+    magnitude: small
+    confidence: 0.7

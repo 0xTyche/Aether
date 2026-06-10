@@ -1,0 +1,40 @@
+id: boj_rate_hike
+name: Bank of Japan raises policy rate
+description: BoJ Monetary Policy Meeting voted to lift the short-term policy rate.
+priority: 100
+trigger:
+  source: [BoJ]
+  keywords_all: ["policy rate"]
+  keywords_any: ["raise", "raises", "increase", "hike", "lift"]
+  keywords_none: ["maintain", "unchanged", "left"]
+  severity: high
+origin:
+  country: JP
+  lat: 35.6864
+  lng: 139.7034
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: down
+    magnitude: large
+    confidence: 0.9
+    rationale: 利差收窄强烈利好日元
+  - asset: NKY
+    direction: down
+    magnitude: medium
+    confidence: 0.75
+    rationale: 紧缩压制出口股 + 风险偏好
+  - asset: JP10Y
+    direction: up
+    magnitude: medium
+    confidence: 0.85
+  - asset: AUD/JPY
+    direction: down
+    magnitude: medium
+    confidence: 0.8
+    rationale: 套息交易反转
+  - asset: US10Y
+    direction: up
+    magnitude: small
+    confidence: 0.6
+    rationale: 全球套息平仓波及美债

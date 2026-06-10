@@ -1,0 +1,32 @@
+id: us_cpi_release
+name: US CPI release (above expectations)
+description: US Consumer Price Index print exceeded consensus.
+priority: 90
+trigger:
+  keywords_all: ["CPI"]
+  keywords_any: ["above expectations", "exceeds", "higher than expected", "hotter"]
+  keywords_none: ["below", "cooler", "lower than"]
+  severity: high
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7, g20]
+impacts:
+  - asset: USD/JPY
+    direction: up
+    magnitude: medium
+    confidence: 0.75
+    rationale: 通胀超预期 → 加息预期 → 美元走强
+  - asset: SPX
+    direction: down
+    magnitude: medium
+    confidence: 0.7
+  - asset: US10Y
+    direction: up
+    magnitude: medium
+    confidence: 0.8
+  - asset: GOLD
+    direction: down
+    magnitude: small
+    confidence: 0.55

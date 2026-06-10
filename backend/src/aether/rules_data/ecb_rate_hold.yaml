@@ -1,0 +1,24 @@
+id: ecb_rate_hold
+name: ECB holds key rates
+description: ECB left the deposit facility rate unchanged.
+priority: 80
+trigger:
+  source: [ECB]
+  keywords_all: ["rate"]
+  keywords_any: ["unchanged", "leaves", "kept", "hold"]
+  keywords_none: ["raise", "cut", "hike", "lower"]
+  severity: low
+origin:
+  country: DE
+  lat: 50.1109
+  lng: 8.6821
+affected_regions: [eurozone]
+impacts:
+  - asset: EUR/USD
+    direction: neutral
+    magnitude: small
+    confidence: 0.6
+  - asset: DAX
+    direction: neutral
+    magnitude: small
+    confidence: 0.55

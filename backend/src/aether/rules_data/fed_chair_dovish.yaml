@@ -1,0 +1,31 @@
+id: fed_chair_dovish
+name: Fed Chair makes dovish remarks
+description: Powell speech with dovish tone — implies looser policy ahead.
+priority: 75
+trigger:
+  source: [Fed]
+  keywords_all: ["Powell"]
+  keywords_any: ["dovish", "looser", "accommodative", "patient"]
+  severity: medium
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: down
+    magnitude: small
+    confidence: 0.7
+  - asset: SPX
+    direction: up
+    magnitude: small
+    confidence: 0.6
+  - asset: US10Y
+    direction: down
+    magnitude: small
+    confidence: 0.7
+  - asset: GOLD
+    direction: up
+    magnitude: small
+    confidence: 0.55

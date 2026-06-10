@@ -1,0 +1,20 @@
+id: boe_rate_hold
+name: Bank of England holds Bank Rate
+description: BoE MPC left the Bank Rate unchanged.
+priority: 80
+trigger:
+  source: [BoE]
+  keywords_all: ["Bank Rate"]
+  keywords_any: ["unchanged", "maintain", "leaves", "kept", "hold"]
+  keywords_none: ["raise", "hike", "cut", "lower"]
+  severity: low
+origin:
+  country: GB
+  lat: 51.5142
+  lng: -0.0875
+affected_regions: [g7]
+impacts:
+  - asset: GBP/USD
+    direction: neutral
+    magnitude: small
+    confidence: 0.55

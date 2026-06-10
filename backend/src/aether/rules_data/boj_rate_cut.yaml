@@ -1,0 +1,28 @@
+id: boj_rate_cut
+name: Bank of Japan cuts policy rate
+description: BoJ MPM voted to lower the short-term policy rate.
+priority: 100
+trigger:
+  source: [BoJ]
+  keywords_all: ["policy rate"]
+  keywords_any: ["cut", "cuts", "lower", "reduce", "ease"]
+  keywords_none: ["maintain", "unchanged", "raise", "hike"]
+  severity: high
+origin:
+  country: JP
+  lat: 35.6864
+  lng: 139.7034
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: up
+    magnitude: large
+    confidence: 0.9
+  - asset: NKY
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+  - asset: JP10Y
+    direction: down
+    magnitude: medium
+    confidence: 0.85

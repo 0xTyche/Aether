@@ -1,0 +1,24 @@
+id: boe_rate_hike
+name: Bank of England raises Bank Rate
+description: BoE MPC voted to raise the Bank Rate.
+priority: 100
+trigger:
+  source: [BoE]
+  keywords_all: ["Bank Rate"]
+  keywords_any: ["raise", "raises", "increase", "hike"]
+  keywords_none: ["unchanged", "maintain", "cut", "lower"]
+  severity: high
+origin:
+  country: GB
+  lat: 51.5142
+  lng: -0.0875
+affected_regions: [g7]
+impacts:
+  - asset: GBP/USD
+    direction: up
+    magnitude: medium
+    confidence: 0.8
+  - asset: FTSE100
+    direction: down
+    magnitude: small
+    confidence: 0.55

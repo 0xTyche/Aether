@@ -1,0 +1,38 @@
+id: geopolitical_conflict
+name: Middle East geopolitical escalation
+description: News of military escalation or attack in the Middle East region.
+priority: 70
+trigger:
+  keywords_any: ["missile strike", "airstrike", "attack on", "escalation"]
+  keywords_all: []
+  keywords_none: ["ceasefire", "de-escalation", "talks"]
+  severity: high
+origin:
+  country: SA
+  lat: 24.6877
+  lng: 46.7219
+affected_regions: [opec_plus]
+impacts:
+  - asset: BRENT
+    direction: up
+    magnitude: large
+    confidence: 0.75
+    rationale: 供应担忧推升油价
+  - asset: WTI
+    direction: up
+    magnitude: large
+    confidence: 0.75
+  - asset: GOLD
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+    rationale: 避险资金流入
+  - asset: USD/CHF
+    direction: down
+    magnitude: small
+    confidence: 0.55
+    rationale: CHF 避险属性强于美元
+  - asset: SPX
+    direction: down
+    magnitude: small
+    confidence: 0.55

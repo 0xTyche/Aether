@@ -1,0 +1,36 @@
+id: fed_rate_hike
+name: Federal Reserve raises policy rate
+description: FOMC voted to lift the federal funds target range.
+priority: 100
+trigger:
+  source: [Fed]
+  keywords_all: ["federal funds"]
+  keywords_any: ["raise", "raises", "raising", "increase", "increases", "hike", "lift"]
+  keywords_none: ["maintain", "unchanged", "hold", "leaves", "kept"]
+  severity: high
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7, g20]
+impacts:
+  - asset: USD/JPY
+    direction: up
+    magnitude: medium
+    confidence: 0.85
+    rationale: 美元利差走阔，USD/JPY 通常走高
+  - asset: SPX
+    direction: down
+    magnitude: medium
+    confidence: 0.7
+    rationale: 流动性收紧压制风险资产
+  - asset: US10Y
+    direction: up
+    magnitude: medium
+    confidence: 0.85
+    rationale: 加息预期推升中长端收益率
+  - asset: GOLD
+    direction: down
+    magnitude: small
+    confidence: 0.55
+    rationale: 实际利率上行不利无息资产

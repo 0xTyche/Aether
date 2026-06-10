@@ -1,0 +1,26 @@
+id: china_cpi_release
+name: China CPI release
+description: NBS released the monthly CPI print.
+priority: 80
+trigger:
+  keywords_all: ["China", "CPI"]
+  severity: medium
+origin:
+  country: CN
+  lat: 39.9075
+  lng: 116.3972
+affected_regions: [brics, asean]
+impacts:
+  - asset: USD/CNH
+    direction: neutral
+    magnitude: small
+    confidence: 0.5
+  - asset: SHCOMP
+    direction: neutral
+    magnitude: small
+    confidence: 0.5
+  - asset: COPPER
+    direction: neutral
+    magnitude: small
+    confidence: 0.5
+    rationale: 中国通胀对工业金属需求是间接信号

@@ -1,0 +1,37 @@
+id: china_lpr_cut
+name: PBoC lowers LPR
+description: People's Bank of China lowered the Loan Prime Rate.
+priority: 95
+trigger:
+  keywords_all: ["LPR"]
+  keywords_any: ["cut", "cuts", "lower", "lowered", "reduce", "下调", "降低"]
+  keywords_none: ["unchanged", "maintain", "raise", "上调"]
+  severity: high
+origin:
+  country: CN
+  lat: 39.9075
+  lng: 116.3972
+affected_regions: [brics, asean]
+impacts:
+  - asset: USD/CNH
+    direction: up
+    magnitude: medium
+    confidence: 0.75
+    rationale: 利差走阔人民币承压
+  - asset: HS300
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+    rationale: 宽松利好 A 股
+  - asset: SHCOMP
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+  - asset: CN10Y
+    direction: down
+    magnitude: medium
+    confidence: 0.8
+  - asset: HSI
+    direction: up
+    magnitude: medium
+    confidence: 0.65

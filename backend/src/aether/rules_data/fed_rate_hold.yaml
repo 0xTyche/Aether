@@ -1,0 +1,25 @@
+id: fed_rate_hold
+name: Federal Reserve holds policy rate
+description: FOMC left the federal funds target range unchanged.
+priority: 80
+trigger:
+  source: [Fed]
+  keywords_all: ["federal funds"]
+  keywords_any: ["maintain", "unchanged", "leaves", "kept", "hold"]
+  keywords_none: ["raise", "cut", "hike", "lower"]
+  severity: low
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: neutral
+    magnitude: small
+    confidence: 0.6
+  - asset: SPX
+    direction: neutral
+    magnitude: small
+    confidence: 0.55
+    rationale: 符合预期一般低波动

@@ -1,0 +1,27 @@
+id: us_gdp_release
+name: US quarterly GDP release
+description: Bureau of Economic Analysis released the quarterly GDP estimate.
+priority: 85
+trigger:
+  keywords_all: ["GDP"]
+  keywords_any: ["quarterly", "Q1", "Q2", "Q3", "Q4", "advance estimate", "second estimate"]
+  severity: medium
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: neutral
+    magnitude: small
+    confidence: 0.5
+    rationale: 方向依赖印数与预期对比，rule 给中性占位
+  - asset: SPX
+    direction: neutral
+    magnitude: small
+    confidence: 0.5
+  - asset: US10Y
+    direction: neutral
+    magnitude: small
+    confidence: 0.5

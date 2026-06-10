@@ -1,0 +1,27 @@
+id: us_nfp_strong
+name: US Non-Farm Payrolls beat expectations
+description: NFP release exceeded forecast — labor market strong.
+priority: 90
+trigger:
+  keywords_any: ["nonfarm payrolls", "non-farm payrolls", "NFP"]
+  keywords_all: []
+  keywords_none: ["below", "missed", "weaker"]
+  severity: high
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7]
+impacts:
+  - asset: USD/JPY
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+  - asset: US10Y
+    direction: up
+    magnitude: medium
+    confidence: 0.75
+  - asset: GOLD
+    direction: down
+    magnitude: small
+    confidence: 0.55

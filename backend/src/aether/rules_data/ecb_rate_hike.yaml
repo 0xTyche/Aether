@@ -1,0 +1,28 @@
+id: ecb_rate_hike
+name: ECB raises key rates
+description: ECB Governing Council voted to raise the deposit facility rate.
+priority: 100
+trigger:
+  source: [ECB]
+  keywords_all: ["rate"]
+  keywords_any: ["raise", "raises", "increase", "increases", "hike"]
+  keywords_none: ["unchanged", "leaves", "kept", "cut", "lower"]
+  severity: high
+origin:
+  country: DE
+  lat: 50.1109
+  lng: 8.6821
+affected_regions: [eurozone, g7]
+impacts:
+  - asset: EUR/USD
+    direction: up
+    magnitude: medium
+    confidence: 0.8
+  - asset: DAX
+    direction: down
+    magnitude: medium
+    confidence: 0.65
+  - asset: DE10Y
+    direction: up
+    magnitude: medium
+    confidence: 0.8

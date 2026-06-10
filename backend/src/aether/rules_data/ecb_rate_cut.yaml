@@ -1,0 +1,28 @@
+id: ecb_rate_cut
+name: ECB cuts key rates
+description: ECB Governing Council voted to lower the deposit facility rate.
+priority: 100
+trigger:
+  source: [ECB]
+  keywords_all: ["rate"]
+  keywords_any: ["cut", "cuts", "lower", "lowers", "reduce", "reduces"]
+  keywords_none: ["unchanged", "leaves", "kept", "raise", "hike"]
+  severity: high
+origin:
+  country: DE
+  lat: 50.1109
+  lng: 8.6821
+affected_regions: [eurozone, g7]
+impacts:
+  - asset: EUR/USD
+    direction: down
+    magnitude: medium
+    confidence: 0.8
+  - asset: DAX
+    direction: up
+    magnitude: medium
+    confidence: 0.65
+  - asset: DE10Y
+    direction: down
+    magnitude: medium
+    confidence: 0.8

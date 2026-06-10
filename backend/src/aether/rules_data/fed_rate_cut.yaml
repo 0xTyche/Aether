@@ -1,0 +1,33 @@
+id: fed_rate_cut
+name: Federal Reserve cuts policy rate
+description: FOMC voted to lower the federal funds target range.
+priority: 100
+trigger:
+  source: [Fed]
+  keywords_all: ["federal funds"]
+  keywords_any: ["cut", "cuts", "lower", "lowers", "reduce", "reduces", "ease"]
+  keywords_none: ["maintain", "unchanged", "hold", "leaves", "kept", "raise", "hike"]
+  severity: high
+origin:
+  country: US
+  lat: 38.8921
+  lng: -77.0466
+affected_regions: [g7, g20]
+impacts:
+  - asset: USD/JPY
+    direction: down
+    magnitude: medium
+    confidence: 0.85
+  - asset: SPX
+    direction: up
+    magnitude: medium
+    confidence: 0.7
+  - asset: US10Y
+    direction: down
+    magnitude: medium
+    confidence: 0.85
+  - asset: GOLD
+    direction: up
+    magnitude: medium
+    confidence: 0.65
+    rationale: 实际利率下行利好无息资产
