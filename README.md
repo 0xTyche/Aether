@@ -34,12 +34,21 @@ sudo -u postgres createdb aether -O aether
 sudo -u postgres psql -d aether -c "CREATE EXTENSION timescaledb;"
 ```
 
+Seed initial data (regions + assets):
+
+```bash
+cd backend
+uv sync
+cp .env.example .env  # set DEEPSEEK_API_KEY, ALPACA_API_KEY/SECRET
+uv run alembic upgrade head
+uv run python scripts/seed_economic_regions.py
+uv run python scripts/seed_assets.py
+```
+
 Run the backend:
 
 ```bash
 cd backend
-cp .env.example .env  # set ANTHROPIC_API_KEY
-uv sync
 uv run uvicorn aether.main:app --reload --port 8000
 ```
 

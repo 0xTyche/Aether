@@ -20,17 +20,31 @@ export const useEventsStore = create<EventsState>((set, get) => ({
   selectedId: null,
 
   setInitial: (list) =>
-    set(() => ({
-      events: [...list].sort(
+    set((state) => {
+      const sorted = [...list].sort(
         (a, b) => +new Date(b.occurred_at) - +new Date(a.occurred_at),
-      ),
-    })),
+      );
+      return {
+        events: sorted,
+        // Only auto-select if user hasn't already picked something.
+        selectedId: state.selectedId ?? sorted[0]?.id ?? null,
+      };
+    }),
 
   upsert: (event) =>
     set((state) => {
       const without = state.events.filter((e) => e.id !== event.id);
       const next = [event, ...without].slice(0, MAX_KEEP);
-      return { events: next };
+      // Auto-select the first event ever seen, and any newly-arriving
+      // high-severity event so the user can't miss it.
+      const isNew = !state.events.some((e) => e.id === event.id);
+      let nextSelectedId = state.selectedId;
+      if (isNew) {
+        if (state.selectedId == null || event.severity === "high") {
+          nextSelectedId = event.id;
+        }
+      }
+      return { events: next, selectedId: nextSelectedId };
     }),
 
   select: (id) => set(() => ({ selectedId: id })),
