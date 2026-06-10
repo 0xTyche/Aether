@@ -13,6 +13,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from aether.ingestion import akshare_, rss
+from aether.pipeline import processor as pipeline_processor
 
 
 logger = structlog.get_logger(__name__)
@@ -21,6 +22,7 @@ logger = structlog.get_logger(__name__)
 # Default cadences chosen to be polite to upstream while staying responsive.
 RSS_INTERVAL_MIN = 5
 AKSHARE_INTERVAL_S = 60
+PIPELINE_INTERVAL_S = 60
 
 
 def _register_jobs(scheduler: AsyncIOScheduler) -> None:
@@ -37,7 +39,16 @@ def _register_jobs(scheduler: AsyncIOScheduler) -> None:
         akshare_.tick,
         trigger=IntervalTrigger(seconds=AKSHARE_INTERVAL_S),
         id="akshare.tick",
-        name="AKShare polling (SHCOMP / HSI / USD/CNH)",
+        name="AKShare polling (SHCOMP / HSI / FX)",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    scheduler.add_job(
+        pipeline_processor.tick,
+        trigger=IntervalTrigger(seconds=PIPELINE_INTERVAL_S),
+        id="pipeline.process",
+        name="Classify new raw_news (rules → LLM)",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
@@ -63,6 +74,10 @@ async def start_scheduler(scheduler: AsyncIOScheduler) -> None:
         await akshare_.tick()
     except Exception as exc:
         logger.warning("scheduler.initial_akshare_failed", error=str(exc))
+    try:
+        await pipeline_processor.tick()
+    except Exception as exc:
+        logger.warning("scheduler.initial_pipeline_failed", error=str(exc))
 
 
 async def stop_scheduler(scheduler: AsyncIOScheduler) -> None:
