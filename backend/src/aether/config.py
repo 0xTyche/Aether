@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     anthropic_model_fallback: str = "claude-haiku-4-5-20251001"
     anthropic_model_deep: str = "claude-sonnet-4-6"
 
+    # --- Market data ---
+    binance_ws_url: str = "wss://data-stream.binance.vision/stream"
+    alpaca_api_key: str = ""
+    alpaca_api_secret: str = ""
+    alpaca_feed: str = "iex"
+    alpaca_data_base_url: str = "https://data.alpaca.markets"
+    alpaca_stream_url: str = "wss://stream.data.alpaca.markets/v2/iex"
+
     log_level: str = "INFO"
     host: str = "0.0.0.0"
     port: int = 8000
