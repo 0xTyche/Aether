@@ -72,12 +72,23 @@ async def publish(channel: str, payload: dict[str, Any]) -> int:
 
 @asynccontextmanager
 async def subscribe(*channels: str) -> AsyncIterator[redis_async.client.PubSub]:
-    """Context manager yielding a PubSub object subscribed to the given channels."""
-    client = get_redis()
-    pubsub = client.pubsub()
+    """Context manager yielding a PubSub on a *dedicated* connection.
+
+    We deliberately bypass the shared client because long-lived subscribe
+    connections cannot be reused for normal commands, and contending for the
+    shared client's connection pool gives us spurious read timeouts.
+    """
+    cli = redis_async.from_url(
+        get_settings().redis_url,
+        decode_responses=True,
+    )
+    pubsub = cli.pubsub()
     try:
         await pubsub.subscribe(*channels)
         yield pubsub
     finally:
-        await pubsub.unsubscribe(*channels)
-        await pubsub.aclose()
+        try:
+            await pubsub.unsubscribe(*channels)
+            await pubsub.aclose()
+        finally:
+            await cli.aclose()

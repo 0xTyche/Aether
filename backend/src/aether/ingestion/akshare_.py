@@ -30,6 +30,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from aether.models.prices import Price
 from aether.storage import db as db_module
+from aether.storage import redis_ as r
 
 
 logger = structlog.get_logger(__name__)
@@ -197,6 +198,22 @@ async def _write_quotes(quotes: list[Quote]) -> int:
     )
     async with db_module.session_scope() as session:
         result = await session.execute(stmt)
+
+    try:
+        await r.publish(r.CHANNEL_PRICES_UPDATE, {
+            "updates": [
+                {
+                    "asset_id": q.asset_id,
+                    "price": str(q.price),
+                    "ts": q.ts.isoformat(),
+                    "source": SOURCE,
+                }
+                for q in quotes
+            ],
+        })
+    except Exception as exc:
+        logger.warning("akshare.publish_failed", error=str(exc))
+
     return result.rowcount or 0
 
 

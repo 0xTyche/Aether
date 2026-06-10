@@ -34,6 +34,7 @@ from aether.config import get_settings
 from aether.models.assets import Asset
 from aether.models.prices import Price
 from aether.storage import db as db_module
+from aether.storage import redis_ as r
 
 
 logger = structlog.get_logger(__name__)
@@ -105,6 +106,23 @@ async def _flush(buffer: list[TradeTick]) -> int:
     )
     async with db_module.session_scope() as session:
         result = await session.execute(stmt)
+
+    # Forward to the WS hub via Redis Pub/Sub (best-effort; do not raise).
+    try:
+        await r.publish(r.CHANNEL_PRICES_UPDATE, {
+            "updates": [
+                {
+                    "asset_id": t.asset_id,
+                    "price": str(t.price),
+                    "ts": t.ts.isoformat(),
+                    "source": SOURCE,
+                }
+                for t in coalesced.values()
+            ],
+        })
+    except Exception as exc:
+        logger.warning("binance.publish_failed", error=str(exc))
+
     return result.rowcount or 0
 
 

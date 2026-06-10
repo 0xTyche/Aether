@@ -65,19 +65,20 @@ def build_scheduler() -> AsyncIOScheduler:
 
 async def start_scheduler(scheduler: AsyncIOScheduler) -> None:
     scheduler.start()
-    # Run pull-style ingesters once at boot so users don't wait an interval.
-    try:
-        await rss.ingest_all_feeds()
-    except Exception as exc:
-        logger.warning("scheduler.initial_rss_failed", error=str(exc))
-    try:
-        await akshare_.tick()
-    except Exception as exc:
-        logger.warning("scheduler.initial_akshare_failed", error=str(exc))
-    try:
-        await pipeline_processor.tick()
-    except Exception as exc:
-        logger.warning("scheduler.initial_pipeline_failed", error=str(exc))
+    # Kick the read-only ingesters once on boot — fire and forget so a slow
+    # upstream cannot block FastAPI startup. The pipeline tick is left to the
+    # scheduler's first run (60s after boot) so it doesn't race with itself
+    # while a long LLM backlog is being chewed through.
+    import asyncio
+
+    async def _safe(name: str, fn) -> None:
+        try:
+            await fn()
+        except Exception as exc:
+            logger.warning("scheduler.initial_run_failed", job=name, error=str(exc))
+
+    asyncio.create_task(_safe("rss", rss.ingest_all_feeds))
+    asyncio.create_task(_safe("akshare", akshare_.tick))
 
 
 async def stop_scheduler(scheduler: AsyncIOScheduler) -> None:
