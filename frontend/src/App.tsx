@@ -1,52 +1,56 @@
-import { useEffect, useState } from "react";
 import "./App.css";
 
-interface Health {
-  status: string;
-  project: string;
-  version: string;
-}
+import { NewsPanel } from "./features/news/NewsPanel";
+import { ImpactPanel } from "./features/impact/ImpactPanel";
+import { RegionChips } from "./features/regions/RegionChips";
+import { useBootstrap } from "./lib/useBootstrap";
+import { useUIStore } from "./store/ui";
 
-function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((data: Health) => setHealth(data))
-      .catch((e: Error) => setError(e.message));
-  }, []);
-
+function Header() {
+  const connected = useUIStore((s) => s.connected);
   return (
-    <main className="aether-root">
-      <header>
-        <h1>
-          Aether <span className="aether-cn">· 以太</span>
-        </h1>
-        <p className="tagline">
-          Macro events propagating through the global financial aether.
-        </p>
-      </header>
-
-      <section className="status">
-        <h2>Backend status</h2>
-        {health && (
-          <pre className="status-ok">
-            {JSON.stringify(health, null, 2)}
-          </pre>
-        )}
-        {error && (
-          <pre className="status-err">backend unreachable: {error}</pre>
-        )}
-        {!health && !error && <pre>checking /api/health …</pre>}
-      </section>
-
-      <footer>
-        <p>Phase 0 scaffolding · awaiting Phase 1.</p>
-      </footer>
-    </main>
+    <header className="flex items-center gap-3 px-4 py-2 border-b border-border bg-panel">
+      <h1 className="text-base font-semibold">
+        Aether <span className="text-muted font-normal">· 以太</span>
+      </h1>
+      <span
+        className={
+          "text-xs px-2 py-0.5 rounded-full " +
+          (connected
+            ? "bg-ok/20 text-ok"
+            : "bg-err/20 text-err")
+        }
+      >
+        {connected ? "LIVE" : "OFFLINE"}
+      </span>
+    </header>
   );
 }
 
-export default App;
+function MapPlaceholder() {
+  return (
+    <section className="h-full w-full grid place-items-center bg-bg text-muted text-sm">
+      <div className="text-center">
+        <div className="text-xs uppercase tracking-wider">Map area</div>
+        <p className="mt-2 max-w-sm leading-snug">
+          The deck.gl + MapLibre world map lands in Phase 4.c.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export default function App() {
+  useBootstrap();
+  return (
+    <div className="h-full flex flex-col">
+      <Header />
+      <RegionChips />
+      <main className="flex-1 grid grid-cols-[320px_1fr_360px] min-h-0">
+        <NewsPanel />
+        <MapPlaceholder />
+        <ImpactPanel />
+      </main>
+    </div>
+  );
+}
