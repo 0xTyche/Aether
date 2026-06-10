@@ -24,9 +24,13 @@ class Settings(BaseSettings):
 
     redis_url: str = "redis://localhost:6379/0"
 
-    anthropic_api_key: str = ""
-    anthropic_model_fallback: str = "claude-haiku-4-5-20251001"
-    anthropic_model_deep: str = "claude-sonnet-4-6"
+    # --- LLM (DeepSeek via OpenAI-compatible API) ---
+    deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com/v1"
+    deepseek_model: str = "deepseek-v4-flash"
+    deepseek_model_deep: str = "deepseek-v4-pro"
+    llm_rate_limit_per_min: int = 20
+    llm_timeout_seconds: float = 30.0
 
     # --- Market data ---
     binance_ws_url: str = "wss://data-stream.binance.vision/stream"
