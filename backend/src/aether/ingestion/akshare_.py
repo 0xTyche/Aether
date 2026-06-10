@@ -1,14 +1,21 @@
 """Periodic AKShare polling for non-Binance, non-Alpaca instruments.
 
 AKShare is a synchronous library that scrapes various Chinese/HK data
-sources. We dispatch a handful of fetchers per asset, each producing
-the *latest* observation, and write into `prices`. Sync calls are
-off-loaded to a thread to keep the event loop responsive.
+sources. Each "producer" function returns 0+ Quote objects in one call;
+producers may batch multiple assets to amortize the upstream HTTP cost
+(notably the FX producers, which fetch many pairs per call). Sync calls
+are off-loaded to a thread to keep the event loop responsive.
 
 Sources used (all confirmed reachable from US IP):
-  - sh000001 (上证综指)   via stock_zh_index_daily (Sina)
-  - HSI (恒生)            via stock_hk_index_daily_sina
-  - USD/CNH               via fx_spot_quote (Sina)
+  - sh000001 (上证综指) via stock_zh_index_daily (Sina)
+  - HSI (恒生)          via stock_hk_index_daily_sina
+  - fx_pair_quote (Sina): 8 majors + AUD/JPY (derived from AUD/USD × USD/JPY)
+  - fx_spot_quote (Sina): USD/CNH (proxied by USD/CNY) + 5 EM (derived
+                          via USD/CNY × CNY/<X>)
+
+NOT covered (eastmoney.com push2 endpoints — blocked from US IP):
+  USD/QAR, USD/KWD, USD/OMR  (pegged to USD; could hardcode later)
+  USD/INR, USD/BRL           (free-floating; needs a separate source)
 """
 
 import asyncio
@@ -37,81 +44,145 @@ class Quote:
     price: Decimal
 
 
-# ---------- per-symbol fetchers (sync, run via to_thread) ----------------
+Producer = Callable[[], list[Quote]]
 
-def _fetch_shcomp() -> Quote | None:
+
+# ---------- index / single-asset producers (each returns 0 or 1 Quote) ---
+
+def _fetch_shcomp() -> list[Quote]:
     """上证综指 latest close from Sina daily series."""
     df = ak.stock_zh_index_daily(symbol="sh000001")
     if df is None or df.empty:
-        return None
+        return []
     row = df.iloc[-1]
-    return Quote(
+    return [Quote(
         asset_id="SHCOMP",
         ts=datetime.combine(row["date"], datetime.min.time(), tzinfo=UTC),
         price=Decimal(str(row["close"])),
-    )
+    )]
 
 
-def _fetch_hsi() -> Quote | None:
+def _fetch_hsi() -> list[Quote]:
     """恒生指数 latest close from Sina daily series."""
     df = ak.stock_hk_index_daily_sina(symbol="HSI")
     if df is None or df.empty:
-        return None
+        return []
     row = df.iloc[-1]
-    return Quote(
+    return [Quote(
         asset_id="HSI",
         ts=datetime.combine(row["date"], datetime.min.time(), tzinfo=UTC),
         price=Decimal(str(row["close"])),
-    )
+    )]
 
 
-def _fetch_usdcnh() -> Quote | None:
-    """USD/CNH spot quote — pick the row matching USD/CNH from fx_spot_quote."""
+# ---------- FX batch producers -------------------------------------------
+
+def _mid(bid: float, ask: float | None) -> Decimal:
+    a = ask if ask is not None else bid
+    return Decimal(str((bid + a) / 2))
+
+
+def _pairs_from_df(df, pair_col: str = "货币对") -> dict[str, Decimal]:
+    """Index a Sina FX dataframe by pair → mid price."""
+    bid_col = next(c for c in df.columns if "买" in c)
+    ask_col = next((c for c in df.columns if "卖" in c), None)
+    out: dict[str, Decimal] = {}
+    for _, row in df.iterrows():
+        try:
+            bid = float(row[bid_col])
+            ask = float(row[ask_col]) if ask_col else None
+        except (TypeError, ValueError):
+            continue
+        out[str(row[pair_col]).strip().upper()] = _mid(bid, ask)
+    return out
+
+
+def _fetch_fx_majors() -> list[Quote]:
+    """8 direct G10 pairs + AUD/JPY derived from AUD/USD × USD/JPY.
+
+    Source: Sina fx_pair_quote (16 non-CNY pairs, real-time mid).
+    """
+    df = ak.fx_pair_quote()
+    if df is None or df.empty:
+        return []
+    pairs = _pairs_from_df(df)
+    ts = datetime.now(UTC)
+
+    direct_map = {
+        "USD/JPY": "USD/JPY",
+        "EUR/USD": "EUR/USD",
+        "GBP/USD": "GBP/USD",
+        "USD/CHF": "USD/CHF",
+        "USD/CAD": "USD/CAD",
+        "NZD/USD": "NZD/USD",
+        "EUR/GBP": "EUR/GBP",
+        "EUR/JPY": "EUR/JPY",
+    }
+    quotes: list[Quote] = []
+    for asset_id, sina_pair in direct_map.items():
+        if sina_pair in pairs:
+            quotes.append(Quote(asset_id, ts, pairs[sina_pair]))
+
+    # AUD/JPY = AUD/USD × USD/JPY  (units: AUD→USD then USD→JPY = AUD→JPY)
+    if "AUD/USD" in pairs and "USD/JPY" in pairs:
+        aud_jpy = pairs["AUD/USD"] * pairs["USD/JPY"]
+        quotes.append(Quote("AUD/JPY", ts, aud_jpy))
+
+    return quotes
+
+
+def _fetch_fx_em() -> list[Quote]:
+    """USD/CNH proxied by USD/CNY + 5 EM/Gulf pairs derived via CNY crosses.
+
+    Source: Sina fx_spot_quote (USD/CNY + CNY/X cross pairs).
+    """
     df = ak.fx_spot_quote()
     if df is None or df.empty:
-        return None
-    pair_col = next(
-        (c for c in df.columns if "对" in c or "pair" in c.lower()),
-        df.columns[0],
-    )
-    bid_col = next(
-        (c for c in df.columns if "买" in c or "bid" in c.lower()),
-        df.columns[1] if len(df.columns) > 1 else None,
-    )
-    ask_col = next(
-        (c for c in df.columns if "卖" in c or "ask" in c.lower()),
-        None,
-    )
-    if bid_col is None:
-        return None
-    matches = df[df[pair_col].astype(str).str.contains("USD/CNH", case=False, na=False)]
-    if matches.empty:
-        # AKShare sometimes labels it USDCNH (no slash).
-        matches = df[df[pair_col].astype(str).str.replace("/", "").str.upper() == "USDCNH"]
-    if matches.empty:
-        return None
-    row = matches.iloc[0]
-    bid = float(row[bid_col])
-    ask = float(row[ask_col]) if ask_col and not (row[ask_col] is None) else bid
-    mid = (bid + ask) / 2
-    return Quote(asset_id="USD/CNH", ts=datetime.now(UTC), price=Decimal(str(mid)))
+        return []
+    pairs = _pairs_from_df(df)
+    ts = datetime.now(UTC)
+    quotes: list[Quote] = []
+
+    usd_cny = pairs.get("USD/CNY")
+    if usd_cny is not None:
+        # USD/CNH and USD/CNY differ by <0.2%; accept as a proxy until we wire
+        # a true offshore source.
+        quotes.append(Quote("USD/CNH", ts, usd_cny))
+
+        # USD/<X> = USD/CNY × CNY/<X>
+        cny_crosses = {
+            "USD/SAR": "CNY/SAR",
+            "USD/AED": "CNY/AED",
+            "USD/KRW": "CNY/KRW",
+            "USD/TRY": "CNY/TRY",
+            "USD/ZAR": "CNY/ZAR",
+        }
+        for asset_id, cny_pair in cny_crosses.items():
+            cross = pairs.get(cny_pair)
+            if cross is not None:
+                quotes.append(Quote(asset_id, ts, usd_cny * cross))
+
+    return quotes
 
 
-FETCHERS: dict[str, Callable[[], Quote | None]] = {
-    "SHCOMP": _fetch_shcomp,
-    "HSI": _fetch_hsi,
-    "USD/CNH": _fetch_usdcnh,
+# ---------- producer registry --------------------------------------------
+
+PRODUCERS: dict[str, Producer] = {
+    "shcomp": _fetch_shcomp,
+    "hsi": _fetch_hsi,
+    "fx_majors": _fetch_fx_majors,
+    "fx_em": _fetch_fx_em,
 }
 
 
 # ---------- async orchestration ------------------------------------------
 
-async def _safe_fetch(name: str, fn: Callable[[], Quote | None]) -> Quote | None:
+async def _safe_produce(name: str, fn: Producer) -> list[Quote]:
     try:
         return await asyncio.to_thread(fn)
     except Exception as exc:
-        logger.warning("akshare.fetch_failed", asset=name, error=str(exc))
-        return None
+        logger.warning("akshare.producer_failed", producer=name, error=str(exc))
+        return []
 
 
 async def _write_quotes(quotes: list[Quote]) -> int:
@@ -129,15 +200,22 @@ async def _write_quotes(quotes: list[Quote]) -> int:
     return result.rowcount or 0
 
 
-async def tick() -> dict[str, bool]:
-    """Pull every fetcher once. Returns {asset_id: was_written}."""
-    results = await asyncio.gather(
-        *(_safe_fetch(name, fn) for name, fn in FETCHERS.items())
+async def tick() -> dict[str, list[str]]:
+    """Run every producer once. Returns {producer_name: [asset_ids written]}."""
+    per_producer = await asyncio.gather(
+        *(_safe_produce(name, fn) for name, fn in PRODUCERS.items())
     )
-    quotes = [q for q in results if q is not None]
-    written = await _write_quotes(quotes)
-    out = {name: False for name in FETCHERS}
-    for q in quotes:
-        out[q.asset_id] = True
-    logger.info("akshare.tick", quotes_fetched=len(quotes), rows_written=written)
+    all_quotes: list[Quote] = []
+    out: dict[str, list[str]] = {}
+    for (name, _), quotes in zip(PRODUCERS.items(), per_producer, strict=True):
+        out[name] = [q.asset_id for q in quotes]
+        all_quotes.extend(quotes)
+
+    written = await _write_quotes(all_quotes)
+    logger.info(
+        "akshare.tick",
+        producers=len(PRODUCERS),
+        quotes=len(all_quotes),
+        rows_written=written,
+    )
     return out
