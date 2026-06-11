@@ -14,6 +14,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from aether.ingestion import akshare_, rss
 from aether.pipeline import processor as pipeline_processor
+from aether.pipeline import watcher as pipeline_watcher
 
 
 logger = structlog.get_logger(__name__)
@@ -23,6 +24,7 @@ logger = structlog.get_logger(__name__)
 RSS_INTERVAL_MIN = 5
 AKSHARE_INTERVAL_S = 60
 PIPELINE_INTERVAL_S = 60
+WATCHER_INTERVAL_S = 60
 
 
 def _register_jobs(scheduler: AsyncIOScheduler) -> None:
@@ -49,6 +51,15 @@ def _register_jobs(scheduler: AsyncIOScheduler) -> None:
         trigger=IntervalTrigger(seconds=PIPELINE_INTERVAL_S),
         id="pipeline.process",
         name="Classify new raw_news (rules → LLM)",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    scheduler.add_job(
+        pipeline_watcher.tick,
+        trigger=IntervalTrigger(seconds=WATCHER_INTERVAL_S),
+        id="pipeline.watcher",
+        name="Score predictions whose window has elapsed",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
