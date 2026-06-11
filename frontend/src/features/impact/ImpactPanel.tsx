@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useAssetsStore } from "../../store/assets";
 import { useEventsStore } from "../../store/events";
+import { useOutcomesStore } from "../../store/outcomes";
 import { usePricesStore } from "../../store/prices";
 import type { Event, ImpactPrediction } from "../../types/api";
 
@@ -47,6 +48,7 @@ export function ImpactPanel() {
           {event.predictions.map((p) => (
             <ImpactRow
               key={p.asset_id}
+              eventId={event.id}
               prediction={p}
               baselinePrice={baseline?.priceByAsset[p.asset_id] ?? null}
             />
@@ -91,23 +93,37 @@ function EventHeader({ event }: { event: Event }) {
 }
 
 function ImpactRow({
+  eventId,
   prediction,
   baselinePrice,
 }: {
+  eventId: string;
   prediction: ImpactPrediction;
   baselinePrice: number | null;
 }) {
   const assets = useAssetsStore((s) => s.byId);
   const latest = usePricesStore((s) => s.latest[prediction.asset_id]);
+  const official = useOutcomesStore(
+    (s) => s.byKey[`${eventId}::${prediction.asset_id}`],
+  );
   const display = assets[prediction.asset_id]?.display_name ?? prediction.asset_id;
 
-  // Realised move: percentage change vs baseline; null if no data yet.
-  const actualPct =
-    baselinePrice != null && latest != null && baselinePrice !== 0
+  // OFFICIAL view (after window has elapsed and watcher scored it) takes
+  // priority over the LIVE diff we compute on the fly.
+  const useOfficial = official != null && official.actual_pct != null;
+
+  const actualPct = useOfficial
+    ? (official!.actual_pct as number)
+    : baselinePrice != null && latest != null && baselinePrice !== 0
       ? ((latest.price - baselinePrice) / baselinePrice) * 100
       : null;
 
-  const verdict = actualPct == null ? "pending" : verdictFor(prediction.direction, actualPct);
+  const verdict: Verdict =
+    useOfficial && official!.accuracy != null
+      ? (official!.accuracy as Verdict)
+      : actualPct == null
+        ? "pending"
+        : verdictFor(prediction.direction, actualPct);
 
   return (
     <li className="px-4 py-2.5">
@@ -130,9 +146,14 @@ function ImpactRow({
               {actualPct >= 0 ? "+" : ""}
               {actualPct.toFixed(2)}%
             </span>
-            <span className="text-muted">actual</span>
+            <span className="text-muted">{useOfficial ? "final" : "live"}</span>
             <span className={"ml-auto text-[10px] " + verdictColor(verdict)}>
               {verdict.toUpperCase()}
+              {useOfficial && (
+                <span className="ml-1 px-1 rounded bg-border/60 text-[9px] font-mono text-muted">
+                  OFFICIAL
+                </span>
+              )}
             </span>
           </>
         )}
@@ -159,7 +180,7 @@ function ExpectedGlyph({
   return <span className={`${color} ${size} font-mono`}>{arrow}</span>;
 }
 
-type Verdict = "hit" | "miss" | "flat" | "pending";
+type Verdict = "hit" | "miss" | "partial" | "flat" | "pending";
 
 function verdictFor(direction: ImpactPrediction["direction"], pct: number): Verdict {
   if (Math.abs(pct) < 0.05) return "flat";
@@ -170,13 +191,10 @@ function verdictFor(direction: ImpactPrediction["direction"], pct: number): Verd
 }
 
 function verdictColor(v: Verdict): string {
-  return v === "hit"
-    ? "text-ok"
-    : v === "miss"
-      ? "text-err"
-      : v === "flat"
-        ? "text-warn"
-        : "text-muted";
+  if (v === "hit") return "text-ok";
+  if (v === "miss") return "text-err";
+  if (v === "flat" || v === "partial") return "text-warn";
+  return "text-muted";
 }
 
 function pctColor(pct: number): string {

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { useAssetsStore } from "../store/assets";
 import { useEventsStore } from "../store/events";
+import { useOutcomesStore } from "../store/outcomes";
 import { usePricesStore } from "../store/prices";
 import { useUIStore } from "../store/ui";
 import { api } from "./api";
@@ -16,6 +17,7 @@ export function useBootstrap(): void {
   const upsertEvent = useEventsStore((s) => s.upsert);
   const setPricesInitial = usePricesStore((s) => s.setInitial);
   const applyPriceUpdates = usePricesStore((s) => s.applyUpdates);
+  const applyOutcomes = useOutcomesStore((s) => s.apply);
   const setConnected = useUIStore((s) => s.setConnected);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function useBootstrap(): void {
       });
 
     const ws = new WSClient({
-      channels: ["events", "prices"],
+      channels: ["events", "prices", "impacts"],
       onOpen: () => setConnected(true),
       onClose: () => setConnected(false),
       onMessage: (msg) => {
@@ -47,6 +49,8 @@ export function useBootstrap(): void {
           upsertEvent(msg.event);
         } else if (msg.type === "price.update") {
           applyPriceUpdates(msg.updates);
+        } else if (msg.type === "impact.outcome") {
+          applyOutcomes(msg.outcomes);
         }
       },
     });

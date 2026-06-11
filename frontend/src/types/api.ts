@@ -76,6 +76,24 @@ export interface WSPriceMessage {
   updates: PriceTick[];
 }
 
+export interface OutcomeOnWire {
+  prediction_id: number;
+  event_id: string;
+  asset_id: string;
+  predicted_direction: "up" | "down" | "neutral";
+  t0_price: string | null;
+  t1_price: string | null;
+  actual_pct: number | null;
+  actual_direction: "up" | "down" | "flat" | null;
+  accuracy: "hit" | "miss" | "partial" | null;
+}
+
+export interface WSImpactOutcomeMessage {
+  type: "impact.outcome";
+  event_id: string;
+  outcomes: OutcomeOnWire[];
+}
+
 export interface WSPongMessage {
   type: "pong";
   ts?: string;
@@ -91,5 +109,6 @@ export type WSServerMessage =
   | WSSubscribedMessage
   | WSEventMessage
   | WSPriceMessage
+  | WSImpactOutcomeMessage
   | WSPongMessage
   | WSErrorMessage;

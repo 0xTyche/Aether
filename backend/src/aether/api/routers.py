@@ -7,6 +7,8 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import selectinload
 
 from aether.api.schemas import (
+    AccuracyBucketDTO,
+    AccuracyStatsDTO,
     AssetDTO,
     EventDTO,
     ImpactPredictionDTO,
@@ -14,7 +16,7 @@ from aether.api.schemas import (
     RegionDTO,
 )
 from aether.models.assets import Asset
-from aether.models.events import Event, ImpactPrediction
+from aether.models.events import Event, ImpactOutcome, ImpactPrediction
 from aether.models.prices import Price
 from aether.models.regions import CountryEconomicMembership, EconomicRegion
 from aether.storage import db as db_module
@@ -140,3 +142,89 @@ async def latest_prices() -> list[PriceDTO]:
         PriceDTO(asset_id=r.asset_id, price=r.price, ts=r.ts, source=r.source)
         for r in result
     ]
+
+
+# ---------- stats -------------------------------------------------------
+
+def _bucket(key: str, rows: list[tuple]) -> AccuracyBucketDTO:
+    """Aggregate a list of (accuracy, count) tuples into one bucket DTO."""
+    counts = {a: c for a, c in rows}
+    hits = counts.get("hit", 0)
+    misses = counts.get("miss", 0)
+    partials = counts.get("partial", 0)
+    no_data = counts.get(None, 0)
+    scored = hits + misses + partials
+    total = scored + no_data
+    return AccuracyBucketDTO(
+        key=key,
+        total=total,
+        scored=scored,
+        hits=hits,
+        misses=misses,
+        partials=partials,
+        hit_rate=(hits / scored) if scored > 0 else None,
+    )
+
+
+@router.get("/stats/accuracy", response_model=AccuracyStatsDTO)
+async def accuracy_stats() -> AccuracyStatsDTO:
+    """Aggregate ImpactOutcome rows by classifier, severity, and rule_id."""
+    from sqlalchemy import text
+
+    async with db_module.session_scope() as session:
+        overall = (await session.execute(text(
+            "SELECT accuracy, COUNT(*) "
+            "FROM impact_outcomes "
+            "GROUP BY accuracy"
+        ))).all()
+        by_classifier = (await session.execute(text(
+            "SELECT e.classifier, o.accuracy, COUNT(*) "
+            "FROM impact_outcomes o "
+            "JOIN impact_predictions p ON p.id = o.prediction_id "
+            "JOIN events e ON e.id = p.event_id "
+            "GROUP BY e.classifier, o.accuracy"
+        ))).all()
+        by_severity = (await session.execute(text(
+            "SELECT e.severity, o.accuracy, COUNT(*) "
+            "FROM impact_outcomes o "
+            "JOIN impact_predictions p ON p.id = o.prediction_id "
+            "JOIN events e ON e.id = p.event_id "
+            "GROUP BY e.severity, o.accuracy"
+        ))).all()
+        by_rule = (await session.execute(text(
+            "SELECT e.rule_id, o.accuracy, COUNT(*) "
+            "FROM impact_outcomes o "
+            "JOIN impact_predictions p ON p.id = o.prediction_id "
+            "JOIN events e ON e.id = p.event_id "
+            "WHERE e.rule_id IS NOT NULL "
+            "GROUP BY e.rule_id, o.accuracy"
+        ))).all()
+
+    def grouped(rows: list[tuple]) -> dict[str, list[tuple]]:
+        out: dict[str, list[tuple]] = {}
+        for key, accuracy, count in rows:
+            out.setdefault(str(key), []).append((accuracy, count))
+        return out
+
+    overall_bucket = _bucket("overall", [(a, c) for a, c in overall])
+
+    classifier_groups = grouped(by_classifier)
+    classifier_buckets = [
+        _bucket(k, v) for k, v in sorted(classifier_groups.items())
+    ]
+    severity_groups = grouped(by_severity)
+    severity_buckets = [
+        _bucket(k, v) for k, v in sorted(severity_groups.items())
+    ]
+    rule_groups = grouped(by_rule)
+    rule_buckets = sorted(
+        (_bucket(k, v) for k, v in rule_groups.items()),
+        key=lambda b: -b.scored,
+    )
+
+    return AccuracyStatsDTO(
+        overall=overall_bucket,
+        by_classifier=classifier_buckets,
+        by_severity=severity_buckets,
+        by_rule=rule_buckets,
+    )

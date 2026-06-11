@@ -68,3 +68,23 @@ class EventDTO(BaseModel):
     occurred_at: datetime
     created_at: datetime
     predictions: list[ImpactPredictionDTO] = []
+
+
+class AccuracyBucketDTO(BaseModel):
+    """Aggregate accuracy stats for one slice of impact_outcomes."""
+
+    key: str
+    total: int
+    scored: int
+    hits: int
+    misses: int
+    partials: int
+    hit_rate: float | None  # hits / scored ; None if scored == 0
+
+
+class AccuracyStatsDTO(BaseModel):
+    overall: AccuracyBucketDTO
+    by_classifier: list[AccuracyBucketDTO]
+    by_severity: list[AccuracyBucketDTO]
+    by_rule: list[AccuracyBucketDTO]
+
