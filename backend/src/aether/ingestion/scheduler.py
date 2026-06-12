@@ -12,7 +12,7 @@ import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from aether.ingestion import akshare_, rss
+from aether.ingestion import akshare_, akshare_news, rss
 from aether.pipeline import processor as pipeline_processor
 from aether.pipeline import watcher as pipeline_watcher
 
@@ -23,6 +23,7 @@ logger = structlog.get_logger(__name__)
 # Default cadences chosen to be polite to upstream while staying responsive.
 RSS_INTERVAL_MIN = 5
 AKSHARE_INTERVAL_S = 60
+AKSHARE_NEWS_INTERVAL_S = 60
 PIPELINE_INTERVAL_S = 60
 WATCHER_INTERVAL_S = 60
 
@@ -42,6 +43,15 @@ def _register_jobs(scheduler: AsyncIOScheduler) -> None:
         trigger=IntervalTrigger(seconds=AKSHARE_INTERVAL_S),
         id="akshare.tick",
         name="AKShare polling (SHCOMP / HSI / FX)",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    scheduler.add_job(
+        akshare_news.tick,
+        trigger=IntervalTrigger(seconds=AKSHARE_NEWS_INTERVAL_S),
+        id="akshare.news.tick",
+        name="AKShare news pull (5 Chinese sources)",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
