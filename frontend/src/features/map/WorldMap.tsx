@@ -1,10 +1,12 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { ArcLayer, GeoJsonLayer } from "@deck.gl/layers";
+import { ArcLayer, GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type { FeatureCollection } from "geojson";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map as MapLibre, type MapRef } from "react-map-gl/maplibre";
 
+import { useAnimationPhase } from "../../lib/useAnimationPhase";
+import { useEventsInWindow } from "../../lib/useEventsInWindow";
 import { useAssetsStore } from "../../store/assets";
 import { useEventsStore } from "../../store/events";
 import { useUIStore } from "../../store/ui";
@@ -16,6 +18,12 @@ import {
   isoOf,
   type RGBA,
 } from "./countryStyle";
+import {
+  MARKER_COLOR,
+  markersFromEvents,
+  radiusFor,
+  type EventMarker,
+} from "./eventMarkers";
 import { loadCountryGeometry } from "./loadGeometry";
 
 const OPENFREEMAP_DARK = "https://tiles.openfreemap.org/styles/dark";
@@ -54,6 +62,18 @@ export function WorldMap() {
   const events = useEventsStore((s) => s.events);
   const selectEvent = useEventsStore((s) => s.select);
   const selectedEvent = events.find((e) => e.id === selectedId) ?? null;
+
+  const inWindow = useEventsInWindow();
+  const phase = useAnimationPhase();
+  const markers = useMemo(() => markersFromEvents(inWindow), [inWindow]);
+  const highMarkers = useMemo(
+    () => markers.filter((m) => m.severity === "high"),
+    [markers],
+  );
+  const nonHighMarkers = useMemo(
+    () => markers.filter((m) => m.severity !== "high"),
+    [markers],
+  );
 
   const assetsById = useAssetsStore((s) => s.byId);
   const regionsById = useAssetsStore((s) => s.regionsById);
@@ -126,6 +146,41 @@ export function WorldMap() {
           console.log("map.country_clicked", iso);
         },
       }),
+      // Static low/medium markers — no animation triggers, cheap to redraw.
+      nonHighMarkers.length > 0 &&
+        new ScatterplotLayer<EventMarker>({
+          id: "event-markers-static",
+          data: nonHighMarkers,
+          pickable: true,
+          stroked: true,
+          radiusUnits: "pixels",
+          lineWidthMinPixels: 1,
+          getPosition: (m) => [m.lng, m.lat],
+          getRadius: (m) => radiusFor(m, 0),
+          getFillColor: (m) => MARKER_COLOR[m.severity],
+          getLineColor: [255, 255, 255, 90],
+          onClick: (info) => {
+            if (info.object?.eventId) selectEvent(info.object.eventId);
+          },
+        }),
+      // High markers pulse — rebuilt every animation tick.
+      highMarkers.length > 0 &&
+        new ScatterplotLayer<EventMarker>({
+          id: "event-markers-pulse",
+          data: highMarkers,
+          pickable: true,
+          stroked: true,
+          radiusUnits: "pixels",
+          lineWidthMinPixels: 1,
+          getPosition: (m) => [m.lng, m.lat],
+          getRadius: (m) => radiusFor(m, phase),
+          getFillColor: (m) => MARKER_COLOR[m.severity],
+          getLineColor: [255, 255, 255, 110],
+          updateTriggers: { getRadius: [phase] },
+          onClick: (info) => {
+            if (info.object?.eventId) selectEvent(info.object.eventId);
+          },
+        }),
       arcs.length > 0 &&
         new ArcLayer({
           id: "event-arcs",
@@ -139,7 +194,10 @@ export function WorldMap() {
           greatCircle: true,
         }),
     ].filter(Boolean);
-  }, [geom, hovered, selectedEvent, highlightedISOs, arcs]);
+  }, [
+    geom, hovered, selectedEvent, highlightedISOs, arcs,
+    nonHighMarkers, highMarkers, phase, selectEvent,
+  ]);
 
   return (
     <div className="relative h-full w-full">
