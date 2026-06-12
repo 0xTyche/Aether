@@ -11,6 +11,7 @@ import { useAssetsStore } from "../../store/assets";
 import { useEventsStore } from "../../store/events";
 import { useUIStore } from "../../store/ui";
 import { DeckOverlay } from "./DeckOverlay";
+import { EventPopup } from "./EventPopup";
 import { buildArcsForEvent, type ArcDatum } from "./arcsForEvent";
 import {
   STROKE_COLOR,
@@ -210,6 +211,7 @@ export function WorldMap() {
       >
         <DeckOverlay layers={layers as never} interleaved />
       </MapLibre>
+      <EventPopup mapRef={mapRef} />
       {selectedEvent && (
         <button
           type="button"
