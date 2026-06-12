@@ -1,6 +1,7 @@
 import "./App.css";
 
 import { ImpactPanel } from "./features/impact/ImpactPanel";
+import { ResizeHandle } from "./features/layout/ResizeHandle";
 import { WorldMap } from "./features/map/WorldMap";
 import { NewsPanel } from "./features/news/NewsPanel";
 import { RegionChips } from "./features/regions/RegionChips";
@@ -28,13 +29,34 @@ function Header() {
 
 export default function App() {
   useBootstrap();
+
+  const leftWidth = useUIStore((s) => s.leftWidth);
+  const rightWidth = useUIStore((s) => s.rightWidth);
+  const setLeftWidth = useUIStore((s) => s.setLeftWidth);
+  const setRightWidth = useUIStore((s) => s.setRightWidth);
+
   return (
     <div className="h-full flex flex-col">
       <Header />
       <RegionChips />
-      <main className="flex-1 grid grid-cols-[320px_1fr_360px] min-h-0">
+      <main
+        className="flex-1 grid min-h-0"
+        style={{
+          gridTemplateColumns: `${leftWidth}px 4px 1fr 4px ${rightWidth}px`,
+        }}
+      >
         <NewsPanel />
+        <ResizeHandle
+          side="left"
+          ariaLabel="Resize news panel"
+          onDelta={(dx) => setLeftWidth(leftWidth + dx)}
+        />
         <WorldMap />
+        <ResizeHandle
+          side="right"
+          ariaLabel="Resize impact panel"
+          onDelta={(dx) => setRightWidth(rightWidth + dx)}
+        />
         <ImpactPanel />
       </main>
     </div>
