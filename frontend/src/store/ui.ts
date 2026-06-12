@@ -8,6 +8,9 @@ export const PANEL_MAX_WIDTH = 600;
 export const MAP_MIN_WIDTH = 400;
 const HANDLE_SLACK_PX = 8; // 2 × 4px resize handles take some grid space too
 
+/** Time window options in minutes for filtering events on map + news. */
+export const EVENT_WINDOW_OPTIONS: readonly number[] = [5, 30, 60, 240, 1440];
+
 interface UIState {
   connected: boolean;
   setConnected: (v: boolean) => void;
@@ -21,6 +24,9 @@ interface UIState {
   /** Returns the actually-applied value after clamping + map-min guard. */
   setLeftWidth: (w: number) => number;
   setRightWidth: (w: number) => number;
+
+  eventWindowMin: number;
+  setEventWindowMin: (m: number) => void;
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -36,12 +42,13 @@ function viewportWidth(): number {
  * Persist only the panel widths. Set / regions are intentionally session-
  * only — they reset on reload so the UI starts from a known clean state.
  */
-type Persisted = Pick<UIState, "leftWidth" | "rightWidth">;
+type Persisted = Pick<UIState, "leftWidth" | "rightWidth" | "eventWindowMin">;
 const persistOpts: PersistOptions<UIState, Persisted> = {
   name: "aether:panels",
   partialize: (state) => ({
     leftWidth: state.leftWidth,
     rightWidth: state.rightWidth,
+    eventWindowMin: state.eventWindowMin,
   }),
   version: 1,
 };
@@ -83,6 +90,13 @@ export const useUIStore = create<UIState>()(
         set({ rightWidth: clamped });
         return clamped;
       },
+
+      eventWindowMin: 60,
+      setEventWindowMin: (m) =>
+        set(() => {
+          const allowed = EVENT_WINDOW_OPTIONS.includes(m) ? m : 60;
+          return { eventWindowMin: allowed };
+        }),
     }),
     persistOpts,
   ),

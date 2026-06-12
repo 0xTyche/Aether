@@ -2,6 +2,7 @@ import "./App.css";
 
 import { ImpactPanel } from "./features/impact/ImpactPanel";
 import { ResizeHandle } from "./features/layout/ResizeHandle";
+import { TimeWindowChips } from "./features/layout/TimeWindowChips";
 import { WorldMap } from "./features/map/WorldMap";
 import { NewsPanel } from "./features/news/NewsPanel";
 import { RegionChips } from "./features/regions/RegionChips";
@@ -38,7 +39,14 @@ export default function App() {
   return (
     <div className="h-full flex flex-col">
       <Header />
-      <RegionChips />
+      <nav
+        aria-label="Dashboard controls"
+        className="flex items-center gap-6 px-4 py-2 border-b border-border bg-panel/40 overflow-x-auto"
+      >
+        <TimeWindowChips />
+        <span className="h-4 w-px bg-border" />
+        <RegionChips />
+      </nav>
       <main
         className="flex-1 grid min-h-0"
         style={{

@@ -1,9 +1,10 @@
+import { useEventsInWindow } from "../../lib/useEventsInWindow";
 import { useEventsStore } from "../../store/events";
 import type { Event } from "../../types/api";
 
 /** Left column — newest events first; click to select. */
 export function NewsPanel() {
-  const events = useEventsStore((s) => s.events);
+  const events = useEventsInWindow();
   const selectedId = useEventsStore((s) => s.selectedId);
   const select = useEventsStore((s) => s.select);
 
