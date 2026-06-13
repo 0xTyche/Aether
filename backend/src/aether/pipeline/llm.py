@@ -25,6 +25,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from aether.config import get_settings
+from aether.pipeline.prompts import SYSTEM_ZH
 from aether.storage import redis_ as r
 
 
@@ -35,34 +36,11 @@ Direction = Literal["up", "down", "neutral"]
 Magnitude = Literal["small", "medium", "large"]
 
 RATE_LIMIT_KEY_PREFIX = "rate:llm:"
-SYSTEM_PROMPT_HEADER = """\
-You are a macro-markets impact analyst. Given one news item, output ONE JSON
-object (no surrounding text). Schema:
 
-{
-  "is_market_relevant": bool,
-  "severity": "low" | "medium" | "high",
-  "origin_country_iso2": "<ISO 3166-1 alpha-2 or null>",
-  "explanation": "<one-sentence reason this matters>",
-  "affected_regions": ["<region id from the list, ...>"],
-  "impacts": [
-    {
-      "asset_id": "<one of the asset ids below>",
-      "direction": "up" | "down" | "neutral",
-      "magnitude": "small" | "medium" | "large",
-      "confidence": 0.0-1.0,
-      "rationale": "<one short clause>"
-    }
-  ]
-}
-
-Rules:
-- impacts: maximum 8 most-relevant assets; empty list if not market-relevant.
-- Only use asset_ids and region ids from the lists below.
-- If the news is irrelevant to macro markets (sports, local crime, ...),
-  set is_market_relevant=false and impacts=[].
-- Do NOT invent asset_ids or region ids.
-"""
+# The system prompt lives in `aether/pipeline/prompts/system_zh.md` so it
+# can be iterated on without changing Python. Dynamic asset_ids and
+# region_ids are appended at runtime by `build_system_prompt`.
+SYSTEM_PROMPT_HEADER = SYSTEM_ZH
 
 
 class LLMImpact(BaseModel):
@@ -177,7 +155,7 @@ async def analyze_news(
             messages=messages,
             response_format={"type": "json_object"},
             temperature=0.1,
-            max_tokens=1500,
+            max_tokens=2000,
         )
     except Exception as exc:
         logger.exception("llm.api_failed", error=str(exc))
@@ -204,7 +182,7 @@ async def analyze_news(
             messages=messages_retry,
             response_format={"type": "json_object"},
             temperature=0.0,
-            max_tokens=1500,
+            max_tokens=2000,
         )
     except Exception as exc:
         logger.exception("llm.retry_failed", error=str(exc))

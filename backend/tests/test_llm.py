@@ -18,8 +18,9 @@ def test_build_system_prompt_deterministic_and_includes_lists():
         asset_ids=["BTC", "USD/JPY", "AAPL"],
         region_ids=["g7", "eurozone"],
     )
-    # Header present
-    assert "macro-markets impact analyst" in prompt
+    # Header is the externally-edited Chinese system prompt.
+    assert "对冲基金分析师" in prompt
+    assert "is_market_relevant" in prompt
     # Assets/regions sorted alphabetically and included verbatim
     assert "AAPL, BTC, USD/JPY" in prompt
     assert "eurozone, g7" in prompt
