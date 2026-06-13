@@ -98,8 +98,9 @@ COMMODITIES: list[AssetSpec] = [
     {"id": "SOYBEAN", "asset_class": "commodity", "display_name": "Soybean"},
 ]
 
-# ---------- Crypto (8) — Binance WebSocket --------------------------------
+# ---------- Crypto (16) — Binance WebSocket -------------------------------
 CRYPTO: list[AssetSpec] = [
+    # Existing core 8
     {"id": "BTC",     "asset_class": "crypto", "display_name": "Bitcoin",  "binance_symbol": "BTCUSDT"},
     {"id": "ETH",     "asset_class": "crypto", "display_name": "Ethereum", "binance_symbol": "ETHUSDT"},
     {"id": "BNB",     "asset_class": "crypto", "display_name": "BNB",      "binance_symbol": "BNBUSDT"},
@@ -108,20 +109,120 @@ CRYPTO: list[AssetSpec] = [
     {"id": "USDT/USD","asset_class": "crypto", "display_name": "USDT peg", "binance_symbol": "USDCUSDT"},
     {"id": "ETH/BTC", "asset_class": "crypto", "display_name": "ETH/BTC ratio", "binance_symbol": "ETHBTC"},
     {"id": "BTC.D",   "asset_class": "crypto", "display_name": "BTC dominance"},
+    # Expansion +8 (by market cap, top ten alts as of 2026)
+    {"id": "ADA",     "asset_class": "crypto", "display_name": "Cardano",  "binance_symbol": "ADAUSDT"},
+    {"id": "DOGE",    "asset_class": "crypto", "display_name": "Dogecoin", "binance_symbol": "DOGEUSDT"},
+    {"id": "AVAX",    "asset_class": "crypto", "display_name": "Avalanche","binance_symbol": "AVAXUSDT"},
+    {"id": "DOT",     "asset_class": "crypto", "display_name": "Polkadot", "binance_symbol": "DOTUSDT"},
+    {"id": "LINK",    "asset_class": "crypto", "display_name": "Chainlink","binance_symbol": "LINKUSDT"},
+    {"id": "POL",     "asset_class": "crypto", "display_name": "Polygon (POL)", "binance_symbol": "POLUSDT"},
+    {"id": "TRX",     "asset_class": "crypto", "display_name": "TRON",     "binance_symbol": "TRXUSDT"},
+    {"id": "SHIB",    "asset_class": "crypto", "display_name": "Shiba Inu","binance_symbol": "SHIBUSDT"},
 ]
 
-# ---------- US equities (10) ----------------------------------------------
+# ---------- US equities (70) ----------------------------------------------
+# All Alpaca-verified reachable. ETFs and individual stocks live together
+# in the equity class so the Alpaca WS subscriber picks them up uniformly.
 US_EQUITIES: list[AssetSpec] = [
-    {"id": "SPY",  "asset_class": "equity", "display_name": "SPDR S&P 500 ETF",   "country_iso": "US"},
-    {"id": "QQQ",  "asset_class": "equity", "display_name": "Invesco QQQ",        "country_iso": "US"},
-    {"id": "AAPL", "asset_class": "equity", "display_name": "Apple",              "country_iso": "US"},
-    {"id": "MSFT", "asset_class": "equity", "display_name": "Microsoft",          "country_iso": "US"},
-    {"id": "NVDA", "asset_class": "equity", "display_name": "NVIDIA",             "country_iso": "US"},
-    {"id": "TSLA", "asset_class": "equity", "display_name": "Tesla",              "country_iso": "US"},
-    {"id": "JPM",  "asset_class": "equity", "display_name": "JPMorgan Chase",     "country_iso": "US"},
-    {"id": "XOM",  "asset_class": "equity", "display_name": "Exxon Mobil",        "country_iso": "US"},
-    {"id": "GLD",  "asset_class": "equity", "display_name": "SPDR Gold Shares",   "country_iso": "US"},
-    {"id": "TLT",  "asset_class": "equity", "display_name": "iShares 20+ Year Treasury", "country_iso": "US"},
+    # Mega-cap tech (10)
+    {"id": "AAPL",  "asset_class": "equity", "display_name": "Apple",          "country_iso": "US"},
+    {"id": "MSFT",  "asset_class": "equity", "display_name": "Microsoft",      "country_iso": "US"},
+    {"id": "NVDA",  "asset_class": "equity", "display_name": "NVIDIA",         "country_iso": "US"},
+    {"id": "GOOGL", "asset_class": "equity", "display_name": "Alphabet",       "country_iso": "US"},
+    {"id": "META",  "asset_class": "equity", "display_name": "Meta Platforms", "country_iso": "US"},
+    {"id": "AMZN",  "asset_class": "equity", "display_name": "Amazon",         "country_iso": "US"},
+    {"id": "TSLA",  "asset_class": "equity", "display_name": "Tesla",          "country_iso": "US"},
+    {"id": "NFLX",  "asset_class": "equity", "display_name": "Netflix",        "country_iso": "US"},
+    {"id": "AVGO",  "asset_class": "equity", "display_name": "Broadcom",       "country_iso": "US"},
+    {"id": "ORCL",  "asset_class": "equity", "display_name": "Oracle",         "country_iso": "US"},
+
+    # Semis + hardware (4)
+    {"id": "AMD",   "asset_class": "equity", "display_name": "AMD",                          "country_iso": "US"},
+    {"id": "INTC",  "asset_class": "equity", "display_name": "Intel",                        "country_iso": "US"},
+    {"id": "TSM",   "asset_class": "equity", "display_name": "TSMC (ADR)",                   "country_iso": "US"},
+    {"id": "MU",    "asset_class": "equity", "display_name": "Micron",                       "country_iso": "US"},
+
+    # AI / hot 2024-26 names (4)
+    {"id": "PLTR",  "asset_class": "equity", "display_name": "Palantir",                     "country_iso": "US"},
+    {"id": "ARM",   "asset_class": "equity", "display_name": "Arm Holdings",                 "country_iso": "US"},
+    {"id": "SMCI",  "asset_class": "equity", "display_name": "Super Micro Computer",         "country_iso": "US"},
+    {"id": "ANET",  "asset_class": "equity", "display_name": "Arista Networks",              "country_iso": "US"},
+
+    # Software / cloud (4)
+    {"id": "CRM",   "asset_class": "equity", "display_name": "Salesforce",                   "country_iso": "US"},
+    {"id": "ADBE",  "asset_class": "equity", "display_name": "Adobe",                        "country_iso": "US"},
+    {"id": "NOW",   "asset_class": "equity", "display_name": "ServiceNow",                   "country_iso": "US"},
+    {"id": "CRWD",  "asset_class": "equity", "display_name": "CrowdStrike",                  "country_iso": "US"},
+
+    # Banks & finance (5)
+    {"id": "JPM",   "asset_class": "equity", "display_name": "JPMorgan Chase",               "country_iso": "US"},
+    {"id": "BAC",   "asset_class": "equity", "display_name": "Bank of America",              "country_iso": "US"},
+    {"id": "GS",    "asset_class": "equity", "display_name": "Goldman Sachs",                "country_iso": "US"},
+    {"id": "MS",    "asset_class": "equity", "display_name": "Morgan Stanley",               "country_iso": "US"},
+    {"id": "WFC",   "asset_class": "equity", "display_name": "Wells Fargo",                  "country_iso": "US"},
+    {"id": "C",     "asset_class": "equity", "display_name": "Citigroup",                    "country_iso": "US"},
+
+    # Conglomerate + payments (4)
+    {"id": "BRK.B", "asset_class": "equity", "display_name": "Berkshire Hathaway B",         "country_iso": "US"},
+    {"id": "V",     "asset_class": "equity", "display_name": "Visa",                         "country_iso": "US"},
+    {"id": "MA",    "asset_class": "equity", "display_name": "Mastercard",                   "country_iso": "US"},
+    {"id": "AXP",   "asset_class": "equity", "display_name": "American Express",             "country_iso": "US"},
+    {"id": "BLK",   "asset_class": "equity", "display_name": "BlackRock",                    "country_iso": "US"},
+
+    # Energy (5)
+    {"id": "XOM",   "asset_class": "equity", "display_name": "Exxon Mobil",                  "country_iso": "US"},
+    {"id": "CVX",   "asset_class": "equity", "display_name": "Chevron",                      "country_iso": "US"},
+    {"id": "COP",   "asset_class": "equity", "display_name": "ConocoPhillips",               "country_iso": "US"},
+    {"id": "SLB",   "asset_class": "equity", "display_name": "Schlumberger",                 "country_iso": "US"},
+    {"id": "OXY",   "asset_class": "equity", "display_name": "Occidental Petroleum",         "country_iso": "US"},
+
+    # Healthcare & pharma (6)
+    {"id": "JNJ",   "asset_class": "equity", "display_name": "Johnson & Johnson",            "country_iso": "US"},
+    {"id": "UNH",   "asset_class": "equity", "display_name": "UnitedHealth",                 "country_iso": "US"},
+    {"id": "LLY",   "asset_class": "equity", "display_name": "Eli Lilly",                    "country_iso": "US"},
+    {"id": "PFE",   "asset_class": "equity", "display_name": "Pfizer",                       "country_iso": "US"},
+    {"id": "MRK",   "asset_class": "equity", "display_name": "Merck",                        "country_iso": "US"},
+    {"id": "ABBV",  "asset_class": "equity", "display_name": "AbbVie",                       "country_iso": "US"},
+
+    # Consumer staples (4)
+    {"id": "WMT",   "asset_class": "equity", "display_name": "Walmart",                      "country_iso": "US"},
+    {"id": "COST",  "asset_class": "equity", "display_name": "Costco",                       "country_iso": "US"},
+    {"id": "KO",    "asset_class": "equity", "display_name": "Coca-Cola",                    "country_iso": "US"},
+    {"id": "PEP",   "asset_class": "equity", "display_name": "PepsiCo",                      "country_iso": "US"},
+
+    # Consumer discretionary (4)
+    {"id": "MCD",   "asset_class": "equity", "display_name": "McDonald's",                   "country_iso": "US"},
+    {"id": "NKE",   "asset_class": "equity", "display_name": "Nike",                         "country_iso": "US"},
+    {"id": "HD",    "asset_class": "equity", "display_name": "Home Depot",                   "country_iso": "US"},
+    {"id": "DIS",   "asset_class": "equity", "display_name": "Walt Disney",                  "country_iso": "US"},
+
+    # Industrial (4)
+    {"id": "CAT",   "asset_class": "equity", "display_name": "Caterpillar",                  "country_iso": "US"},
+    {"id": "BA",    "asset_class": "equity", "display_name": "Boeing",                       "country_iso": "US"},
+    {"id": "GE",    "asset_class": "equity", "display_name": "General Electric",             "country_iso": "US"},
+    {"id": "DE",    "asset_class": "equity", "display_name": "John Deere",                   "country_iso": "US"},
+
+    # Crypto-correlated (2)
+    {"id": "COIN",  "asset_class": "equity", "display_name": "Coinbase",                     "country_iso": "US"},
+    {"id": "MSTR",  "asset_class": "equity", "display_name": "MicroStrategy",                "country_iso": "US"},
+
+    # ETFs — broad market (6)
+    {"id": "SPY",   "asset_class": "equity", "display_name": "SPDR S&P 500 ETF",             "country_iso": "US"},
+    {"id": "QQQ",   "asset_class": "equity", "display_name": "Invesco QQQ",                  "country_iso": "US"},
+    {"id": "DIA",   "asset_class": "equity", "display_name": "SPDR Dow Jones ETF",           "country_iso": "US"},
+    {"id": "IWM",   "asset_class": "equity", "display_name": "iShares Russell 2000",         "country_iso": "US"},
+    {"id": "VTI",   "asset_class": "equity", "display_name": "Vanguard Total Stock Market",  "country_iso": "US"},
+    {"id": "EEM",   "asset_class": "equity", "display_name": "iShares MSCI EM",              "country_iso": "US"},
+
+    # ETFs — sector + thematic (5)
+    {"id": "XLF",   "asset_class": "equity", "display_name": "Financial Sector ETF",         "country_iso": "US"},
+    {"id": "XLE",   "asset_class": "equity", "display_name": "Energy Sector ETF",            "country_iso": "US"},
+    {"id": "XLK",   "asset_class": "equity", "display_name": "Technology Sector ETF",        "country_iso": "US"},
+    {"id": "ARKK",  "asset_class": "equity", "display_name": "ARK Innovation ETF",           "country_iso": "US"},
+    {"id": "GLD",   "asset_class": "equity", "display_name": "SPDR Gold Shares",             "country_iso": "US"},
+
+    # ETFs — bond (1)
+    {"id": "TLT",   "asset_class": "equity", "display_name": "iShares 20+ Year Treasury",    "country_iso": "US"},
 ]
 
 # ---------- Central bank policy rates (14) --------------------------------

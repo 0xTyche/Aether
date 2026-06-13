@@ -23,20 +23,20 @@ async def assets_seeded(session: AsyncSession) -> None:
 
 @pytest.mark.usefixtures("assets_seeded")
 class TestAssetsSeed:
-    async def test_total_count_is_75(self, session: AsyncSession) -> None:
+    async def test_total_count_matches_spec(self, session: AsyncSession) -> None:
         total = await session.scalar(select(func.count()).select_from(Asset))
-        assert total == 75
+        assert total == 143
         assert total == len(ALL_ASSETS)
 
     @pytest.mark.parametrize(
         ("asset_class", "expected"),
         [
-            ("fx", 20),  # 10 majors + 5 gulf + 5 EM
+            ("fx", 20),           # 10 majors + 5 gulf + 5 EM
             ("rate", 14),
-            ("equity", 10),
+            ("equity", 70),       # 53 stocks + 17 ETFs/funds
             ("equity_index", 10),
             ("commodity", 8),
-            ("crypto", 8),
+            ("crypto", 16),       # 8 core + 8 expansion
             ("bond", 5),
         ],
     )
@@ -56,7 +56,8 @@ class TestAssetsSeed:
 
     @pytest.mark.parametrize(
         "asset_id",
-        ["BTC", "ETH", "BNB", "SOL", "XRP", "USDT/USD", "ETH/BTC"],
+        ["BTC", "ETH", "BNB", "SOL", "XRP", "USDT/USD", "ETH/BTC",
+         "ADA", "DOGE", "AVAX", "DOT", "LINK", "POL", "TRX", "SHIB"],
     )
     async def test_crypto_has_binance_symbol(
         self, session: AsyncSession, asset_id: str
@@ -78,5 +79,5 @@ class TestAssetsSeed:
         n1 = await seed_assets(session)
         n2 = await seed_assets(session)
         total = await session.scalar(select(func.count()).select_from(Asset))
-        assert n1 == n2 == 75
-        assert total == 75
+        assert n1 == n2 == 143
+        assert total == 143

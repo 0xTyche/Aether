@@ -43,15 +43,15 @@ async def client(app_state_clean):
 
 # ---------- /api/assets -------------------------------------------------
 
-async def test_assets_returns_seeded_75(client):
+async def test_assets_returns_seeded_set(client):
     res = await client.get("/api/assets")
     assert res.status_code == 200
     data = res.json()
-    assert len(data) == 75
+    assert len(data) == 143
     # Sanity check on shape via Pydantic.
     AssetDTO.model_validate(data[0])
     ids = {a["id"] for a in data}
-    assert {"BTC", "USD/JPY", "SPX", "GOLD"}.issubset(ids)
+    assert {"BTC", "USD/JPY", "SPX", "GOLD", "GOOGL", "ADA"}.issubset(ids)
 
 
 async def test_assets_have_expected_classes(client):
@@ -60,7 +60,8 @@ async def test_assets_have_expected_classes(client):
     for a in res.json():
         by_class[a["asset_class"]] = by_class.get(a["asset_class"], 0) + 1
     assert by_class["fx"] == 20
-    assert by_class["crypto"] == 8
+    assert by_class["crypto"] == 16
+    assert by_class["equity"] == 70
     assert by_class["rate"] == 14
 
 

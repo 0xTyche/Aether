@@ -128,9 +128,9 @@ async def test_consume_session_runs_auth_subscribe_then_pumps():
 @pytest.mark.usefixtures("assets_clean")
 async def test_load_symbols_returns_only_us_equities():
     symbols = await alpaca._load_symbols()
-    # Seed contains 10 US equities — see scripts/seed_assets.py.
-    assert len(symbols) == 10
-    for must in ("AAPL", "MSFT", "NVDA", "TSLA", "SPY"):
+    # Seed contains 70 US equities (stocks + ETFs); see scripts/seed_assets.py.
+    assert len(symbols) == 70
+    for must in ("AAPL", "MSFT", "NVDA", "TSLA", "SPY", "GOOGL", "BRK.B", "COIN"):
         assert must in symbols
 
 
