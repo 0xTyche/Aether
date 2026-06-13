@@ -13,6 +13,7 @@ function ev(id: string, lat: number | null, lng: number | null, sev: "high" | "m
     id, classifier: "rule", rule_id: "test", severity: sev,
     origin_country: "JP", origin_lat: lat, origin_lng: lng,
     affected_regions: ["g7"], title: id, explanation: null,
+    analysis: null,
     occurred_at: "2026-06-12T12:00:00Z", created_at: "2026-06-12T12:00:00Z",
     predictions: [],
   };

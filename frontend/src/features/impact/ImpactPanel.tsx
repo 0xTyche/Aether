@@ -5,6 +5,7 @@ import { useEventsStore } from "../../store/events";
 import { useOutcomesStore } from "../../store/outcomes";
 import { usePricesStore } from "../../store/prices";
 import type { Event, ImpactPrediction } from "../../types/api";
+import { DeepAnalysis } from "./DeepAnalysis";
 
 /**
  * Right column — for the selected event, render each predicted impact
@@ -43,6 +44,7 @@ export function ImpactPanel() {
         </div>
       )}
       {event && <EventHeader event={event} />}
+      {event && <DeepAnalysis analysis={event.analysis} />}
       {event && (
         <ul className="divide-y divide-border">
           {event.predictions.map((p) => (

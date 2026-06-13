@@ -19,6 +19,7 @@ function makeEvent(id: string, occurredAt: Date, severity: "high" | "medium" | "
     affected_regions: ["g7"],
     title: `Event ${id}`,
     explanation: null,
+    analysis: null,
     occurred_at: occurredAt.toISOString(),
     created_at: occurredAt.toISOString(),
     predictions: [],

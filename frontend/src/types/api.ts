@@ -28,6 +28,16 @@ export interface ImpactPrediction {
   timeframe_min: number;
 }
 
+export interface EventClassification {
+  primary_category: string;
+  shock_nature: string[];
+}
+
+export interface EventAnalysis {
+  classification?: EventClassification;
+  transmission_chain?: string[];
+}
+
 export interface Event {
   id: string;
   classifier: "rule" | "llm";
@@ -39,6 +49,8 @@ export interface Event {
   affected_regions: string[] | null;
   title: string;
   explanation: string | null;
+  /** Richer LLM reasoning. null for rule-engine events. */
+  analysis: EventAnalysis | null;
   occurred_at: string;
   created_at: string;
   predictions: ImpactPrediction[];
