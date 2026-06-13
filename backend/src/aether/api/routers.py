@@ -81,6 +81,7 @@ def _to_event_dto(event: Event) -> EventDTO:
         affected_regions=event.affected_regions,
         title=event.title,
         explanation=event.explanation,
+        analysis=event.analysis,
         occurred_at=event.occurred_at,
         created_at=event.created_at,
         predictions=[

@@ -51,6 +51,18 @@ def _build_event_from_rule(news: RawNews, rule: Rule) -> Event:
 
 
 def _build_event_from_llm(news: RawNews, analysis: llm.LLMAnalysis) -> Event:
+    # Persist the richer LLM reasoning into events.analysis so the frontend
+    # can surface it in the collapsible "deep analysis" panel.
+    extra: dict = {}
+    if analysis.classification is not None:
+        cls = analysis.classification
+        extra["classification"] = {
+            "primary_category": cls.primary_category,
+            "shock_nature": list(cls.shock_nature),
+        }
+    if analysis.transmission_chain:
+        extra["transmission_chain"] = list(analysis.transmission_chain)
+
     return Event(
         raw_news_id=news.id,
         rule_id=None,
@@ -63,6 +75,7 @@ def _build_event_from_llm(news: RawNews, analysis: llm.LLMAnalysis) -> Event:
         affected_regions=list(analysis.affected_regions) or None,
         title=news.title,
         explanation=analysis.explanation,
+        analysis=extra or None,
         occurred_at=news.published_at or datetime.now(UTC),
     )
 
@@ -117,6 +130,7 @@ def _serialize_for_pubsub(event: Event, predictions: list[ImpactPrediction]) -> 
         "affected_regions": event.affected_regions or [],
         "title": event.title,
         "explanation": event.explanation,
+        "analysis": event.analysis,
         "occurred_at": event.occurred_at.isoformat(),
         "predictions": [
             {

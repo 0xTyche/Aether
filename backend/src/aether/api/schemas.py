@@ -65,6 +65,7 @@ class EventDTO(BaseModel):
     affected_regions: list[str] | None
     title: str
     explanation: str | None
+    analysis: dict | None = None
     occurred_at: datetime
     created_at: datetime
     predictions: list[ImpactPredictionDTO] = []

@@ -52,6 +52,12 @@ class LLMImpact(BaseModel):
     rationale: str = ""
 
 
+class LLMClassification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    primary_category: str = ""
+    shock_nature: list[str] = Field(default_factory=list)
+
+
 class LLMAnalysis(BaseModel):
     model_config = ConfigDict(extra="ignore")
     is_market_relevant: bool
@@ -59,6 +65,11 @@ class LLMAnalysis(BaseModel):
     origin_country_iso2: str | None = None
     explanation: str = ""
     affected_regions: list[str] = Field(default_factory=list)
+    # Richer reasoning surfaced to the UI's "deep analysis" panel. Both
+    # fields are populated only when is_market_relevant=true; the
+    # rule-engine path leaves them None / empty.
+    classification: LLMClassification | None = None
+    transmission_chain: list[str] = Field(default_factory=list)
     impacts: list[LLMImpact] = Field(default_factory=list)
 
 

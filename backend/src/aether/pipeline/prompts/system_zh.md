@@ -84,6 +84,17 @@
   "origin_country_iso2": "<ISO 3166-1 alpha-2 大写，或 null>",
   "explanation": "<1-2 句话：核心判断 + 关键传导链一句话>",
   "affected_regions": ["<region id, 0-N 个>"],
+  "classification": {
+    "primary_category": "<7 大类之一的中文短名，如 '宏观经济与政策类'、'地缘政治类'、'行业与供应链类'>",
+    "shock_nature": ["<供给侧/风险溢价/折现率估值/特质性/流动性机制 中的 1-3 个>"]
+  },
+  "transmission_chain": [
+    "<起点：本次事件，1 句话>",
+    "<中间环节 1>",
+    "<中间环节 2>",
+    "...",
+    "<终点：资产价格如何反应>"
+  ],
   "impacts": [
     {
       "asset_id": "<必须从下方 asset_ids 列表选>",
@@ -95,6 +106,8 @@
   ]
 }
 ```
+
+`classification` 与 `transmission_chain` 当且仅当 `is_market_relevant=true` 时必填；为 false 时两者可省略或留空对象 / 空数组。`transmission_chain` 约 **3-6 步**，每步一句话，连起来读完即是完整故事链 —— 这是前端会展开给用户看的字段，请把每一步写得自然、自洽。
 
 # 字段语义
 
