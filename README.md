@@ -7,6 +7,8 @@ A real-time map of how macro events move global markets.
 When a central bank moves, a geopolitical event breaks, or economic data prints,
 Aether visualizes which assets are affected, where, and by how much — within seconds.
 
+![Aether dashboard — Stage 2 (LLM prompt enhanced)](docs/images/stage2-panel-20260614-updateLLMprompt.png)
+
 ## Requirements
 
 - Linux (Ubuntu 22.04 LTS or similar)
