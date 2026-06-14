@@ -12,6 +12,7 @@ import { useEventsStore } from "../../store/events";
 import { useUIStore } from "../../store/ui";
 import { DeckOverlay } from "./DeckOverlay";
 import { EventPopup } from "./EventPopup";
+import { LandmarkMarkers } from "./LandmarkMarkers";
 import { buildArcsForEvent, type ArcDatum } from "./arcsForEvent";
 import {
   STROKE_COLOR,
@@ -210,6 +211,7 @@ export function WorldMap() {
         style={{ width: "100%", height: "100%" }}
       >
         <DeckOverlay layers={layers as never} interleaved />
+        <LandmarkMarkers />
       </MapLibre>
       <EventPopup mapRef={mapRef} />
       {selectedEvent && (
