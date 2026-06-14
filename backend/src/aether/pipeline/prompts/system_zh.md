@@ -34,6 +34,36 @@
 - 强平去杠杆 → 拥挤头寸踩踏
 - 网络攻击 → 运营中断 + 安全板块受益
 
+## 美股专项次生链（factor-aware）
+
+下列示例链给出常见传导思路与已 seed 的关联标的，便于回忆。**不要照搬，按事件真实情境组合**。
+
+- 通胀超预期 / Fed 转鹰 → 实际利率↑ → TLT↓ / IWM↓ / ARKK↓ / 高估值 SaaS（CRM/NOW/ADBE）承压；银行净息差受益（JPM/BAC/WFC/XLF）；GLD 取决于实际 vs 名义利率
+- Fed 转鸽 / 降息预期升温 → 利率敏感反向：IWM/ARKK/QQQ 弹性最强；TLT↑；高股息防御（KO/PEP/JNJ）相对滞涨
+- 半导体出口管制 / AI 供应链事件 → NVDA/AMD（设计）+ TSM ADR（代工）+ SMCI/ANET（服务器网络）+ ARM（IP）+ MU（存储）+ AVGO + XLK 板块代理
+- 油价跳升（OPEC+ 减产 / 中东 / 海运通道阻断）→ XOM/CVX/COP/SLB/OXY 受益 + XLE 板块代理；消费承压（NKE/MCD/WMT/HD）；通胀预期↑ 二次压利率敏感股
+- 银行 / 区域行流动性事件 → XLF 内大行（JPM/BAC/GS/MS）与中小行分化，大行受益避险存款流入；C/WFC 通常受损；BLK 资管避险受益
+- 关税 / 中美贸易冲突升级 → AAPL/NKE（供应链曝险）+ TSLA（中国销量）+ TSM/AMD/NVDA（间接限制）+ EEM 新兴市场承压；DXY↑ 二次压跨国大企盈利
+- 强势美元周期（DXY↑）→ AAPL/MSFT/GOOGL/META（海外营收 >50%）盈利逆风；XLF 国内行偏受益；EEM 承压
+- 加密大波动 → COIN（交易量 + 监管曝险）与 MSTR（≈2× BTC beta，持币杠杆代理）必同向，弹性大于 BTC 本身
+- 大型科技季报（NVDA/AAPL/MSFT）超预期 → XLK/QQQ 板块联动 + 供应链溢出（NVDA → AVGO/AMD/TSM/SMCI/ANET）；不及预期反向且更猛
+- 医保 / 药价政策 → UNH/LLY/PFE/MRK/ABBV/JNJ 分化（健康保险 vs 制药方向往往相反）
+
+## 加密专项次生链（macro-aware + 内部结构）
+
+加密市场同时受 **宏观流动性** 与 **币圈内部结构（majors/alts 轮动、稳定币流动性、杠杆清算、监管）** 双重驱动，传导需两条线并行考虑。
+
+- 现货 BTC ETF 资金流入激增 → BTC↑ → ETH 滞后跟涨 → SOL/AVAX/ADA/DOT 等 L1 alts 接力 → BTC.D 阶段下行（资金外溢）→ ETH/BTC 上行 → MSTR/COIN 杠杆放大
+- 美 SEC 起诉交易所 / 否决 ETF → COIN↓ + 被点名币种重挫（历史上 SOL/ADA/POL 曾被点名）+ USDT/USDC 短暂折价 + BTC.D 上行（避险回 BTC）
+- 稳定币脱锚（USDT/USDC 折价）→ 短期 BTC/ETH 反而上行（出逃稳定币换硬资产）→ 后续杠杆清算 → 全线下挫；alts 跌幅 > majors
+- Fed 转鸽 / 实际利率↓ → BTC↑（与 NDX 同向 + 流动性扩张）→ ETH/BTC 上行（风险偏好回升）→ alts 接力 → MSTR/COIN 同向放大
+- DXY↑ / 风险偏好收缩 → BTC↓ 且与 NDX 同向；alts 跌幅更深；BTC.D 阶段上行（资金避险回 BTC）；USDT 流通可能上行
+- 杠杆清算级联（永续 funding 极端 + OI 集中）→ 单边踩踏，常见 BTC 闪跌 5-10% 触发 alts 双位数跌幅 → ETH/BTC 与 alts 普跌、BTC.D 急升
+- 大型交易所暴雷（FTX 类）→ 全线急挫 + USDT/USDC 折价 + COIN 受益（份额重分配）或受损（挤兑恐慌）视关联度 + BTC.D 上行 + ETH/BTC 走低
+- 香港 / 新加坡 / 欧盟 MiCA 监管放开 → BTC/ETH 受益 + COIN 海外业务利好 + alts 估值修复
+- 主要矿池中断 / 算力监管 → 短期 BTC 波动；中期影响有限（难度自适应）；MSTR/COIN 反映情绪而非基本面
+- 减半临近 / 减半后 → BTC 长期供给冲击叙事；短期常先涨后回调；ETH/BTC 通常滞后受益
+
 ## 第四步：暴露敞口（产业链分层 + 强制多标的广度）
 沿**上游 → 中游 → 下游 → 周边**分层定位主体：
 - 上游：原材料 / 设备 / 零部件
