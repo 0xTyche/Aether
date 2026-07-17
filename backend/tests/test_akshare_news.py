@@ -47,8 +47,8 @@ def test_synth_url_is_stable_and_distinct_per_input():
 
 
 def test_short_title_truncates_with_ellipsis():
-    assert ak_news._short_title("x" * 30, max_len=20) == "x" * 20 + "…"
-    assert ak_news._short_title("short") == "short"
+    assert ak_news.short_title("x" * 30, max_len=20) == "x" * 20 + "…"
+    assert ak_news.short_title("short") == "short"
 
 
 # ---------- per-source mappers ------------------------------------------

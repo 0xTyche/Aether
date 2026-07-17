@@ -14,26 +14,18 @@ Notes:
   - URL-level dedup goes through the SAME Redis SET the RSS pipeline
     uses (`dedup:news:{sha256(url)}`, 7d TTL). Same item returned by
     every poll therefore never hits the DB twice.
-  - `stock_info_global_cls` (财联社) currently returns 404 from this
-    VPS; left out of the registered fetchers until reachable from a
-    CN-based deploy. Add `_fetch_cls` back when needed.
 """
 
 import asyncio
 import hashlib
 from collections.abc import Callable
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 import akshare as ak
 import structlog
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from aether.models.news import RawNews
-from aether.storage import db as db_module
-from aether.storage import redis_ as r
-
+from aether.ingestion.common import ParsedItem, persist_fresh, short_title
 
 logger = structlog.get_logger(__name__)
 
@@ -41,17 +33,8 @@ logger = structlog.get_logger(__name__)
 CST = timezone(timedelta(hours=8))
 
 
-@dataclass(frozen=True, slots=True)
-class ParsedItem:
-    source: str
-    url: str
-    title: str
-    body: str | None
-    published_at: datetime
-    lang: str = "zh"
-
-
 # ---------- helpers ------------------------------------------------------
+
 
 def _parse_cst(raw: Any) -> datetime:
     """Parse '2026-06-12 17:31:14' as Beijing time → UTC datetime."""
@@ -77,14 +60,8 @@ def _synth_url(source: str, title: str, ts: datetime) -> str:
     return f"akshare://{source}/{digest}"
 
 
-def _short_title(text: str, max_len: int = 60) -> str:
-    text = (text or "").strip()
-    if len(text) <= max_len:
-        return text
-    return text[:max_len].rstrip() + "…"
-
-
 # ---------- per-source fetchers (sync, run via to_thread) ---------------
+
 
 def _fetch_cjzc() -> list[ParsedItem]:
     """东方财富-财经早餐 (daily morning brief)."""
@@ -94,15 +71,18 @@ def _fetch_cjzc() -> list[ParsedItem]:
     out: list[ParsedItem] = []
     for _, row in df.iterrows():
         ts = _parse_cst(row.get("发布时间"))
-        title = str(row.get("标题") or "").strip() or _short_title(str(row.get("摘要") or ""))
-        url = (str(row.get("链接") or "").strip() or _synth_url("财经早餐", title, ts))
-        out.append(ParsedItem(
-            source="财经早餐",
-            url=url,
-            title=title,
-            body=str(row.get("摘要") or "") or None,
-            published_at=ts,
-        ))
+        title = str(row.get("标题") or "").strip() or short_title(str(row.get("摘要") or ""))
+        url = str(row.get("链接") or "").strip() or _synth_url("财经早餐", title, ts)
+        out.append(
+            ParsedItem(
+                source="财经早餐",
+                url=url,
+                title=title,
+                body=str(row.get("摘要") or "") or None,
+                published_at=ts,
+                lang="zh",
+            )
+        )
     return out
 
 
@@ -114,15 +94,18 @@ def _fetch_global_em() -> list[ParsedItem]:
     out: list[ParsedItem] = []
     for _, row in df.iterrows():
         ts = _parse_cst(row.get("发布时间"))
-        title = str(row.get("标题") or "").strip() or _short_title(str(row.get("摘要") or ""))
-        url = (str(row.get("链接") or "").strip() or _synth_url("东财快讯", title, ts))
-        out.append(ParsedItem(
-            source="东财快讯",
-            url=url,
-            title=title,
-            body=str(row.get("摘要") or "") or None,
-            published_at=ts,
-        ))
+        title = str(row.get("标题") or "").strip() or short_title(str(row.get("摘要") or ""))
+        url = str(row.get("链接") or "").strip() or _synth_url("东财快讯", title, ts)
+        out.append(
+            ParsedItem(
+                source="东财快讯",
+                url=url,
+                title=title,
+                body=str(row.get("摘要") or "") or None,
+                published_at=ts,
+                lang="zh",
+            )
+        )
     return out
 
 
@@ -137,14 +120,17 @@ def _fetch_global_sina() -> list[ParsedItem]:
         body = str(row.get("内容") or "").strip()
         if not body:
             continue
-        title = _short_title(body)
-        out.append(ParsedItem(
-            source="新浪快讯",
-            url=_synth_url("新浪快讯", title, ts),
-            title=title,
-            body=body,
-            published_at=ts,
-        ))
+        title = short_title(body)
+        out.append(
+            ParsedItem(
+                source="新浪快讯",
+                url=_synth_url("新浪快讯", title, ts),
+                title=title,
+                body=body,
+                published_at=ts,
+                lang="zh",
+            )
+        )
     return out
 
 
@@ -157,17 +143,20 @@ def _fetch_global_futu() -> list[ParsedItem]:
     for _, row in df.iterrows():
         ts = _parse_cst(row.get("发布时间"))
         body = str(row.get("内容") or "").strip()
-        title = str(row.get("标题") or "").strip() or _short_title(body)
+        title = str(row.get("标题") or "").strip() or short_title(body)
         if not title and not body:
             continue
-        url = (str(row.get("链接") or "").strip() or _synth_url("富途快讯", title, ts))
-        out.append(ParsedItem(
-            source="富途快讯",
-            url=url,
-            title=title,
-            body=body or None,
-            published_at=ts,
-        ))
+        url = str(row.get("链接") or "").strip() or _synth_url("富途快讯", title, ts)
+        out.append(
+            ParsedItem(
+                source="富途快讯",
+                url=url,
+                title=title,
+                body=body or None,
+                published_at=ts,
+                lang="zh",
+            )
+        )
     return out
 
 
@@ -180,17 +169,20 @@ def _fetch_global_ths() -> list[ParsedItem]:
     for _, row in df.iterrows():
         ts = _parse_cst(row.get("发布时间"))
         body = str(row.get("内容") or "").strip()
-        title = str(row.get("标题") or "").strip() or _short_title(body)
+        title = str(row.get("标题") or "").strip() or short_title(body)
         if not title:
             continue
-        url = (str(row.get("链接") or "").strip() or _synth_url("同花顺", title, ts))
-        out.append(ParsedItem(
-            source="同花顺",
-            url=url,
-            title=title,
-            body=body or None,
-            published_at=ts,
-        ))
+        url = str(row.get("链接") or "").strip() or _synth_url("同花顺", title, ts)
+        out.append(
+            ParsedItem(
+                source="同花顺",
+                url=url,
+                title=title,
+                body=body or None,
+                published_at=ts,
+                lang="zh",
+            )
+        )
     return out
 
 
@@ -204,11 +196,11 @@ FETCHERS: dict[str, Fetcher] = {
     "新浪快讯": _fetch_global_sina,
     "富途快讯": _fetch_global_futu,
     "同花顺": _fetch_global_ths,
-    # "财联社": _fetch_cls,  # 404 from US VPS; add back when deployed in CN.
 }
 
 
 # ---------- ingest one source -------------------------------------------
+
 
 async def ingest_source(name: str, fn: Fetcher) -> int:
     """Pull one source and insert any never-seen items. Returns rows written."""
@@ -218,43 +210,9 @@ async def ingest_source(name: str, fn: Fetcher) -> int:
         logger.warning("akshare_news.fetch_failed", source=name, error=str(exc))
         return 0
 
-    if not items:
-        return 0
-
-    fresh: list[ParsedItem] = []
-    for it in items:
-        seen = await r.dedup_seen(r.news_dedup_key(it.url))
-        if not seen:
-            fresh.append(it)
-
-    if not fresh:
-        return 0
-
-    rows = [
-        {
-            "source": it.source,
-            "url": it.url,
-            "title": it.title,
-            "body": it.body,
-            "published_at": it.published_at,
-            "lang": it.lang,
-        }
-        for it in fresh
-    ]
-    stmt = pg_insert(RawNews).values(rows).on_conflict_do_nothing(
-        index_elements=["url"]
-    )
-    async with db_module.session_scope() as session:
-        result = await session.execute(stmt)
-
-    written = result.rowcount or 0
-    logger.info(
-        "akshare_news.ingested",
-        source=name,
-        parsed=len(items),
-        new=len(fresh),
-        written=written,
-    )
+    written = await persist_fresh(items)
+    if written:
+        logger.info("akshare_news.ingested", source=name, parsed=len(items), written=written)
     return written
 
 

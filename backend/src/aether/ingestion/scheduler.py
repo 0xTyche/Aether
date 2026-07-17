@@ -12,10 +12,9 @@ import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from aether.ingestion import akshare_, akshare_news, rss
+from aether.ingestion import akshare_, akshare_news, jin10, rss
 from aether.pipeline import processor as pipeline_processor
 from aether.pipeline import watcher as pipeline_watcher
-
 
 logger = structlog.get_logger(__name__)
 
@@ -24,6 +23,7 @@ logger = structlog.get_logger(__name__)
 RSS_INTERVAL_MIN = 5
 AKSHARE_INTERVAL_S = 60
 AKSHARE_NEWS_INTERVAL_S = 60
+JIN10_NEWS_INTERVAL_S = 60
 PIPELINE_INTERVAL_S = 60
 WATCHER_INTERVAL_S = 60
 
@@ -52,6 +52,15 @@ def _register_jobs(scheduler: AsyncIOScheduler) -> None:
         trigger=IntervalTrigger(seconds=AKSHARE_NEWS_INTERVAL_S),
         id="akshare.news.tick",
         name="AKShare news pull (5 Chinese sources)",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    scheduler.add_job(
+        jin10.tick,
+        trigger=IntervalTrigger(seconds=JIN10_NEWS_INTERVAL_S),
+        id="jin10.news.tick",
+        name="Jin10 flash news pull (MCP)",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
@@ -100,6 +109,7 @@ async def start_scheduler(scheduler: AsyncIOScheduler) -> None:
 
     asyncio.create_task(_safe("rss", rss.ingest_all_feeds))
     asyncio.create_task(_safe("akshare", akshare_.tick))
+    asyncio.create_task(_safe("jin10", jin10.tick))
 
 
 async def stop_scheduler(scheduler: AsyncIOScheduler) -> None:

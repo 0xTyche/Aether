@@ -17,12 +17,9 @@ from email.utils import parsedate_to_datetime
 import feedparser
 import httpx
 import structlog
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from aether.models.news import RawNews
-from aether.storage import db as db_module
-from aether.storage import redis_ as r
-
+from aether.ingestion.common import ParsedItem as StoredItem
+from aether.ingestion.common import persist_fresh
 
 logger = structlog.get_logger(__name__)
 
@@ -77,9 +74,8 @@ def _parse_feed_bytes(body: bytes) -> list[ParsedItem]:
         title = e.get("title")
         if not url or not title:
             continue
-        body_text = (
-            e.get("summary")
-            or (e.get("content")[0].get("value") if e.get("content") else None)
+        body_text = e.get("summary") or (
+            e.get("content")[0].get("value") if e.get("content") else None
         )
         items.append(
             ParsedItem(
@@ -115,41 +111,22 @@ async def ingest_feed(feed: Feed, client: httpx.AsyncClient) -> int:
     if not items:
         return 0
 
-    # Two-stage dedup: Redis first (fast, avoids DB roundtrips); DB UNIQUE
-    # constraint is the backstop for things we evicted from Redis after TTL.
-    fresh: list[ParsedItem] = []
-    for it in items:
-        seen = await r.dedup_seen(r.news_dedup_key(it.url))
-        if not seen:
-            fresh.append(it)
-
-    if not fresh:
-        return 0
-
-    rows = [
-        {
-            "source": feed.name,
-            "url": it.url,
-            "title": it.title,
-            "body": it.body,
-            "published_at": it.published_at,
-            "lang": feed.lang,
-        }
-        for it in fresh
-    ]
-    stmt = pg_insert(RawNews).values(rows).on_conflict_do_nothing(index_elements=["url"])
-
-    async with db_module.session_scope() as session:
-        result = await session.execute(stmt)
-
-    written = result.rowcount or 0
-    logger.info(
-        "rss.ingested",
-        feed=feed.name,
-        parsed=len(items),
-        new=len(fresh),
-        written=written,
+    # Dedup + insert (two-stage: Redis SET fast-path, raw_news.url UNIQUE as the
+    # post-TTL backstop) is shared across all news sources; see common.py.
+    written = await persist_fresh(
+        [
+            StoredItem(
+                source=feed.name,
+                url=it.url,
+                title=it.title,
+                body=it.body,
+                published_at=it.published_at,
+                lang=feed.lang,
+            )
+            for it in items
+        ]
     )
+    logger.info("rss.ingested", feed=feed.name, parsed=len(items), written=written)
     return written
 
 

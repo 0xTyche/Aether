@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     llm_rate_limit_per_min: int = 20
     llm_timeout_seconds: float = 30.0
 
+    # --- Jin10 flash news (MCP; streamable-HTTP endpoint) ---
+    jin10_mcp_url: str = "https://mcp.jin10.com/mcp"
+    jin10_api_key: str = ""
+    jin10_max_pages_per_tick: int = 5
+
     # --- Market data ---
     binance_ws_url: str = "wss://data-stream.binance.vision/stream"
     alpaca_api_key: str = ""
