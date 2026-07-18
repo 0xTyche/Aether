@@ -1,10 +1,9 @@
 """Shared ingestion primitives: the normalized item shape and the
 dedup → insert step every news source funnels through.
 
-Extracted so new sources (jin10, …) don't re-copy the Redis-dedup +
-`on_conflict_do_nothing` insert that `rss.py` / `akshare_news.py` each grew
-their own copy of. Those two keep their local copies for now; folding them
-onto this helper is a separate, test-covered refactor.
+Extracted so each source (`rss`, `jin10`, …) doesn't re-grow its own copy
+of the Redis-dedup + `on_conflict_do_nothing` insert. Every news fetcher
+parses into `ParsedItem` and hands the batch to `persist_fresh`.
 """
 
 from dataclasses import dataclass

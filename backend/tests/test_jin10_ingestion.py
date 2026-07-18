@@ -2,8 +2,7 @@
 
 The MCP server is faked with an httpx MockTransport so the whole
 initialize → initialized → tools/call flow (and the SSE framing) is exercised
-without touching the network. Persistence tests use the real test DB + Redis,
-mirroring test_akshare_news.
+without touching the network. Persistence tests use the real test DB + Redis.
 """
 
 import json
