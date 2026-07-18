@@ -160,3 +160,58 @@ def test_fetch_fx_em_returns_empty_when_usdcny_missing():
     )
     with patch.object(akshare_.ak, "fx_spot_quote", return_value=df):
         assert akshare_._fetch_fx_em() == []
+
+
+# ---------- NaN quotes (weekend / market closed) -------------------------
+
+def _fake_fx_pair_df_all_nan() -> pd.DataFrame:
+    """What Sina actually returns while the FX market is closed."""
+    return pd.DataFrame(
+        [
+            ("AUD/USD", float("nan"), float("nan")),
+            ("USD/JPY", float("nan"), float("nan")),
+            ("EUR/USD", float("nan"), float("nan")),
+        ],
+        columns=["货币对", "买报价", "卖报价"],
+    )
+
+
+def test_fx_majors_drops_nan_quotes_instead_of_writing_them():
+    # float("nan") passes float() without raising, so the parse guard alone
+    # let NaN through and it reached the DB as Decimal('NaN').
+    with patch.object(
+        akshare_.ak, "fx_pair_quote", return_value=_fake_fx_pair_df_all_nan()
+    ):
+        assert akshare_._fetch_fx_majors() == []
+
+
+def test_fx_majors_does_not_derive_crosses_from_a_nan_leg():
+    df = pd.DataFrame(
+        [
+            ("AUD/USD", 0.70181, 0.70185),
+            ("USD/JPY", float("nan"), float("nan")),
+        ],
+        columns=["货币对", "买报价", "卖报价"],
+    )
+    with patch.object(akshare_.ak, "fx_pair_quote", return_value=df):
+        quotes = akshare_._fetch_fx_majors()
+
+    assert [q.asset_id for q in quotes] == []
+
+
+@pytest.mark.usefixtures("prices_clean")
+async def test_write_quotes_drops_non_finite_prices():
+    ts = datetime.now(UTC)
+    quotes = [
+        akshare_.Quote("BTC", ts, Decimal("61000")),
+        akshare_.Quote("USD/JPY", ts, Decimal("NaN")),
+        akshare_.Quote("EUR/USD", ts, Decimal("Infinity")),
+    ]
+    written = await akshare_._write_quotes(quotes)
+
+    assert written == 1
+    async with db_module.session_scope() as session:
+        rows = (await session.execute(
+            text("SELECT asset_id FROM prices WHERE ts = :ts"), {"ts": ts}
+        )).scalars().all()
+    assert sorted(rows) == ["BTC"]

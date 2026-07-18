@@ -94,13 +94,35 @@ describe("loadSnapshot", () => {
     expect(usePricesStore.getState()).toBeDefined();
   });
 
-  it("rejects if any of the four calls rejects", async () => {
+  it("still applies the healthy slices when one endpoint fails", async () => {
+    // The real regression: /prices/latest 500s and the news column goes blank.
     mocked.listAssets.mockResolvedValue([]);
-    mocked.listRegions.mockRejectedValue(new Error("boom"));
-    mocked.listEvents.mockResolvedValue([]);
-    mocked.latestPrices.mockResolvedValue([]);
+    mocked.listRegions.mockResolvedValue([]);
+    mocked.listEvents.mockResolvedValue([makeEvent("a"), makeEvent("b")]);
+    mocked.latestPrices.mockRejectedValue(new Error("HTTP 500"));
 
-    await expect(loadSnapshot(200)).rejects.toThrow("boom");
+    const failed = await loadSnapshot(200);
+
+    expect(failed).toEqual(["prices"]);
+    expect(useEventsStore.getState().events).toHaveLength(2);
+  });
+
+  it("reports every failing slice by name", async () => {
+    mocked.listAssets.mockRejectedValue(new Error("down"));
+    mocked.listRegions.mockResolvedValue([]);
+    mocked.listEvents.mockResolvedValue([]);
+    mocked.latestPrices.mockRejectedValue(new Error("down"));
+
+    await expect(loadSnapshot(200)).resolves.toEqual(["assets", "prices"]);
+  });
+
+  it("never rejects, even when everything fails", async () => {
+    mocked.listAssets.mockRejectedValue(new Error("down"));
+    mocked.listRegions.mockRejectedValue(new Error("down"));
+    mocked.listEvents.mockRejectedValue(new Error("down"));
+    mocked.latestPrices.mockRejectedValue(new Error("down"));
+
+    await expect(loadSnapshot(200)).resolves.toHaveLength(4);
   });
 });
 
@@ -112,6 +134,24 @@ describe("useBootstrap", () => {
 
     expect(useUIStore.getState().snapshotStatus).toBe("ready");
     expect(useEventsStore.getState().events).toHaveLength(1);
+  });
+
+  it("keeps retrying while one slice is down but leaves the rest on screen", async () => {
+    mocked.listAssets.mockResolvedValue([]);
+    mocked.listRegions.mockResolvedValue([]);
+    mocked.listEvents.mockResolvedValue([makeEvent("a")]);
+    mocked.latestPrices.mockRejectedValue(new Error("HTTP 500"));
+
+    renderHook(() => useBootstrap());
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(useUIStore.getState().snapshotStatus).toBe("failed");
+    expect(useEventsStore.getState().events).toHaveLength(1);
+
+    mocked.latestPrices.mockResolvedValue([]);
+    await vi.advanceTimersByTimeAsync(RETRY_BASE_MS);
+
+    expect(useUIStore.getState().snapshotStatus).toBe("ready");
   });
 
   it("flags failure and retries with backoff until it succeeds", async () => {

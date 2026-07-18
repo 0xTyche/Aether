@@ -22,20 +22,53 @@ const EVENT_PREFETCH_COUNT = 200;
 const RETRY_BASE_MS = 2_000;
 const RETRY_MAX_MS = 30_000;
 
-/** Fetch the whole REST snapshot and push it into the stores. */
+/**
+ * Load one slice into its store. Never rejects — it reports the slice name on
+ * failure so one dead endpoint can't discard its siblings' responses.
+ */
+async function loadSlice<T>(
+  name: string,
+  fetch: () => Promise<T>,
+  apply: (data: T) => void,
+): Promise<string | null> {
+  try {
+    apply(await fetch());
+    return null;
+  } catch (err) {
+    console.error(`snapshot.slice_failed:${name}`, err);
+    return name;
+  }
+}
+
+/**
+ * Fetch the REST snapshot into the stores. Returns the names of the slices
+ * that failed, empty if all landed.
+ *
+ * The slices are deliberately independent: news, assets and prices come from
+ * unrelated endpoints, so a 500 on one of them must not blank the panels fed
+ * by the others. Promise.all would do exactly that — it discards resolved
+ * values as soon as any sibling rejects.
+ */
 export async function loadSnapshot(
   eventLimit: number = EVENT_PREFETCH_COUNT,
-): Promise<void> {
-  const [assets, regions, events, prices] = await Promise.all([
-    api.listAssets(),
-    api.listRegions(),
-    api.listEvents(eventLimit),
-    api.latestPrices(),
+): Promise<string[]> {
+  const outcomes = await Promise.all([
+    loadSlice("assets", api.listAssets, (d) =>
+      useAssetsStore.getState().setAssets(d),
+    ),
+    loadSlice("regions", api.listRegions, (d) =>
+      useAssetsStore.getState().setRegions(d),
+    ),
+    loadSlice(
+      "events",
+      () => api.listEvents(eventLimit),
+      (d) => useEventsStore.getState().setInitial(d),
+    ),
+    loadSlice("prices", api.latestPrices, (d) =>
+      usePricesStore.getState().setInitial(d),
+    ),
   ]);
-  useAssetsStore.getState().setAssets(assets);
-  useAssetsStore.getState().setRegions(regions);
-  useEventsStore.getState().setInitial(events);
-  usePricesStore.getState().setInitial(prices);
+  return outcomes.filter((name): name is string => name !== null);
 }
 
 export function useBootstrap(): void {
@@ -63,14 +96,14 @@ export function useBootstrap(): void {
       clearRetry();
       inFlight = true;
       loadSnapshot()
-        .then(() => {
+        .then((failed) => {
           if (cancelled) return;
-          retryDelay = RETRY_BASE_MS;
-          useUIStore.getState().setSnapshotStatus("ready");
-        })
-        .catch((err) => {
-          if (cancelled) return;
-          console.error("bootstrap.snapshot_failed", err);
+          if (failed.length === 0) {
+            retryDelay = RETRY_BASE_MS;
+            useUIStore.getState().setSnapshotStatus("ready");
+            return;
+          }
+          // Whatever succeeded is already on screen; keep retrying for the rest.
           useUIStore.getState().setSnapshotStatus("failed");
           retryTimer = window.setTimeout(attempt, retryDelay);
           retryDelay = Math.min(retryDelay * 2, RETRY_MAX_MS);

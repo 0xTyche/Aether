@@ -1,9 +1,9 @@
 """REST API contract tests."""
 
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from uuid import UUID
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
@@ -184,3 +184,37 @@ async def test_prices_latest_returns_latest_per_asset(client):
     by_asset = {p["asset_id"]: p for p in res.json()}
     assert by_asset["BTC"]["price"] == "61000"
     assert by_asset["ETH"]["price"] == "1600"
+
+
+async def test_prices_latest_survives_a_nan_row(client):
+    """NUMERIC accepts NaN; PriceDTO does not. One bad row used to 500 the
+    endpoint, which blanked every panel in the dashboard."""
+    older = datetime.now(UTC) - timedelta(minutes=2)
+    newer = datetime.now(UTC) - timedelta(seconds=10)
+    async with db_module.session_scope() as session:
+        session.add_all([
+            Price(asset_id="BTC", ts=older, price=Decimal("60000"), source="binance"),
+            # Newest tick for BTC is unusable — the older one must stand in.
+            Price(asset_id="BTC", ts=newer, price=Decimal("NaN"), source="akshare"),
+            Price(asset_id="ETH", ts=newer, price=Decimal("1600"), source="binance"),
+        ])
+
+    res = await client.get("/api/prices/latest")
+    assert res.status_code == 200
+    by_asset = {p["asset_id"]: p for p in res.json()}
+    # Compare numerically: NUMERIC round-trips 60000 as the string "6E+4".
+    assert Decimal(by_asset["BTC"]["price"]) == Decimal("60000")
+    assert Decimal(by_asset["ETH"]["price"]) == Decimal("1600")
+
+
+async def test_prices_latest_omits_asset_with_only_nan_rows(client):
+    ts = datetime.now(UTC)
+    async with db_module.session_scope() as session:
+        session.add_all([
+            Price(asset_id="BTC", ts=ts, price=Decimal("60000"), source="binance"),
+            Price(asset_id="ETH", ts=ts, price=Decimal("NaN"), source="akshare"),
+        ])
+
+    res = await client.get("/api/prices/latest")
+    assert res.status_code == 200
+    assert {p["asset_id"] for p in res.json()} == {"BTC"}

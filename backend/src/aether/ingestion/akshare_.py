@@ -23,6 +23,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from math import isfinite
 
 import akshare as ak
 import structlog
@@ -31,7 +32,6 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from aether.models.prices import Price
 from aether.storage import db as db_module
 from aether.storage import redis_ as r
-
 
 logger = structlog.get_logger(__name__)
 
@@ -93,6 +93,11 @@ def _pairs_from_df(df, pair_col: str = "货币对") -> dict[str, Decimal]:
             bid = float(row[bid_col])
             ask = float(row[ask_col]) if ask_col else None
         except (TypeError, ValueError):
+            continue
+        # Sina publishes NaN quotes while the FX market is closed (weekends).
+        # float() accepts NaN happily, so the except above never sees it —
+        # dropping the pair here keeps NaN out of every derived cross too.
+        if not isfinite(bid) or (ask is not None and not isfinite(ask)):
             continue
         out[str(row[pair_col]).strip().upper()] = _mid(bid, ask)
     return out
@@ -187,6 +192,18 @@ async def _safe_produce(name: str, fn: Producer) -> list[Quote]:
 
 
 async def _write_quotes(quotes: list[Quote]) -> int:
+    # Last line of defence for every producer: a NaN/Inf price is accepted by
+    # NUMERIC but rejected by the API's response model, so one bad row would
+    # otherwise take the whole /prices/latest endpoint down with it.
+    finite = [q for q in quotes if q.price.is_finite()]
+    if len(finite) != len(quotes):
+        logger.warning(
+            "akshare.non_finite_price_dropped",
+            dropped=len(quotes) - len(finite),
+            asset_ids=sorted({q.asset_id for q in quotes if not q.price.is_finite()}),
+        )
+    quotes = finite
+
     if not quotes:
         return 0
     rows = [

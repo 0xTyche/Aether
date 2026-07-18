@@ -2,8 +2,10 @@
 
 from datetime import datetime
 
+import structlog
 from fastapi import APIRouter, HTTPException, Query
-from sqlalchemy import desc, select
+from pydantic import ValidationError
+from sqlalchemy import desc, select, text
 from sqlalchemy.orm import selectinload
 
 from aether.api.schemas import (
@@ -16,11 +18,11 @@ from aether.api.schemas import (
     RegionDTO,
 )
 from aether.models.assets import Asset
-from aether.models.events import Event, ImpactOutcome, ImpactPrediction
-from aether.models.prices import Price
+from aether.models.events import Event
 from aether.models.regions import CountryEconomicMembership, EconomicRegion
 from aether.storage import db as db_module
 
+logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -127,22 +129,34 @@ async def get_event(event_id: str) -> EventDTO:
 
 @router.get("/prices/latest", response_model=list[PriceDTO])
 async def latest_prices() -> list[PriceDTO]:
-    """Latest price per asset, computed with DISTINCT ON (asset_id)."""
-    from sqlalchemy import text
+    """Latest usable price per asset, computed with DISTINCT ON (asset_id).
 
+    NUMERIC accepts NaN but PriceDTO does not, so a single bad row would 500
+    the endpoint. Excluding NaN in SQL means an asset whose newest tick is
+    unusable falls back to its last good one — a stale price beats no price.
+    """
     async with db_module.session_scope() as session:
         rows = await session.execute(text(
             """
             SELECT DISTINCT ON (asset_id) asset_id, price, ts, source
             FROM prices
+            WHERE price <> 'NaN'::numeric
             ORDER BY asset_id, ts DESC
             """
         ))
         result = rows.all()
-    return [
-        PriceDTO(asset_id=r.asset_id, price=r.price, ts=r.ts, source=r.source)
-        for r in result
-    ]
+
+    out: list[PriceDTO] = []
+    for r in result:
+        try:
+            out.append(
+                PriceDTO(asset_id=r.asset_id, price=r.price, ts=r.ts, source=r.source)
+            )
+        except ValidationError:
+            # Belt-and-braces: whatever slips past the SQL filter is dropped
+            # rather than allowed to fail the request for every other asset.
+            logger.warning("api.price_row_skipped", asset_id=r.asset_id)
+    return out
 
 
 # ---------- stats -------------------------------------------------------
@@ -170,8 +184,6 @@ def _bucket(key: str, rows: list[tuple]) -> AccuracyBucketDTO:
 @router.get("/stats/accuracy", response_model=AccuracyStatsDTO)
 async def accuracy_stats() -> AccuracyStatsDTO:
     """Aggregate ImpactOutcome rows by classifier, severity, and rule_id."""
-    from sqlalchemy import text
-
     async with db_module.session_scope() as session:
         overall = (await session.execute(text(
             "SELECT accuracy, COUNT(*) "
