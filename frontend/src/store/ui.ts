@@ -31,9 +31,21 @@ export const EVENT_WINDOW_OPTIONS: readonly number[] = [
   LATEST_N_WINDOW,
 ];
 
+/**
+ * Health of the REST snapshot behind the panels.
+ *
+ * Distinct from `connected`, which only tracks the WebSocket: the socket can
+ * be live while the snapshot is stale, because the socket only carries new
+ * events and never backfills history.
+ */
+export type SnapshotStatus = "loading" | "ready" | "failed";
+
 interface UIState {
   connected: boolean;
   setConnected: (v: boolean) => void;
+
+  snapshotStatus: SnapshotStatus;
+  setSnapshotStatus: (s: SnapshotStatus) => void;
 
   highlightedRegions: Set<string>;
   toggleRegion: (id: string) => void;
@@ -78,6 +90,9 @@ export const useUIStore = create<UIState>()(
     (set, get) => ({
       connected: false,
       setConnected: (v) => set(() => ({ connected: v })),
+
+      snapshotStatus: "loading",
+      setSnapshotStatus: (s) => set(() => ({ snapshotStatus: s })),
 
       highlightedRegions: new Set<string>(),
       toggleRegion: (id) =>

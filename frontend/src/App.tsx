@@ -11,6 +11,7 @@ import { useUIStore } from "./store/ui";
 
 function Header() {
   const connected = useUIStore((s) => s.connected);
+  const snapshotStatus = useUIStore((s) => s.snapshotStatus);
   return (
     <header className="flex items-center gap-3 px-4 py-2 border-b border-border bg-panel">
       <h1 className="text-base font-semibold">
@@ -24,6 +25,15 @@ function Header() {
       >
         {connected ? "LIVE" : "OFFLINE"}
       </span>
+      {snapshotStatus === "failed" && (
+        <span
+          role="status"
+          className="text-xs px-2 py-0.5 rounded-full bg-warn/20 text-warn"
+          title="Could not load history from the backend. Retrying automatically."
+        >
+          数据陈旧 · 重试中
+        </span>
+      )}
     </header>
   );
 }

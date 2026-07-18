@@ -1,4 +1,4 @@
-/** Hook that loads initial REST state once and keeps the WS open while mounted. */
+/** Hook that keeps the REST snapshot loaded and the WS open while mounted. */
 
 import { useEffect } from "react";
 
@@ -19,56 +19,97 @@ import { WSClient } from "./ws";
  */
 const EVENT_PREFETCH_COUNT = 200;
 
+const RETRY_BASE_MS = 2_000;
+const RETRY_MAX_MS = 30_000;
+
+/** Fetch the whole REST snapshot and push it into the stores. */
+export async function loadSnapshot(
+  eventLimit: number = EVENT_PREFETCH_COUNT,
+): Promise<void> {
+  const [assets, regions, events, prices] = await Promise.all([
+    api.listAssets(),
+    api.listRegions(),
+    api.listEvents(eventLimit),
+    api.latestPrices(),
+  ]);
+  useAssetsStore.getState().setAssets(assets);
+  useAssetsStore.getState().setRegions(regions);
+  useEventsStore.getState().setInitial(events);
+  usePricesStore.getState().setInitial(prices);
+}
+
 export function useBootstrap(): void {
-  const setAssets = useAssetsStore((s) => s.setAssets);
-  const setRegions = useAssetsStore((s) => s.setRegions);
-  const setEventsInitial = useEventsStore((s) => s.setInitial);
-  const upsertEvent = useEventsStore((s) => s.upsert);
-  const setPricesInitial = usePricesStore((s) => s.setInitial);
-  const applyPriceUpdates = usePricesStore((s) => s.applyUpdates);
-  const applyOutcomes = useOutcomesStore((s) => s.apply);
-  const setConnected = useUIStore((s) => s.setConnected);
-
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
+    let retryTimer: number | null = null;
+    let retryDelay = RETRY_BASE_MS;
+    let inFlight = false;
 
-    Promise.all([
-      api.listAssets(),
-      api.listRegions(),
-      api.listEvents(EVENT_PREFETCH_COUNT),
-      api.latestPrices(),
-    ])
-      .then(([assets, regions, events, prices]) => {
-        if (!mounted) return;
-        setAssets(assets);
-        setRegions(regions);
-        setEventsInitial(events);
-        setPricesInitial(prices);
-      })
-      .catch((err) => {
-        console.error("bootstrap.failed", err);
-      });
+    const clearRetry = () => {
+      if (retryTimer !== null) {
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+    };
+
+    /**
+     * Load the snapshot, retrying with backoff until it lands. Without this
+     * a single failure (backend still booting, network blip) would leave the
+     * panels empty for the whole session — the WS only carries new events,
+     * so nothing else ever backfills history.
+     */
+    const attempt = (): void => {
+      if (cancelled || inFlight) return;
+      clearRetry();
+      inFlight = true;
+      loadSnapshot()
+        .then(() => {
+          if (cancelled) return;
+          retryDelay = RETRY_BASE_MS;
+          useUIStore.getState().setSnapshotStatus("ready");
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          console.error("bootstrap.snapshot_failed", err);
+          useUIStore.getState().setSnapshotStatus("failed");
+          retryTimer = window.setTimeout(attempt, retryDelay);
+          retryDelay = Math.min(retryDelay * 2, RETRY_MAX_MS);
+        })
+        .finally(() => {
+          inFlight = false;
+        });
+    };
+
+    attempt();
+
+    // A *re*connect means the socket was down for a while, so the store has
+    // a hole in it. The first open is skipped — attempt() already covers it.
+    let sawConnection = false;
 
     const ws = new WSClient({
       channels: ["events", "prices", "impacts"],
-      onOpen: () => setConnected(true),
-      onClose: () => setConnected(false),
+      onOpen: () => {
+        useUIStore.getState().setConnected(true);
+        if (sawConnection) attempt();
+        sawConnection = true;
+      },
+      onClose: () => useUIStore.getState().setConnected(false),
       onMessage: (msg) => {
         if (msg.type === "event.new") {
-          upsertEvent(msg.event);
+          useEventsStore.getState().upsert(msg.event);
         } else if (msg.type === "price.update") {
-          applyPriceUpdates(msg.updates);
+          usePricesStore.getState().applyUpdates(msg.updates);
         } else if (msg.type === "impact.outcome") {
-          applyOutcomes(msg.outcomes);
+          useOutcomesStore.getState().apply(msg.outcomes);
         }
       },
     });
     ws.start();
 
     return () => {
-      mounted = false;
+      cancelled = true;
+      clearRetry();
       ws.stop();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
