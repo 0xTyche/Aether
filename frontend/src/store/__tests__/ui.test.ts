@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
+  LATEST_N_WINDOW,
   MAP_MIN_WIDTH,
   PANEL_MAX_WIDTH,
   PANEL_MIN_WIDTH,
@@ -67,5 +68,23 @@ describe("UI store — panel widths", () => {
     // Center is 1200 - 200 - 200 - 8 = 792. Try widening left by 392.
     const applied = useUIStore.getState().setLeftWidth(592);
     expect(applied).toBe(592); // 1200 - 592 - 200 - 8 = 400 == MAP_MIN_WIDTH
+  });
+});
+
+describe("setEventWindowMin", () => {
+  it("accepts the latest-N sentinel", () => {
+    useUIStore.getState().setEventWindowMin(LATEST_N_WINDOW);
+    expect(useUIStore.getState().eventWindowMin).toBe(LATEST_N_WINDOW);
+  });
+
+  it("accepts a listed minute value", () => {
+    useUIStore.getState().setEventWindowMin(240);
+    expect(useUIStore.getState().eventWindowMin).toBe(240);
+  });
+
+  it("falls back to 60 for a value outside the options", () => {
+    // Guards persisted state written by an older build.
+    useUIStore.getState().setEventWindowMin(999);
+    expect(useUIStore.getState().eventWindowMin).toBe(60);
   });
 });

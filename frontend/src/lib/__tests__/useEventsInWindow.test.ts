@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useEventsInWindow } from "../useEventsInWindow";
 import { useEventsStore } from "../../store/events";
-import { useUIStore } from "../../store/ui";
+import { LATEST_N_COUNT, LATEST_N_WINDOW, useUIStore } from "../../store/ui";
 import type { Event } from "../../types/api";
 
 
@@ -66,5 +66,40 @@ describe("useEventsInWindow", () => {
 
     const { result } = renderHook(() => useEventsInWindow());
     expect(result.current).toEqual([]);
+  });
+
+  describe("latest-N window", () => {
+    it("keeps events far older than any time window", () => {
+      const ancient = makeEvent("old", new Date("2024-01-01T00:00:00Z"));
+      useEventsStore.setState({ events: [ancient] });
+      useUIStore.setState({ eventWindowMin: LATEST_N_WINDOW });
+
+      const { result } = renderHook(() => useEventsInWindow());
+      expect(result.current.map((e) => e.id)).toEqual(["old"]);
+    });
+
+    it(`caps the result at ${LATEST_N_COUNT} and orders newest first`, () => {
+      const events = Array.from({ length: LATEST_N_COUNT + 20 }, (_, i) =>
+        // i=0 is the oldest; each later event is one minute newer.
+        makeEvent(`e${i}`, new Date(Date.UTC(2026, 5, 12, 0, i))),
+      );
+      useEventsStore.setState({ events });
+      useUIStore.setState({ eventWindowMin: LATEST_N_WINDOW });
+
+      const { result } = renderHook(() => useEventsInWindow());
+      expect(result.current).toHaveLength(LATEST_N_COUNT);
+      expect(result.current[0].id).toBe(`e${LATEST_N_COUNT + 19}`);
+      expect(result.current.at(-1)?.id).toBe("e20");
+    });
+
+    it("does not mutate the store's array order", () => {
+      const a = makeEvent("a", new Date("2026-06-12T09:00:00Z"));
+      const b = makeEvent("b", new Date("2026-06-12T11:00:00Z"));
+      useEventsStore.setState({ events: [a, b] });
+      useUIStore.setState({ eventWindowMin: LATEST_N_WINDOW });
+
+      renderHook(() => useEventsInWindow());
+      expect(useEventsStore.getState().events.map((e) => e.id)).toEqual(["a", "b"]);
+    });
   });
 });

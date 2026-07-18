@@ -10,6 +10,15 @@ import { useUIStore } from "../store/ui";
 import { api } from "./api";
 import { WSClient } from "./ws";
 
+/**
+ * How many past events to pull on mount. Must exceed LATEST_N_COUNT so the
+ * count-based window is always fully satisfied from the store; the surplus
+ * also covers the wider time windows. The widest window (24h) can still
+ * outgrow this as event volume rises — filling that gap needs paging, not
+ * a bigger number.
+ */
+const EVENT_PREFETCH_COUNT = 200;
+
 export function useBootstrap(): void {
   const setAssets = useAssetsStore((s) => s.setAssets);
   const setRegions = useAssetsStore((s) => s.setRegions);
@@ -26,7 +35,7 @@ export function useBootstrap(): void {
     Promise.all([
       api.listAssets(),
       api.listRegions(),
-      api.listEvents(50),
+      api.listEvents(EVENT_PREFETCH_COUNT),
       api.latestPrices(),
     ])
       .then(([assets, regions, events, prices]) => {

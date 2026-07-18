@@ -1,6 +1,11 @@
-import { EVENT_WINDOW_OPTIONS, useUIStore } from "../../store/ui";
+import {
+  EVENT_WINDOW_OPTIONS,
+  LATEST_N_COUNT,
+  LATEST_N_WINDOW,
+  useUIStore,
+} from "../../store/ui";
 
-/** A small chip row to pick how far back events should be shown. */
+/** A small chip row to pick which events the map + news show. */
 export function TimeWindowChips() {
   const value = useUIStore((s) => s.eventWindowMin);
   const set = useUIStore((s) => s.setEventWindowMin);
@@ -21,7 +26,7 @@ export function TimeWindowChips() {
                 ? "bg-accent/20 border-accent text-accent"
                 : "border-border text-muted hover:text-white hover:border-muted")
             }
-            title={`Show events from the last ${formatWindow(m)}`}
+            title={describeWindow(m)}
           >
             {formatWindow(m)}
           </button>
@@ -32,7 +37,14 @@ export function TimeWindowChips() {
 }
 
 function formatWindow(min: number): string {
+  if (min === LATEST_N_WINDOW) return `${LATEST_N_COUNT}条`;
   if (min < 60) return `${min}m`;
   if (min < 1440) return `${Math.round(min / 60)}h`;
   return `${Math.round(min / 1440)}d`;
+}
+
+function describeWindow(min: number): string {
+  return min === LATEST_N_WINDOW
+    ? `Show the newest ${LATEST_N_COUNT} events, regardless of age`
+    : `Show events from the last ${formatWindow(min)}`;
 }

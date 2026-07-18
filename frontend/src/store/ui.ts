@@ -8,8 +8,28 @@ export const PANEL_MAX_WIDTH = 600;
 export const MAP_MIN_WIDTH = 400;
 const HANDLE_SLACK_PX = 8; // 2 × 4px resize handles take some grid space too
 
-/** Time window options in minutes for filtering events on map + news. */
-export const EVENT_WINDOW_OPTIONS: readonly number[] = [5, 30, 60, 240, 1440];
+/**
+ * Sentinel window meaning "the newest N events regardless of age".
+ *
+ * Negative so it can share `eventWindowMin` with the real minute values:
+ * `setEventWindowMin` already rejects anything outside EVENT_WINDOW_OPTIONS,
+ * so listing it here is all the persisted-value migration this needs.
+ */
+export const LATEST_N_WINDOW = -1;
+export const LATEST_N_COUNT = 100;
+
+/**
+ * Window options for filtering events on map + news. Positive entries are
+ * minutes; LATEST_N_WINDOW selects by count instead of by age.
+ */
+export const EVENT_WINDOW_OPTIONS: readonly number[] = [
+  5,
+  30,
+  60,
+  240,
+  1440,
+  LATEST_N_WINDOW,
+];
 
 interface UIState {
   connected: boolean;
