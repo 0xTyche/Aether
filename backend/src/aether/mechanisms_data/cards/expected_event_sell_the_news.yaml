@@ -1,0 +1,51 @@
+id: expected_event_sell_the_news
+name: 预期充分的事件落地即回吐
+statement: >-
+  时间已知、结果已被充分预期的事件，价格在预期形成、也就是概率跳变的
+  那一刻反应。到事件落地时已经没有新增信息，反而常因获利了结或机械性
+  卖盘而回吐。以下方向按利好事件书写，利空事件全部取反。
+categories: [macro_policy, market_structure_liquidity]
+shock_nature: [risk_premium, liquidity]
+keywords: [获批, 批准, 生效, 上市, 落地, 利好出尽, approval, effective date, listing, sell the news]
+preconditions:
+  - 事件的时间是已知的
+  - 隐含概率已接近确定，可以从预测市场、期权或分析师口径观察到
+  - 落地之后存在可以量化的卖盘
+failure_conditions:
+  - 落地的内容超出预期，如规模更大或细则更有利
+  - 事前并没有拥挤的头寸
+effects:
+  - role: direct_target
+    target: 概率跳变当时的标的
+    direction: up
+    magnitude: medium
+    lag: {onset: 1m-1h, peak: 1h-1d}
+    crowding: high
+  - role: direct_target
+    target: 事件落地之后的标的
+    direction: down
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-2w, fade: 2w-8w}
+    crowding: medium
+    condition: 落地前价格已经充分上涨，并且存在可识别的机械性卖盘或获利盘
+leads_to: []
+cases:
+  - id: btc_spot_etf_approval_2024
+    outcome: supports
+    note: 上市首日冲高后两周下跌约两成，卖压出清后创新高
+  - id: eth_etf_pivot_2024
+    outcome: supports
+    note: 概率上调当日大涨，正式获批时反应平淡
+  - id: russian_oil_embargo_2022
+    outcome: mixed
+    note: 禁运日期早已为人所知，生效当周油价不涨反跌；但当时的报道主要归因于需求担忧，算不上干净的证据
+prior: 0.6
+evidence_tier: B
+critique:
+  - 判断预期是否充分需要一个可观测的概率来源，否则只是事后的解释
+  - 回吐的幅度和持续时间差异很大，2024 年 1 月回吐两周后就创了新高，做空的窗口很窄
+  - 这是与共识对赌，仓位必须小
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

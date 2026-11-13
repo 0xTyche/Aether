@@ -1,0 +1,72 @@
+id: conflict_commodity_supply_shock
+name: 出口大国卷入战争造成商品供给冲击
+statement: >-
+  交战方是能源、粮食或金属的主要出口国时，战事与随之而来的制裁造成真实
+  的供给损失，相关商品普涨。区域外的同类生产商和军工企业受益，高耗能与
+  依赖进口原料的下游受损，交战方自身的资产往往直接停市。
+categories: [geopolitical, industry_supply_chain]
+shock_nature: [supply_side, risk_premium]
+keywords: [战争, 入侵, 开战, 冲突升级, 制裁, 黑海, war, invasion, conflict, sanctions]
+preconditions:
+  - 交战方在某些商品的全球出口中占比显著
+  - 出口设施、运输通道或结算渠道实际受阻
+failure_conditions:
+  - 冲突规模有限，出口照常
+  - 迅速停火
+  - 其他产地有闲置产能可以补上
+effects:
+  - role: commodity_price
+    target: 交战方主导出口的能源、粮食与金属
+    direction: up
+    magnitude: large
+    lag: {onset: 5m-1d, peak: 1w-2w, fade: 4w-24w}
+    crowding: high
+  - role: producer_outside_zone
+    target: 区域外的同类生产商，如化肥、粮食、能源与金属企业
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 2w-8w}
+    crowding: medium
+  - role: upstream_supplier
+    target: 向交战方及其盟友供货的军工企业
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 1w-8w}
+    crowding: medium
+  - role: downstream_buyer
+    target: 高耗能产业、依赖进口原料的制造业与粮食进口国
+    direction: down
+    magnitude: medium
+    lag: {onset: 1w-4w, peak: 4w-24w}
+    crowding: low
+  - role: direct_target
+    target: 交战方及受制裁方的资产
+    direction: down
+    magnitude: large
+    lag: {onset: 5m-1d, peak: 1d-1w}
+    crowding: high
+  - role: safe_haven
+    target: 黄金等避险资产
+    direction: up
+    magnitude: small
+    lag: {onset: 5m-1h, peak: 1d-1w, fade: 1w-4w}
+    crowding: high
+leads_to:
+  - export_node_outage_commodity
+  - transit_chokepoint_rerouting
+  - sanctions_supply_rerouting
+  - geopolitical_risk_premium_fade
+cases:
+  - id: russia_ukraine_2022
+    outcome: supports
+    note: 能源、粮食、金属普涨，军工与化肥受益，莫斯科市场停市
+prior: 0.65
+evidence_tier: C
+critique:
+  - 完整的正例只有 2022 年一次
+  - 多数地缘冲突并不造成真实的供给损失，这张卡与"风险溢价回吐"那张卡的分界就是供给是否真的丢了，而这在开战头几天很难判断
+  - 逼空、停市和取消成交都出现过，方向正确也可能无法兑现
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

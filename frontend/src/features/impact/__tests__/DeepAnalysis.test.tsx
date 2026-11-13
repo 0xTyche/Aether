@@ -36,6 +36,43 @@ describe("DeepAnalysis", () => {
     expect(screen.queryByText("折现率估值")).not.toBeNull();
   });
 
+  it("renders premise, mechanisms, off-pool assets and rejected candidates", () => {
+    render(
+      <DeepAnalysis
+        analysis={{
+          premise_check: "海啸预警已发布",
+          mechanisms: [
+            { id: "seismic", name: "强震与海啸", prior: 0.6, evidence_tier: "B", review_status: "draft" },
+            { id: "export", name: "出口节点中断", prior: 0.65, evidence_tier: "B", review_status: "draft" },
+          ],
+          chain_prior: 0.39,
+          off_pool: [
+            {
+              name: "原糖期货", ticker: "SB", market: "ICE", direction: "up",
+              magnitude: "medium", confidence: 0.55, timeframe_min: 10080,
+              crowding: "low", mechanism_id: "export", role: "commodity_price",
+              rationale: "桑托斯港出口中断",
+            },
+          ],
+          rejected: [{ target: "巴西股指", reason: "已被定价" }],
+        }}
+      />,
+    );
+    const trigger = screen.getByRole("button", { name: /深度分析/ });
+    expect(trigger.textContent).toContain("池外 1 个");
+
+    fireEvent.click(trigger);
+    expect(screen.queryByText("海啸预警已发布")).not.toBeNull();
+    expect(screen.queryByText("出口节点中断")).not.toBeNull();
+    expect(screen.queryByText(/整链把握 39%/)).not.toBeNull();
+    expect(screen.queryByText(/卡片尚未审核/)).not.toBeNull();
+    expect(screen.queryByText("原糖期货")).not.toBeNull();
+    expect(screen.queryByText("SB · ICE")).not.toBeNull();
+    expect(screen.queryByText("1w · 易忽略")).not.toBeNull();
+    expect(screen.queryByText("巴西股指")).not.toBeNull();
+    expect(screen.queryByText("：已被定价")).not.toBeNull();
+  });
+
   it("shows only the transmission chain when classification is missing", () => {
     render(
       <DeepAnalysis

@@ -1,0 +1,59 @@
+id: geopolitical_risk_premium_fade
+name: 地缘风险溢价的回吐
+statement: >-
+  冲突消息推高油价和避险资产。只要实物供给没有持续受损，这部分风险溢价
+  会在数日到两周内回吐。本卡描述的是初始跳涨之后的反向一段。
+categories: [geopolitical]
+shock_nature: [risk_premium]
+keywords: [空袭, 报复, 停火, 降级, 霍尔木兹, 风险溢价, airstrike, retaliation, ceasefire, de-escalation]
+preconditions:
+  - 初始的跳涨已经发生
+  - 实物供给与运输通道没有持续中断，或有闲置产能和储备可以补上
+  - 出现了降级信号，如象征性的反击、停火或明确的复产时间表
+failure_conditions:
+  - 出口设施或海峡通行被实际并持续地中断
+  - 冲突一方是主要出口国并遭到全面制裁
+  - 冲突升级为多方参战
+effects:
+  - role: commodity_price
+    target: 原油
+    direction: down
+    magnitude: medium
+    lag: {onset: 1d-3d, peak: 3d-2w}
+    crowding: medium
+  - role: safe_haven
+    target: 黄金等避险资产
+    direction: down
+    magnitude: small
+    lag: {onset: 1d-3d, peak: 3d-2w}
+    crowding: medium
+  - role: risk_assets
+    target: 此前下跌的股指
+    direction: up
+    magnitude: small
+    lag: {onset: 1d-3d, peak: 3d-2w}
+    crowding: medium
+leads_to: []
+cases:
+  - id: abqaiq_attack_2019
+    outcome: supports
+    note: 约占全球 5% 的供给中断，两周内涨幅全部回吐
+  - id: soleimani_strike_2020
+    outcome: supports
+    note: 象征性反击之后油价跌回事件前水平之下
+  - id: israel_iran_june_2025
+    outcome: supports
+    note: 停火后油价回到冲突前水平之下
+  - id: russia_ukraine_2022
+    outcome: contradicts
+    note: 有真实的供给损失，价格长期维持在高位
+prior: 0.7
+evidence_tier: B
+critique:
+  - 这是赚多次小钱、亏一次大钱的结构，1973 年和 2022 年都是反例
+  - 降级信号的判定带有主观性，事后看清楚，事中很难
+  - 三个正例都发生在美国页岩油和欧佩克闲置产能充裕的时期，缓冲一旦消失结论可能不成立
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

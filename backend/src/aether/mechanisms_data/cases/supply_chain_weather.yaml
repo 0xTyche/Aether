@@ -1,0 +1,235 @@
+# 供应链单点中断与天气类案例。
+cases:
+  - id: thai_floods_2011
+    title: 泰国洪水淹没硬盘产业带
+    start_date: 2011-10-08
+    end_date: 2011-12-15
+    location: 泰国大城府与巴吞他尼府的工业园
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      洪水自 7 月开始，10 月淹没多个工业园。泰国当时占全球硬盘产能的
+      很大份额，西部数据的工厂被淹，希捷的自有工厂基本未受影响。
+      本田等车企在当地的工厂也被淹。
+    observations:
+      - asset: 硬盘现货与零售价格
+        direction: up
+        window: 2w-8w
+        note: 数周内大致翻倍
+        recall: medium
+      - asset: 西部数据
+        direction: down
+        window: 1w-2w
+        note: 工厂被淹、当季出货量锐减，股价先跌；随后因涨价改善利润率而回升
+        recall: medium
+      - asset: 希捷
+        direction: up
+        window: 4w-12w
+        note: 受益于涨价与份额提升，股价显著上涨
+        recall: medium
+      - asset: 个人电脑厂商与日系车企
+        direction: down
+        window: 4w-12w
+        note: 下游因缺货减产或下调指引，本田大城工厂被淹
+        recall: high
+    lessons:
+      - 同行业内，工厂在灾区的受损，工厂在区外的受益
+      - 受灾企业的股价未必持续下跌，全行业涨价可能弥补销量损失
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://en.wikipedia.org/wiki/2011_Thailand_floods"
+        - "https://m.washingtontimes.com/news/2011/oct/19/thailand-flooding-smacks-hard-drive-industry/"
+        - "https://www.aol.com/2011/10/21/1-stock-damaged-2-stocks-lifted-by-mother-nature/"
+      notes: "泰国占全球硬盘产能的比例各来源说法不一，从约四分之一到约六成。"
+
+  - id: renesas_fire_2021
+    title: 瑞萨那珂工厂火灾
+    start_date: 2021-03-19
+    location: 日本茨城县
+    categories: [industry_supply_chain, company_specific]
+    summary: >-
+      车用微控制器的主要产线失火，当时全球车用芯片已经短缺。约一个月
+      后恢复生产，约三个月后产能回到火灾前水平，出货量完全恢复则用了
+      约五个月。多家车企追加减产。
+    observations:
+      - asset: 全球车企产量
+        direction: down
+        window: 4w-12w
+        note: 车用微控制器供应进一步收紧，日系车企受影响最直接
+        recall: medium
+      - asset: 瑞萨电子
+        direction: down
+        window: 1d-1w
+        note: 火灾消息后的首个交易日下跌数个百分点
+        recall: low
+    lessons:
+      - 库存已经见底时，单点中断对下游的影响会被放大
+      - 恢复出货所需的时间远长于恢复生产所需的时间
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.renesas.com/en/about/press-room/update-10-notice-regarding-semiconductor-manufacturing-factory-naka-factory-fire-production-capacity"
+        - "https://www.marketscreener.com/quote/stock/RENESAS-ELECTRONICS-CORPO-6496219/news/Renesas-Electronics-delays-full-recovery-in-chip-shipments-at-fire-hit-plant-35999333/"
+        - "https://www.taipeitimes.com/News/biz/archives/2021/03/23/2003754302"
+      notes: "核对后改正：出货量完全恢复用了约五个月，而不是三个月。"
+
+  - id: texas_freeze_2021
+    title: 德州寒潮
+    start_date: 2021-02-13
+    end_date: 2021-02-19
+    location: 美国德克萨斯州
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      极端低温同时推高用电需求并冻结天然气井口与发电设备，电网分区停电。
+      区域现货价格暴涨，而全国性的期货基准涨幅有限。墨西哥湾沿岸的
+      石化装置大面积停车。
+    observations:
+      - asset: 德州电力批发价（ERCOT）
+        direction: up
+        window: 1d-4d
+        note: 触及每兆瓦时 9000 美元的上限并维持数日
+        recall: high
+      - asset: 美国中部天然气现货
+        direction: up
+        window: 1d-4d
+        note: 多个交割点的现货涨到每百万英热数百美元；亨利港期货的涨幅小得多
+        recall: medium
+      - asset: 聚乙烯、聚丙烯等石化产品
+        direction: up
+        window: 2w-8w
+        note: 石化装置停车后供应紧张，聚丙烯创历史新高，聚乙烯升到约七年高位
+        recall: medium
+      - asset: 零售电力商与电力合作社
+        direction: down
+        window: 1w-4w
+        note: 被迫高价购电的企业破产，包括 Griddy 与 Brazos 电力合作社
+        recall: high
+      - asset: 手握现货的能源交易商
+        direction: up
+        window: 1w-4w
+        note: 麦格理等披露在寒潮期间获得可观的一次性收益
+        recall: medium
+    lessons:
+      - 区域现货的剧烈错位未必体现在可交易的期货基准上
+      - 赢家和输家由合同结构决定，按固定价卖电、按现货价买电的一方受损最重
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2021/02_18"
+        - "https://www.woodmac.com/ja/press-releases/texas-deep-freeze-lingering-impacts-on-us-petrochemicals-industry/"
+        - "https://www.investing.com/news/stock-market-news/australias-macquarie-raises-guidance-after-us-winter-freeze-2425067"
+      notes: "核对后改正：只有聚丙烯创历史新高。"
+
+  - id: us_drought_2012
+    title: 美国中西部大旱
+    start_date: 2012-06-15
+    end_date: 2012-09-15
+    location: 美国玉米带
+    categories: [natural_environmental]
+    summary: >-
+      授粉期高温少雨，单产预估逐周下调。玉米与大豆价格先后创历史新高，
+      密西西比河低水位限制驳船装载。
+    observations:
+      - asset: 玉米
+        asset_id: CORN
+        direction: up
+        window: 6w-8w
+        note: 12 月合约自 6 月中上涨约六成，8月10日创约 8.49 美元/蒲式耳的历史高位
+        recall: high
+      - asset: 大豆
+        asset_id: SOYBEAN
+        direction: up
+        window: 8w-12w
+        note: 9月初创约 17.9 美元/蒲式耳的历史高位
+        recall: high
+      - asset: 肉类加工与乙醇企业
+        direction: down
+        window: 4w-12w
+        note: 饲料与原料成本上升挤压利润
+        recall: medium
+      - asset: 密西西比河驳船运费
+        direction: up
+        window: 4w-12w
+        note: 低水位限制装载量，运费上升
+        recall: medium
+    lessons:
+      - 天气冲击按作物生长期逐周兑现，每一份单产报告都是一个可预知时间的节点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.canadiancattlemen.ca/?p=73220"
+        - "https://www.manitobacooperator.ca/?p=115884"
+        - "https://ttnews.com/articles/drought-mississippi-river"
+      notes: "核对后把玉米涨幅从约五成改为约六成。"
+
+  - id: rhine_low_water_2022
+    title: 莱茵河低水位
+    start_date: 2022-07-15
+    end_date: 2022-08-31
+    location: 德国莱茵河
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      考布水位在 8 月中旬降到约 30 多厘米，驳船只能部分装载。
+      沿河化工企业与煤电厂的原料运输受限，正值欧洲能源紧张。
+    observations:
+      - asset: 莱茵河驳船运费
+        direction: up
+        window: 2w-6w
+        note: 升至平时的数倍
+        recall: medium
+      - asset: 德国沿河化工企业（巴斯夫等）
+        direction: down
+        window: 2w-8w
+        note: 物流受限的风险；2018 年同类低水位曾使巴斯夫损失约 2.5 亿欧元
+        recall: medium
+      - asset: 德国电力价格
+        direction: up
+        window: 2w-6w
+        note: 运煤受阻加剧了能源紧张
+        recall: low
+    lessons:
+      - 水位是每天公开的数据，从水位下降到企业披露损失之间有数周的窗口
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.insurancejournal.com/news/international/2022/08/16/680610.htm"
+        - "https://www.basf.com/global/en/media/news-releases/2019/02/p-19-141"
+        - "https://www.maritimeprofessional.com/news/rhine-water-levels-another-drain-378583"
+      notes: "电价上涨中有多少来自运煤受阻未能核实。"
+
+  - id: panama_canal_drought_2023
+    title: 巴拿马运河干旱限行
+    start_date: 2023-08-01
+    end_date: 2024-04-30
+    location: 巴拿马
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      加通湖水位偏低，运河管理局逐步削减每日通行船次。没有预订名额的
+      船只需要竞拍或绕行，美国墨西哥湾到亚洲的能源与粮食运输受影响最大。
+    observations:
+      - asset: 运河通行名额拍卖价
+        direction: up
+        window: 8w-16w
+        note: 2023年11月有船只以约 400 万美元拍得一次通行名额
+        recall: medium
+      - asset: 美湾至亚洲的液化石油气与液化天然气运费
+        direction: up
+        window: 4w-12w
+        note: 等待与绕行拉长航程，运费上升
+        recall: medium
+    lessons:
+      - 限行计划提前数周公布，属于时间可知的事件
+      - 受损的是没有长期名额的船型，受益的是运力吃紧后的船东
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://gcaptain.com/lpg-tanker-pays-record-4-million-for-panama-canal-slot/"
+        - "https://www.hydrocarbonengineering.com/petrochemicals/28092023/eia-historic-drought-at-the-panama-canal-causes-delays/amp/"
+        - "https://www.seatrade-maritime.com/containers/panama-canal-increases-daily-transits-to-24-from-16-january"
+      notes: "液化天然气运费未能核实，液化石油气运费已核实。"

@@ -1,0 +1,70 @@
+id: export_control_tech_decoupling
+name: 科技出口管制与供应链脱钩
+statement: >-
+  一国限制向另一国出口关键技术或原材料。出口方的供应商按其对被管制客户
+  的收入占比受损，被管制方的本土替代者在更长的窗口里受益，被管制的
+  原材料在境外涨价。规则常在周末或假期前公布，各市场开盘时间不同。
+categories: [geopolitical, industry_supply_chain, macro_policy]
+shock_nature: [supply_side, idiosyncratic]
+keywords: [出口管制, 实体清单, 许可, 国产替代, 芯片, 稀有金属, export control, entity list, license]
+preconditions:
+  - 管制对象在相关供应商的收入中占比显著
+  - 管制方在该技术或原材料上占主导地位，被管制方短期找不到替代来源
+failure_conditions:
+  - 细则留有宽泛的许可与豁免
+  - 供应商可以用降规产品绕开限制
+  - 双方达成协议后撤回管制
+effects:
+  - role: upstream_supplier
+    target: 对被管制客户收入占比高的出口方供应商
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-2w}
+    crowding: medium
+    examples: [半导体设备商, 射频与光器件供应商]
+  - role: direct_target
+    target: 被管制方的相关上市公司
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-3d, peak: 1d-1w}
+    crowding: high
+  - role: substitute
+    target: 被管制方的本土替代者
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-4w, peak: 12w-52w}
+    crowding: low
+  - role: commodity_price
+    target: 被管制原材料在境外的价格
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 4w-12w}
+    crowding: medium
+  - role: producer_outside_zone
+    target: 管制方以外的同类原材料生产商
+    direction: up
+    magnitude: small
+    lag: {onset: 1d-1w, peak: 1w-8w}
+    crowding: low
+leads_to:
+  - bellwether_earnings_read_through
+cases:
+  - id: huawei_entity_list_2019
+    outcome: supports
+    note: 对华为收入依赖度高的供应商下跌
+  - id: us_chip_export_rules_2022
+    outcome: supports
+    note: 设备商下调营收预期，中国半导体股在长假后首日大跌
+  - id: china_gallium_germanium_2023
+    outcome: supports
+    note: 宣布后相关公司大涨，海外镓价一周内上涨约四分之一
+prior: 0.65
+evidence_tier: B
+critique:
+  - 规则文本复杂，细则和许可豁免决定实际影响，首日的反应常常过度或不足
+  - 国产替代的受益大多停留在预期，兑现以年计
+  - 利用各市场开盘时间差的做法已经越来越普遍
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

@@ -1,0 +1,71 @@
+id: hawkish_surprise_duration_repricing
+name: 鹰派意外重估长久期资产
+statement: >-
+  通胀数据或央行表态比市场预期更鹰，短端利率上行，美元走强，高估值的
+  长久期资产承压。银行的方向取决于存款是否稳定。这是全市场盯得最紧的
+  一类事件，本卡的用处主要是给后续环节提供起点。数据偏鸽时方向全部取反。
+categories: [macro_policy]
+shock_nature: [discount_rate]
+keywords: [通胀, 加息, 鹰派, 议息, 非农, 收益率, CPI, FOMC, hawkish, rate hike]
+preconditions:
+  - 结果与一致预期有明显差距
+  - 事前头寸偏向相反的方向
+failure_conditions:
+  - 结果符合预期
+  - 央行官员随即出面淡化
+  - 同时出现增长恐慌，避险买盘压低了长端利率
+effects:
+  - role: rates
+    target: 短端国债收益率
+    direction: up
+    magnitude: medium
+    lag: {onset: 1m-5m, peak: 1h-1d}
+    crowding: high
+  - role: long_duration_equity
+    target: 高估值成长股与小盘股
+    direction: down
+    magnitude: medium
+    lag: {onset: 1m-5m, peak: 1d-1w}
+    crowding: high
+  - role: usd
+    target: 美元指数
+    direction: up
+    magnitude: small
+    lag: {onset: 1m-5m, peak: 1h-1d}
+    crowding: high
+  - role: crypto_majors
+    target: 比特币与以太坊
+    direction: down
+    magnitude: medium
+    lag: {onset: 1m-5m, peak: 1h-1d}
+    crowding: high
+  - role: sector_peer
+    target: 银行
+    direction: mixed
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1w-12w}
+    crowding: medium
+    condition: 存款稳定、资产久期短时受益于净息差；存款外流、持有大量长久期债券时受损
+leads_to:
+  - forced_deleveraging_spiral
+  - bank_run_contagion
+cases:
+  - id: us_cpi_sept_2022
+    outcome: supports
+    note: 股债同跌、美元走强
+  - id: yen_carry_unwind_2024
+    outcome: supports
+    note: 日本央行加息后日元急升，风险资产下跌
+  - id: svb_collapse_2023
+    outcome: contradicts
+    note: 持续加息没有让银行受益，反而通过债券浮亏击穿了存款不稳的银行
+prior: 0.75
+evidence_tier: B
+critique:
+  - 直接资产在秒级完成定价，本系统在这里没有任何速度优势
+  - 方向取决于意外值而不是数据本身，没有一致预期的数据就无法使用这张卡
+  - 2022 年的样本处在同一个加息周期里，换一个周期后反应的幅度会变
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

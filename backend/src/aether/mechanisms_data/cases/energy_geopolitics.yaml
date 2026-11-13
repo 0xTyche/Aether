@@ -1,0 +1,403 @@
+# 能源、航运通道、制裁与地缘冲突类案例。
+cases:
+  - id: abqaiq_attack_2019
+    title: 沙特阿布盖格石油设施遇袭
+    start_date: 2019-09-14
+    end_date: 2019-09-30
+    location: 沙特阿拉伯东部省
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      无人机与导弹袭击阿布盖格加工厂和胡赖斯油田，约 570 万桶/日的产能
+      中断，约占全球供应的 5%。沙特阿美在月底前恢复了产量。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: up
+        window: 1d
+        note: 9月16日开盘跳涨，盘中一度约 +20%，收涨约 14.6%，为有记录以来最大的单日涨幅之一
+        recall: high
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: down
+        window: 2w
+        note: 约两周内回吐全部涨幅，月底回到遇袭前水平附近
+        recall: high
+      - asset: 石油生产商与能源板块
+        direction: up
+        window: 1d
+        note: 随油价跳涨
+        recall: medium
+    lessons:
+      - 决定涨幅能否保住的是恢复速度，而不是中断时的规模
+      - 有闲置产能和库存缓冲时，约占全球 5% 的供给中断也可以在两周内被消化
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.cnbc.com/2019/09/16/oil-markets-saudi-oil-plant-attacks-in-focus.html"
+        - "https://www.eia.gov/todayinenergy/detail.php?id=41413"
+        - "https://worldoil.com/news/2019/9/27/oil-erases-all-gains-made-since-saudi-attacks-as-tensions-thaw"
+
+  - id: soleimani_strike_2020
+    title: 美军击杀苏莱曼尼
+    start_date: 2020-01-03
+    end_date: 2020-01-08
+    location: 伊拉克巴格达
+    categories: [geopolitical]
+    summary: >-
+      美军空袭击杀伊朗圣城旅指挥官。伊朗 1 月 8 日以导弹袭击驻伊拉克美军
+      基地作为报复，没有造成美军死亡，双方随后降级。石油供给始终没有受损。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: up
+        window: 1d
+        note: 1月3日上涨约 3.5%
+        recall: medium
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: down
+        window: 1w
+        note: 1月8日盘中冲高到约 71 至 72 美元，确认没有美军伤亡后当日转跌，此后跌回事件前水平之下
+        recall: medium
+      - asset: 黄金
+        asset_id: GOLD
+        direction: up
+        window: 3d-1w
+        note: 1月8日盘中一度突破 1600 美元，随后回落
+        recall: medium
+    lessons:
+      - 没有实物供给损失的地缘冲击，风险溢价通常在数日内回吐
+      - 对方反击的规模是关键节点，象征性反击等于降级信号
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.spglobal.com/energy/en/news-research/latest-news/crude-oil/010820-crude-falls-as-trump-softens-iran-rhetoric-after-attack-calls-for-talks"
+        - "https://www.spglobal.com/energy/en/news-research/latest-news/metals/010820-gold-breaks-1600-as-usiran-tensions-rise-before-profit-taking"
+        - "https://www.malaymail.com/news/money/2020/01/04/oil-safe-havens-surge-after-us-strikes-kill-iran-commander/1824529"
+
+  - id: israel_iran_june_2025
+    title: 以色列与伊朗十二日冲突
+    start_date: 2025-06-13
+    end_date: 2025-06-24
+    location: 伊朗、以色列、波斯湾
+    categories: [geopolitical]
+    summary: >-
+      以色列空袭伊朗核设施与军事目标，美国于 6 月 22 日加入打击。
+      伊朗对卡塔尔美军基地的反击被视为象征性，6 月 24 日停火。
+      霍尔木兹海峡始终开放，只在 6 月 23 日通行量一度明显下降。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: up
+        window: 1d
+        note: 6月13日收涨约 7%，盘中涨幅一度达两位数
+        recall: medium
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: down
+        window: 2d
+        note: 6月23日单日下跌约 7%，24日停火后再跌，回到冲突前水平之下
+        recall: medium
+    lessons:
+      - 市场定价的是海峡被封锁的概率，概率一旦回落，溢价会比上涨时更快地消失
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.thestar.com.my/business/2025/06/25/oil-falls-6-as-israel-iran-ceasefire-cuts-mideast-supply-risk"
+        - "https://www.thestar.com.my/business/2025/06/14/oil-settles-up7-as-israel-iran-trade-air-strikes"
+        - "https://www.spglobal.com/energy/en/news-research/latest-news/crude-oil/062425-hormuz-tanker-transits-dip-again-but-contraction-still-limited-as-freight-rates-soar"
+
+  - id: russia_ukraine_2022
+    title: 俄罗斯入侵乌克兰
+    start_date: 2022-02-24
+    location: 乌克兰、俄罗斯
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      交战双方都是能源、粮食与金属的主要出口国，制裁与黑海航运中断造成
+      真实的供给损失。大宗商品普涨，欧洲对俄暴露的资产下跌，军工与化肥
+      受益。莫斯科交易所长时间停市。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: up
+        window: 2w
+        note: 3月7日盘中约 139 美元，为 2008 年以来最高
+        recall: high
+      - asset: 芝加哥小麦期货
+        direction: up
+        window: 2w
+        note: 连续多日涨停，3月初创历史新高
+        recall: high
+      - asset: 欧洲天然气（TTF）
+        direction: up
+        window: 2w
+        note: 3月7日盘中一度约 345 欧元/兆瓦时
+        recall: medium
+      - asset: 伦敦镍
+        direction: up
+        window: 2d
+        note: 3月7日至8日暴涨，盘中突破每吨 10 万美元，交易所暂停交易并取消了3月8日的成交
+        recall: high
+      - asset: 钯金
+        direction: up
+        window: 2w
+        note: 3月7日创约 3440 美元的历史高位
+        recall: medium
+      - asset: 欧洲军工股（莱茵金属等）
+        direction: up
+        window: 1w-4w
+        note: 德国宣布 1000 亿欧元国防特别基金后大涨
+        recall: high
+      - asset: 化肥生产商（钾肥、氮肥）
+        direction: up
+        window: 2w-8w
+        note: 俄罗斯与白俄罗斯是钾肥主要出口国，天然气涨价又推高氮肥成本
+        recall: medium
+      - asset: 莫斯科交易所股票
+        direction: flat
+        window: 4w
+        note: 2月28日起股票市场停市，3月24日才部分恢复
+        recall: high
+    lessons:
+      - 有真实供给损失时，溢价不会像纯风险事件那样在数日内回吐
+      - 逼空与交易所取消成交说明，方向判断正确也可能拿不到利润
+      - 被制裁方的资产往往直接停市，可交易的是第三方
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://think.ing.com/snaps/the-commodities-feed-nickel-surges-to-record-levels/"
+        - "https://www.spglobal.com/commodityinsights/en/market-insights/latest-news/metals/030822-lme-suspends-nickel-trading-after-unprecedented-surge-to-above-100000mt"
+        - "https://www.themoscowtimes.com/2022/03/23/russian-stock-market-to-reopen-thursday-after-unprecedented-pause-a77050"
+      notes: "化肥股数周内的累计涨幅未核对。"
+
+  - id: suez_ever_given_2021
+    title: 长赐号堵塞苏伊士运河
+    start_date: 2021-03-23
+    end_date: 2021-03-29
+    location: 埃及苏伊士运河
+    categories: [industry_supply_chain]
+    summary: >-
+      超大型集装箱船搁浅，运河堵塞 6 天，约 400 艘船滞留。
+      中断时间太短，对大宗商品价格没有形成持续影响。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: up
+        window: 1d
+        note: 3月24日上涨约 6%，次日下跌约 3.8%，后者主要被归因于欧洲封锁带来的需求担忧
+        recall: medium
+      - asset: 亚欧航线集装箱运价
+        direction: up
+        window: 2w-6w
+        note: 运价原本已处高位，堵塞加剧了舱位和空箱紧张
+        recall: medium
+    lessons:
+      - 中断的持续时间是关键变量，6 天不足以形成持续的价格冲击
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://en.wikipedia.org/wiki/2021_Suez_Canal_obstruction"
+        - "https://www.petroleumnews.com/pnarchpop/535381579.shtml"
+        - "https://www.worldoil.com/news/2021/3/25/oil-prices-retreat-as-suez-blockage-ramps-up-volatility"
+      notes: "集装箱运价一条未核对。"
+
+  - id: red_sea_houthi_2023
+    title: 胡塞武装袭击红海商船
+    start_date: 2023-11-19
+    location: 红海与曼德海峡
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      2023 年 11 月起商船接连遇袭，12 月中旬主要班轮公司宣布绕行好望角。
+      2024 年初苏伊士运河通行量同比下降约一半。货物没有消失，只是航程
+      变长，所以受益的是运价，原油价格基本没有反应。
+    observations:
+      - asset: 上海至北欧集装箱运价
+        direction: up
+        window: 4w-8w
+        note: 12月中旬宣布绕行后，约一个月内升到原来的三倍左右
+        recall: medium
+      - asset: 班轮公司股票（马士基、赫伯罗特、以星）
+        direction: up
+        window: 2w-6w
+        note: 以星航运在 12 月至次年 1 月间大致翻倍
+        recall: medium
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: flat
+        window: 4w
+        note: 原油供给没有减少，价格反应有限
+        recall: medium
+    lessons:
+      - 通道受阻但可以绕行时，受益的是承运方，受损的是货主，商品价格本身未必变化
+      - 从首次袭击到班轮公司宣布绕行隔了近一个月，运价是在后者之后才大涨的
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.imf.org/en/Blogs/Articles/2024/03/07/Red-Sea-Attacks-Disrupt-Global-Trade"
+        - "https://www.lloydslist.com/LL1147832/Box-freight-rates-rise-again-as-diversions-resume"
+        - "https://www.aljazeera.com/features/2023/12/16/analysis-what-do-houthi-attacks-in-the-red-sea-mean-for-oil-prices"
+      notes: "马士基与赫伯罗特的股价未核对，以星航运已核实。"
+
+  - id: baltimore_bridge_2024
+    title: 巴尔的摩大桥垮塌封港
+    start_date: 2024-03-26
+    end_date: 2024-06-10
+    location: 美国巴尔的摩港
+    categories: [industry_supply_chain]
+    summary: >-
+      货轮撞塌大桥，航道完全恢复用了约 11 周，4 月下旬起先开放了临时的
+      限制性航道。巴尔的摩是美国第二大煤炭出口港，也是最大的汽车进出口
+      港，货物改道东岸其他港口。
+    observations:
+      - asset: 依赖该港出口的煤炭企业（CONSOL Energy）
+        direction: down
+        window: 1d
+        note: 当日下跌约 7%
+        recall: medium
+      - asset: 全球海运动力煤价格
+        direction: flat
+        window: 1w-2w
+        note: 该港出口量占全球份额很小，价格影响有限
+        recall: low
+    lessons:
+      - 对依赖单一港口的企业是特质性利空，对全球商品价格则要先做规模核查
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.cbsnews.com/baltimore/news/main-channel-to-port-of-baltimore-fully-restored-11-weeks-after-key-bridge-collapse/"
+        - "https://www.usitc.gov/sites/default/files/publications/332/executive_briefings/ebot_baltimore_bridge_coal.pdf"
+        - "https://www.tipranks.com/news/the-fly/consol-energy-sinks-following-collapse-of-bridge-in-baltimore"
+
+  - id: rusal_sanctions_2018
+    title: 美国制裁俄铝
+    start_date: 2018-04-06
+    end_date: 2018-04-23
+    location: 俄罗斯
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      美国财政部把俄铝列入制裁名单，俄铝约占中国以外铝供应的一成多。
+      铝价两周内急涨，4 月 23 日财政部延长缓冲期并表示可以解除制裁后
+      急跌。制裁最终在 2019 年 1 月解除。
+    observations:
+      - asset: 伦敦铝
+        direction: up
+        window: 2w
+        note: 两周内上涨约三成，4月19日前后升至七年高位
+        recall: medium
+      - asset: 俄铝（港股）
+        direction: down
+        window: 1d
+        note: 4月9日单日下跌约 50%
+        recall: high
+      - asset: 伦敦铝
+        direction: down
+        window: 1d
+        note: 4月23日缓冲期延长的消息后单日下跌 7% 以上
+        recall: medium
+      - asset: 氧化铝
+        direction: up
+        window: 2w
+        note: 创历史新高
+        recall: medium
+      - asset: 俄罗斯以外的铝企（美国铝业等）
+        direction: up
+        window: 2w
+        note: 受益于铝价上涨
+        recall: medium
+    lessons:
+      - 制裁造成的涨价可以被一纸豁免瞬间逆转，政策本身就是失效条件
+      - 被制裁方的上下游（氧化铝）反应可能比主产品更剧烈
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.mining.com/web/us-sanctions-rusal-shatter-aluminiums-supply-chain-andy-home/"
+        - "https://www.thestar.com.my/business/business-news/2018/04/24/aluminium-prices-extend-fall-after-us-reprieve-for-rusal"
+        - "https://themoscowtimes.com/2019/01/28/us-lifts-sanctions-on-rusal-other-firms-linked-to-oligarch-deripaska-a64304"
+      notes: "氧化铝的上涨同时受到巴西一家氧化铝厂减产的影响，不能只归因于制裁。"
+
+  - id: indonesia_palm_oil_ban_2022
+    title: 印尼棕榈油出口禁令
+    start_date: 2022-04-22
+    end_date: 2022-05-23
+    location: 印度尼西亚
+    categories: [macro_policy, industry_supply_chain]
+    summary: >-
+      全球最大的棕榈油出口国为平抑国内食用油价格宣布禁止出口，
+      4 月 28 日生效，5 月 23 日解除。禁令的范围在一周内变过一次：
+      4 月 25 日官方称只涵盖精炼棕榈油，4 月 27 日扩大到毛棕榈油。
+      禁令期间国内库存积压。
+    observations:
+      - asset: 马来西亚棕榈油期货
+        direction: up
+        window: 1d-1w
+        note: 4月25日盘中一度上涨约 6% 到 7%，因禁令范围被说成只含精炼油而收跌约 2%；4月27日范围扩大到毛棕榈油，当日触及涨停，收涨约 9.4%
+        recall: medium
+      - asset: 芝加哥豆油
+        direction: up
+        window: 1d-1w
+        note: 作为替代品同步上涨，创历史新高
+        recall: medium
+      - asset: 马来西亚棕榈油期货
+        direction: down
+        window: 4w-8w
+        note: 解禁后印尼出清积压库存，价格在 6 月大幅回落
+        recall: medium
+    lessons:
+      - 出口禁令会在国内攒出库存，解禁后的抛压是可以预判的反向交易
+      - 替代品和区域外的生产国是直接受益方
+      - 政策的适用范围比政策本身更重要，首日的反应可能因为一句澄清而反转
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.thestar.com.my/business/business-news/2022/04/26/cpo-futures-sees-bump-on-indonesias-ban"
+        - "https://www.tridge.com/news/palm-oil-adds-nearly-3-as-market-estimates-indones"
+        - "https://www.spglobal.com/energy/en/news-research/latest-news/agriculture/042722-indonesia-palm-oil-export-ban-to-include-crude-palm-oil-uco-markets-jump"
+      notes: "核对后改正：宣布后的首个交易日其实收跌，持续的上涨出现在禁令扩大到毛棕榈油之后。"
+
+  - id: russian_oil_embargo_2022
+    title: 欧盟对俄海运原油禁运与限价生效
+    start_date: 2022-12-05
+    location: 欧盟、俄罗斯
+    categories: [geopolitical, macro_policy]
+    summary: >-
+      禁运在 2022 年 6 月通过并设了半年过渡期，生效日期早已为人所知；
+      每桶 60 美元的限价水平则直到 12 月 2 日才敲定。生效后俄油转向印度
+      和中国，航程拉长。生效当周油价不涨反跌，当时的报道主要归因于需求
+      与衰退担忧。
+    observations:
+      - asset: 布伦特原油
+        asset_id: BRENT
+        direction: down
+        window: 1w
+        note: 生效当周下跌，12月上旬跌至约 76 美元的年内低位
+        recall: medium
+      - asset: 乌拉尔原油相对布伦特的价差
+        direction: down
+        window: 4w-8w
+        note: 折价扩大到每桶约 30 美元
+        recall: medium
+      - asset: 油轮运费与油轮股
+        direction: up
+        window: 4w-12w
+        note: 贸易流向重排后航程拉长，运力需求上升
+        recall: medium
+    lessons:
+      - 生效日期提前半年已知，生效当周没有出现供给恐慌；但当周的下跌主要来自需求担忧，不能简单算作预期兑现
+      - 供给没有消失而是换了买家时，受益的是运输环节和拿到折价的买方
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.arabnews.pk/node/2210046"
+        - "https://www.cnbc.com/2022/12/09/oil-markets-keystone-pipeline-shutdown-global-demand-slowdown.html"
+        - "https://www.spglobal.com/energy/en/news-research/latest-news/crude-oil/120922-asian-buyers-push-for-even-steeper-urals-discounts-after-g7-price-cap"
+      notes: "核对后改正：限价水平在生效前三天才敲定；当周的下跌主要被归因于需求担忧。"

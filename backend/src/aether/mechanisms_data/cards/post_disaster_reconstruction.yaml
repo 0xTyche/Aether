@@ -1,0 +1,44 @@
+id: post_disaster_reconstruction
+name: 灾后重建预期
+statement: >-
+  大灾之后，市场预期政府会拨款重建，水泥、钢材、工程等本土建材与建筑
+  企业的股价上涨。这一反应来得快，多数是对预算的预期，离真实订单还有
+  数月。
+categories: [natural_environmental, macro_policy]
+shock_nature: [idiosyncratic]
+keywords: [重建, 水泥, 建材, 基建, 灾后, reconstruction, cement, rebuilding]
+preconditions:
+  - 政府有财政能力并表态重建
+  - 受益企业在受灾国本土上市，自身产能没有受损
+failure_conditions:
+  - 财政无力，或重建预算迟迟不落地
+  - 建材产能过剩，需求增加带不动价格和利润
+  - 题材在数日内被透支
+effects:
+  - role: reconstruction
+    target: 本土的水泥、钢材、工程与建材企业
+    direction: up
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 1d-2w, fade: 4w-12w}
+    crowding: high
+leads_to: []
+cases:
+  - id: tohoku_2011
+    outcome: supports
+    note: 建筑股在震后数日逆势上涨
+  - id: turkey_earthquake_2023
+    outcome: supports
+    note: 水泥股在停市前两天已经大涨，复牌后继续领涨
+  - id: sichuan_earthquake_2008
+    outcome: supports
+    note: 水泥、路桥等重建概念短线上涨
+prior: 0.6
+evidence_tier: B
+critique:
+  - 多数是题材炒作，股价先于订单反应并很快回吐，业绩是否兑现缺乏证据
+  - 在散户占比高的市场，这个题材几乎人人皆知，谈不上被忽略
+  - 反应可以快到当天：2011 年日本建筑股在震后首个交易日就涨了两成，2023 年土耳其水泥股在停市前就已大涨，留给事后入场的空间很小
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

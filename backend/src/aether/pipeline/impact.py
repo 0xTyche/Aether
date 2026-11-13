@@ -11,12 +11,16 @@ WebSocket hub (Phase 3) can fan out to clients.
 """
 
 from datetime import UTC, datetime
+from math import prod
+from typing import Any
 from uuid import UUID
 
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from aether.mechanisms.catalog import default_library
+from aether.mechanisms.loader import MechanismLibrary
 from aether.models.assets import Asset
 from aether.models.events import Event, ImpactPrediction
 from aether.models.news import RawNews
@@ -32,6 +36,85 @@ logger = structlog.get_logger(__name__)
 async def _known_asset_ids(session: AsyncSession) -> set[str]:
     rows = await session.scalars(select(Asset.id))
     return set(rows.all())
+
+
+def _known_mechanism(mechanism_id: str | None, library: MechanismLibrary) -> str | None:
+    """Keep a card id only if the library has it; the model may invent one."""
+    if mechanism_id is None:
+        return None
+    if library.card(mechanism_id) is None:
+        logger.warning("pipeline.unknown_mechanism_filtered", mechanism_id=mechanism_id)
+        return None
+    return mechanism_id
+
+
+def _mechanism_summary(
+    ids: list[str], library: MechanismLibrary
+) -> tuple[list[dict[str, Any]], float | None]:
+    """Resolve the model's chain of card ids and multiply their priors.
+
+    The priors are unreviewed drafts, so each entry carries its evidence
+    tier and review status for the UI to show next to the number.
+    """
+    cards: list[dict[str, Any]] = []
+    for card_id in ids:
+        if _known_mechanism(card_id, library) is None:
+            continue
+        card = library.cards[card_id]
+        cards.append({
+            "id": card.id,
+            "name": card.name,
+            "prior": card.prior,
+            "evidence_tier": card.evidence_tier,
+            "review_status": card.review.status,
+        })
+    if not cards:
+        return [], None
+    return cards, round(prod(c["prior"] for c in cards), 4)
+
+
+def _impact_metadata(imp: llm.LLMImpactBase, library: MechanismLibrary) -> dict[str, Any]:
+    """Fields shared by in-pool predictions and off-pool entries."""
+    return {
+        "direction": imp.direction,
+        "magnitude": imp.magnitude,
+        "confidence": imp.confidence,
+        "timeframe_min": imp.horizon_min,
+        "crowding": imp.crowding,
+        "mechanism_id": _known_mechanism(imp.mechanism_id, library),
+        "role": imp.role,
+        "rationale": imp.rationale,
+    }
+
+
+def _off_pool_from_llm(
+    analysis: llm.LLMAnalysis, known_assets: set[str], library: MechanismLibrary
+) -> list[dict[str, Any]]:
+    """Assets outside the pool, kept for display instead of thrown away.
+
+    Includes in-pool slots whose asset_id we do not know: the model was
+    told to pick from the list, but a made-up ticker still says which
+    asset it had in mind.
+    """
+    out: list[dict[str, Any]] = []
+    for imp in analysis.impacts:
+        if imp.asset_id in known_assets:
+            continue
+        logger.warning("pipeline.unknown_asset_moved_off_pool", asset_id=imp.asset_id)
+        out.append({
+            "name": imp.asset_id,
+            "ticker": imp.asset_id,
+            "market": "",
+            **_impact_metadata(imp, library),
+        })
+    for imp in analysis.off_pool:
+        out.append({
+            "name": imp.name,
+            "ticker": imp.ticker,
+            "market": imp.market,
+            **_impact_metadata(imp, library),
+        })
+    return out
 
 
 def _build_event_from_rule(news: RawNews, rule: Rule) -> Event:
@@ -50,7 +133,13 @@ def _build_event_from_rule(news: RawNews, rule: Rule) -> Event:
     )
 
 
-def _build_event_from_llm(news: RawNews, analysis: llm.LLMAnalysis) -> Event:
+def _build_event_from_llm(
+    news: RawNews,
+    analysis: llm.LLMAnalysis,
+    *,
+    library: MechanismLibrary,
+    off_pool: list[dict[str, Any]],
+) -> Event:
     # Persist the richer LLM reasoning into events.analysis so the frontend
     # can surface it in the collapsible "deep analysis" panel.
     extra: dict = {}
@@ -60,8 +149,18 @@ def _build_event_from_llm(news: RawNews, analysis: llm.LLMAnalysis) -> Event:
             "primary_category": cls.primary_category,
             "shock_nature": list(cls.shock_nature),
         }
+    if analysis.premise_check:
+        extra["premise_check"] = analysis.premise_check
+    mechanisms, chain_prior = _mechanism_summary(analysis.mechanisms, library)
+    if mechanisms:
+        extra["mechanisms"] = mechanisms
+        extra["chain_prior"] = chain_prior
     if analysis.transmission_chain:
         extra["transmission_chain"] = list(analysis.transmission_chain)
+    if off_pool:
+        extra["off_pool"] = off_pool
+    if analysis.rejected:
+        extra["rejected"] = [rej.model_dump() for rej in analysis.rejected]
 
     return Event(
         raw_news_id=news.id,
@@ -96,27 +195,24 @@ def _predictions_from_rule(event: Event, rule: Rule) -> list[ImpactPrediction]:
 
 
 def _predictions_from_llm(
-    event: Event, analysis: llm.LLMAnalysis, known_assets: set[str]
+    event: Event,
+    analysis: llm.LLMAnalysis,
+    known_assets: set[str],
+    library: MechanismLibrary,
 ) -> list[ImpactPrediction]:
-    """Filter out asset_ids the LLM hallucinated."""
-    out: list[ImpactPrediction] = []
-    for imp in analysis.impacts:
-        if imp.asset_id not in known_assets:
-            logger.warning(
-                "pipeline.unknown_asset_filtered",
-                asset_id=imp.asset_id,
-                event_title=event.title[:80],
-            )
-            continue
-        out.append(ImpactPrediction(
+    """Scoreable predictions: in-pool assets only.
+
+    Unknown asset_ids are skipped here; `_off_pool_from_llm` keeps them.
+    """
+    return [
+        ImpactPrediction(
             event_id=event.id,
             asset_id=imp.asset_id,
-            direction=imp.direction,
-            magnitude=imp.magnitude,
-            confidence=imp.confidence,
-            rationale=imp.rationale,
-        ))
-    return out
+            **_impact_metadata(imp, library),
+        )
+        for imp in analysis.impacts
+        if imp.asset_id in known_assets
+    ]
 
 
 def _serialize_for_pubsub(event: Event, predictions: list[ImpactPrediction]) -> dict:
@@ -140,6 +236,9 @@ def _serialize_for_pubsub(event: Event, predictions: list[ImpactPrediction]) -> 
                 "confidence": p.confidence,
                 "rationale": p.rationale,
                 "timeframe_min": p.timeframe_min,
+                "crowding": p.crowding,
+                "mechanism_id": p.mechanism_id,
+                "role": p.role,
             }
             for p in predictions
         ],
@@ -152,8 +251,13 @@ async def analyze_raw_news(
     *,
     rules: list[Rule],
     system_prompt: str,
+    library: MechanismLibrary | None = None,
 ) -> UUID | None:
-    """Classify one news item end-to-end. Returns event.id or None if skipped."""
+    """Classify one news item end-to-end. Returns event.id or None if skipped.
+
+    An LLM event is kept even when every affected asset is outside the
+    pool: it then has no scoreable predictions, only `analysis.off_pool`.
+    """
     item = MatchInput(source=news.source, title=news.title, body=news.body or "")
     rule = match(rules, item)
 
@@ -179,19 +283,21 @@ async def analyze_raw_news(
         if analysis is None:
             logger.warning("pipeline.llm_failed", news_id=news.id)
             return None
-        if not analysis.is_market_relevant or not analysis.impacts:
+        if not analysis.is_market_relevant or not (analysis.impacts or analysis.off_pool):
             logger.info("pipeline.skipped_irrelevant", news_id=news.id)
             return None
 
         known = await _known_asset_ids(session)
-        event = _build_event_from_llm(news, analysis)
-        predictions = _predictions_from_llm(event, analysis, known)
-        if not predictions:
-            logger.warning("pipeline.llm_all_assets_unknown", news_id=news.id)
-            return None
+        library = library if library is not None else default_library()
+        off_pool = _off_pool_from_llm(analysis, known, library)
+        event = _build_event_from_llm(news, analysis, library=library, off_pool=off_pool)
+        predictions = _predictions_from_llm(event, analysis, known, library)
         logger.info(
             "pipeline.llm_classified",
-            news_id=news.id, impacts=len(predictions), severity=event.severity,
+            news_id=news.id,
+            impacts=len(predictions),
+            off_pool=len(off_pool),
+            severity=event.severity,
         )
 
     session.add(event)

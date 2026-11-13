@@ -1,0 +1,67 @@
+id: sanctions_supply_rerouting
+name: 制裁造成的供给重排
+statement: >-
+  对主要生产商的制裁有两种结果。供给真的退出市场时，商品涨价，不受制裁
+  的同类生产商受益。供给只是换了买家时，基准价格未必变化，受益的是航程
+  拉长后的运输环节和拿到折价的买方。生效日期提前公布的制裁，生效当日
+  未必出现供给恐慌。
+categories: [geopolitical, macro_policy, industry_supply_chain]
+shock_nature: [supply_side, idiosyncratic]
+keywords: [制裁, 禁运, 限价, 实体清单, 豁免, 缓冲期, sanctions, embargo, price cap, waiver]
+preconditions:
+  - 被制裁方在该商品的可贸易供给中占比显著
+  - 制裁有次级效力，第三方不敢接盘
+failure_conditions:
+  - 豁免、缓冲期延长或解除制裁
+  - 通过第三国和影子船队绕开
+  - 生效日期早已公布，市场已经提前定价
+effects:
+  - role: direct_target
+    target: 被制裁的企业及其证券
+    direction: down
+    magnitude: large
+    lag: {onset: 5m-1d, peak: 1d-1w}
+    crowding: high
+  - role: commodity_price
+    target: 被制裁方生产的商品
+    direction: mixed
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-2w, fade: 2w-8w}
+    crowding: high
+    condition: 供给真的退出市场时上涨；只是换了买家时基准价格可能不变
+  - role: producer_outside_zone
+    target: 不受制裁的同类生产商
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-3d, peak: 1w-4w}
+    crowding: medium
+  - role: freight
+    target: 贸易流向重排后航程变长的油轮与散货运力
+    direction: up
+    magnitude: medium
+    lag: {onset: 2w-8w, peak: 8w-24w}
+    crowding: low
+  - role: counterparty
+    target: 能以折价买入受制裁商品的买方
+    direction: up
+    magnitude: small
+    lag: {onset: 4w-8w, peak: 8w-24w}
+    crowding: low
+leads_to: []
+cases:
+  - id: rusal_sanctions_2018
+    outcome: supports
+    note: 铝价两周内大涨，缓冲期延长的消息后单日急跌
+  - id: russian_oil_embargo_2022
+    outcome: supports
+    note: 供给换了买家，乌拉尔原油折价扩大，受益的是油轮和折价买方；基准油价当周下跌主要因需求担忧
+prior: 0.65
+evidence_tier: B
+critique:
+  - 制裁的执行力度在事前很难判断
+  - 政策可以随时逆转，持仓过夜的风险很大
+  - 2022 年禁运生效当周的油价下跌主要被归因于需求担忧，这个案例证明不了制裁已被提前定价
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

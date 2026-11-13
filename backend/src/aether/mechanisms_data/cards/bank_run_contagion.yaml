@@ -1,0 +1,71 @@
+id: bank_run_contagion
+name: 金融中介挤兑的传染
+statement: >-
+  一家银行或交易所遭挤兑或被处置后，恐慌沿着"与它相似"的维度传到同类
+  机构，资金流向被认为最稳的同业和避险资产。对出事方有敞口的机构在
+  数天到数周后才暴露。当局兜底后恐慌消退，市场转而定价宽松。
+categories: [market_structure_liquidity, company_specific]
+shock_nature: [liquidity, risk_premium]
+keywords: [挤兑, 接管, 破产, 暂停提款, 存款外流, 减记, bank run, insolvency, withdrawal halt, bail-in]
+preconditions:
+  - 出事的原因是其他机构也有的特征，而不是孤立的舞弊
+  - 负债可以被快速提走
+  - 当局还没有给出明确的兜底
+failure_conditions:
+  - 当局迅速全额兜底
+  - 出事原因是孤立事件，同业没有相同特征
+  - 出事机构规模很小，且与同业没有往来
+effects:
+  - role: direct_target
+    target: 出事的机构及其发行的证券
+    direction: down
+    magnitude: large
+    lag: {onset: 5m-1d, peak: 1d-3d}
+    crowding: high
+  - role: sector_peer
+    target: 在出事的那个特征上与其相似的同类机构
+    direction: down
+    magnitude: large
+    lag: {onset: 1h-1d, peak: 1d-1w, fade: 2w-8w}
+    crowding: medium
+    examples: [未保险存款占比高的区域银行, 条款相同的资本债券]
+  - role: counterparty
+    target: 对出事方有敞口的机构，以及被出事方重仓的资产
+    direction: down
+    magnitude: large
+    lag: {onset: 1h-3d, peak: 1d-4w}
+    crowding: low
+  - role: safe_haven
+    target: 行业内最稳健的龙头、国债与黄金
+    direction: up
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-1w}
+    crowding: medium
+  - role: rates
+    target: 短端国债收益率
+    direction: down
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 1d-3d}
+    crowding: high
+leads_to:
+  - stablecoin_depeg_flight
+cases:
+  - id: svb_collapse_2023
+    outcome: supports
+    note: 恐慌传到存款结构相似的区域银行，短端利率三日骤降
+  - id: credit_suisse_at1_2023
+    outcome: supports
+    note: 一家的债券被减记，整个同类资产被重新定价
+  - id: ftx_collapse_2022
+    outcome: supports
+    note: 关联方重仓的代币跌幅最大，借贷平台在数周后相继出事
+prior: 0.7
+evidence_tier: B
+critique:
+  - 所谓相似的维度每次都不同，要有现成的暴露数据才来得及用
+  - 兜底的时点和力度决定何时反转，这是政策判断
+  - 三个正例里有一个是加密交易所，监管环境与银行差别很大
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

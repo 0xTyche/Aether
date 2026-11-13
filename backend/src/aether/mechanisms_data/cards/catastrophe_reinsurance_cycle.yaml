@@ -1,0 +1,61 @@
+id: catastrophe_reinsurance_cycle
+name: 巨灾后再保险费率走硬
+statement: >-
+  巨灾损失消耗了行业资本后，随后的续保季费率大幅上调，资本充足的再保险
+  公司盈利预期改善。事发后头几周的股价反应因公司而异：损失集中、资本
+  薄弱的下跌，大公司可能因为市场直接去交易涨价预期而不跌反涨。受灾地区
+  资本薄弱的本土小保险公司可能直接出局。
+categories: [natural_environmental]
+shock_nature: [idiosyncratic, supply_side]
+keywords: [再保险, 巨灾, 保险损失, 续保, 费率, reinsurance, catastrophe, insured loss, renewal]
+preconditions:
+  - 受灾区保险渗透率高，如美国、日本与西欧
+  - 行业损失达到数百亿美元量级
+  - 事发前行业资本并不宽裕
+failure_conditions:
+  - 受灾区保险覆盖低，保险损失远小于经济损失
+  - 巨灾债券等另类资本充裕，费率涨不动
+  - 最终损失低于初始估计
+effects:
+  - role: insurer
+    target: 全球再保险公司，事发前后的数周
+    direction: mixed
+    magnitude: small
+    lag: {onset: 1h-2d, peak: 2d-2w, fade: 2w-8w}
+    crowding: medium
+    condition: 损失集中、资本薄弱的公司下跌；资本充足的大公司可能持平甚至上涨。飓风路径明确后，下跌可以在登陆之前就开始
+  - role: insurer
+    target: 资本充足的再保险公司，续保季之后
+    direction: up
+    magnitude: medium
+    lag: {onset: 8w-16w, peak: 16w-52w}
+    crowding: low
+    condition: 损失大到足以消耗行业资本并推高续保费率
+  - role: producer_in_zone
+    target: 受灾地区资本薄弱的本土保险公司
+    direction: down
+    magnitude: large
+    lag: {onset: 1d-1w, peak: 4w-24w}
+    crowding: low
+leads_to: []
+cases:
+  - id: hurricane_katrina_2005
+    outcome: supports
+    note: 2006 年年中续保费率大涨；大型再保险公司在登陆后两周内就已上涨
+  - id: hurricane_ian_2022
+    outcome: supports
+    note: 2023 年初续保费率大幅上调，佛州一家本土保险公司被清算
+  - id: indian_ocean_tsunami_2004
+    outcome: contradicts
+    note: 保险渗透率低，再保险股几乎没有反应
+prior: 0.6
+evidence_tier: B
+critique:
+  - 这张卡起草时写的是"先跌后涨"，核对后发现 2005 年大型再保险公司灾后并未下跌，第一段因此改成了方向不定
+  - 费率上调要等续保季才能确认，2006 年 1 月的续保就低于预期，真正的涨幅到年中才出现
+  - 再保险股同时受利率和投资收益影响，2023 年的上涨不能全部归因于费率
+  - 清晰的正例只有两个，而且都是美国飓风
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

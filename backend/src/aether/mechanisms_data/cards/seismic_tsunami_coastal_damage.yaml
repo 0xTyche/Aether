@@ -1,0 +1,72 @@
+id: seismic_tsunami_coastal_damage
+name: 强震与海啸损毁沿岸设施
+statement: >-
+  浅源强震及其引发的海啸损毁沿岸的港口、工厂与能源设施。跨洋海啸从地震到
+  登陆有数小时，这段时间里消息已经公开而后果尚未到达。受灾国资产先跌，
+  真正持续的影响落在依赖灾区供给的下游和区域外的竞争者身上。
+categories: [natural_environmental, industry_supply_chain]
+shock_nature: [supply_side, risk_premium]
+keywords: [地震, 海啸, 震级, 海啸预警, earthquake, tsunami, magnitude]
+preconditions:
+  - 震级与震源深度足以造成破坏，海啸还需要海底发生垂直错动
+  - 受灾沿岸有重要的港口、工厂或能源设施
+  - 这些设施在上市资产或全球供给中的占比不低
+failure_conditions:
+  - 受灾区以渔村和旅游带为主，在上市资产与出口中占比很小
+  - 海啸预警取消，或实际浪高远低于预期
+  - 设施有冗余，数日内即可恢复
+  - 受灾国市场停市，无法交易
+effects:
+  - role: local_equities
+    target: 受灾国的股指
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-3d, fade: 2w-8w}
+    crowding: high
+    examples: [日经225]
+  - role: producer_in_zone
+    target: 设施位于受灾沿岸的生产商、港口与公用事业
+    direction: down
+    magnitude: large
+    lag: {onset: 1h-1d, peak: 2d-2w}
+    crowding: medium
+  - role: downstream_buyer
+    target: 依赖灾区零部件或原料的海外下游企业
+    direction: down
+    magnitude: medium
+    lag: {onset: 2d-2w, peak: 2w-8w, fade: 12w-24w}
+    crowding: low
+    examples: [日系车企的海外工厂]
+  - role: producer_outside_zone
+    target: 区域外的同类生产商与邻近的竞争港口
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 2w-8w}
+    crowding: low
+leads_to:
+  - export_node_outage_commodity
+  - processing_hub_outage_spread
+  - single_source_component_outage
+  - catastrophe_reinsurance_cycle
+  - disaster_currency_direction
+  - post_disaster_reconstruction
+cases:
+  - id: tohoku_2011
+    outcome: supports
+    note: 设施损毁、股指暴跌、海外下游减产都出现了
+  - id: kobe_1995
+    outcome: supports
+    note: 没有海啸，但港口被毁后货量永久转移到竞争港口
+  - id: indian_ocean_tsunami_2004
+    outcome: contradicts
+    note: 灾情极重，但受灾区的经济占比小，市场几乎没有反应
+prior: 0.6
+evidence_tier: B
+critique:
+  - 样本极少且每次都不同，先验主要来自 2011 年这一次
+  - 大西洋两岸多为被动大陆边缘，缺少能产生大海啸的俯冲带，历史上跨大西洋的海啸极少；"西非地震致巴西海啸"这类设想本身就要先过物理核查
+  - 股指的下跌多在开盘时完成，可交易的是二阶对象而不是指数本身
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

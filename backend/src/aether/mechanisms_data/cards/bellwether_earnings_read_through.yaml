@@ -1,0 +1,64 @@
+id: bellwether_earnings_read_through
+name: 龙头财报向供应链的溢出
+statement: >-
+  行业龙头的财报或指引透露了全行业的需求信息，影响沿供应链外溢。
+  直接同业当天就反应完，二三线供应商和其他时区的同业反应更晚。
+  份额流失方的方向相反。以下方向按超预期书写，不及预期时全部取反。
+categories: [company_specific, industry_supply_chain]
+shock_nature: [idiosyncratic, supply_side]
+keywords: [财报, 指引, 订单, 资本开支, 超预期, 不及预期, earnings, guidance, orders, capex]
+preconditions:
+  - 披露的信息关乎全行业的需求或资本开支，而不只是公司自身的执行
+  - 谁是谁的客户和供应商是清楚的
+failure_conditions:
+  - 惊喜来自公司特有的因素，如一次性项目或份额变化
+  - 板块此前已经大幅抢跑
+effects:
+  - role: direct_target
+    target: 发布财报的龙头
+    direction: up
+    magnitude: large
+    lag: {onset: 1m-5m, peak: 1h-1d}
+    crowding: high
+  - role: sector_peer
+    target: 直接同业与一线供应商
+    direction: up
+    magnitude: medium
+    lag: {onset: 1m-1h, peak: 1h-1d}
+    crowding: high
+  - role: sector_peer
+    target: 其他时区尚未开盘的同业
+    direction: up
+    magnitude: medium
+    lag: {onset: 1h-16h, peak: 1d-2d}
+    crowding: medium
+  - role: upstream_supplier
+    target: 二三线供应链，如零部件、材料与设备
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 4w-24w}
+    crowding: low
+  - role: sector_peer
+    target: 被挤占份额的竞争者
+    direction: down
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-4w}
+    crowding: medium
+leads_to: []
+cases:
+  - id: nvda_guidance_may_2023
+    outcome: supports
+    note: 同业与代工厂次日大涨，份额流失方下跌，远端供应链随后数月才被定价
+  - id: asml_orders_miss_2024
+    outcome: supports
+    note: 设备同业当日普跌，日本同业到次日开盘才跟跌
+prior: 0.7
+evidence_tier: B
+critique:
+  - 一线同业当天就反应完毕，剩下的空间只在二三线和跨时区，而这两部分恰恰缺少行情验证
+  - 二三线在数周到数月内被重新定价这一点，很难与同期的大盘上涨区分开
+  - 学术研究里客户与供应商之间的收益传导主要在月度频率上得到证实，日内的证据较弱
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

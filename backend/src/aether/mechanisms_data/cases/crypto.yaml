@@ -1,0 +1,276 @@
+# 加密市场类案例。
+cases:
+  - id: ftx_collapse_2022
+    title: FTX 交易所倒闭
+    start_date: 2022-11-02
+    end_date: 2022-11-11
+    location: 全球
+    categories: [market_structure_liquidity, company_specific]
+    summary: >-
+      媒体披露关联做市商的资产大量是 FTX 自家代币，随后币安表示将抛售
+      持有的该代币，引发挤兑，FTX 数日内申请破产。关联方重仓的代币跌幅
+      最大，借贷平台在随后数周相继出事。
+    observations:
+      - asset: FTT
+        direction: down
+        window: 1d-3d
+        note: 11月8日单日下跌约 75% 以上
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 1w
+        note: 跌到约 1.55 万至 1.6 万美元的两年低点
+        recall: high
+      - asset: Solana
+        asset_id: SOL
+        direction: down
+        window: 1w
+        note: 关联方大量持有，一周下跌约六成
+        recall: medium
+      - asset: Coinbase
+        asset_id: COIN
+        direction: down
+        window: 2d
+        note: 两日内下跌约 24%，11月9日创当时的最低收盘价，11月11日前收回大半；持续的下跌出现在下一周
+        recall: medium
+    lessons:
+      - 跌幅按"被出事方持有的程度"排序，这份持仓信息在事前已经公开
+      - 借贷方的暴雷比交易所晚数天到数周，是可以预判的后续节点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.theblock.co/post/184251/ftx-agrees-to-strategic-transaction-with-binance"
+        - "https://www.cnbc.com/2022/11/16/genesis-lending-unit-halts-withdrawals-in-aftermath-of-ftx-collapse.html"
+      notes: "价格另对照了公开的日线行情。核对后改写了 Coinbase 一条的时间窗口。"
+
+  - id: terra_ust_2022
+    title: UST 稳定币崩溃
+    start_date: 2022-05-07
+    end_date: 2022-05-13
+    location: 全球
+    categories: [market_structure_liquidity]
+    summary: >-
+      算法稳定币 UST 脱锚后进入死亡螺旋，配套代币 LUNA 一周内归零。
+      为护盘抛售的比特币储备加重了大盘跌势。三箭资本、Celsius、Voyager
+      在随后一两个月相继出事。
+    observations:
+      - asset: UST
+        direction: down
+        window: 1w
+        note: 脱锚后跌到 0.2 美元以下
+        recall: high
+      - asset: LUNA
+        direction: down
+        window: 1w
+        note: 从约 80 美元跌到接近零
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 1w
+        note: 跌破 3 万美元，最低约 2.6 万美元
+        recall: high
+      - asset: USDT
+        asset_id: USDT/USD
+        direction: down
+        window: 1d
+        note: 5月12日一度跌到约 0.95 美元，随后回锚
+        recall: high
+    lessons:
+      - 稳定币出事会传染到其他稳定币的信心，哪怕它们的机制完全不同
+      - 持有大量出事资产的机构在数周后才暴露，传染的第二波比第一波晚
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.cnbc.com/amp/2022/05/12/tether-usdt-stablecoin-drops-below-1-peg.html"
+        - "https://cointelegraph.com/magazine/what-happened-terra-debacle-exposes-flaws-plaguing-the-crypto-industry"
+        - "https://www.coindesk.com/markets/2022/08/03/want-to-strike-terror-in-crypto-markets-in-2022-just-say-youre-suspending-withdrawals/"
+
+  - id: btc_spot_etf_approval_2024
+    title: 美国批准现货比特币 ETF
+    start_date: 2024-01-10
+    end_date: 2024-01-23
+    location: 美国
+    categories: [macro_policy, market_structure_liquidity]
+    summary: >-
+      批准在事前已被充分预期。上市首日冲高后回落，转为 ETF 的灰度信托
+      遭遇大量赎回，形成持续两周的卖压。卖压出清后价格回升并创新高。
+    observations:
+      - asset: 比特币
+        asset_id: BTC
+        direction: up
+        window: 1d
+        note: 1月11日上市首日盘中冲高到约 4.9 万美元
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 2w
+        note: 随后两周跌到约 3.85 万美元，跌幅约两成
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: up
+        window: 8w
+        note: 2 月起回升，3 月中创当时的历史新高
+        recall: high
+      - asset: Coinbase
+        asset_id: COIN
+        direction: down
+        window: 2w
+        note: 同期下跌
+        recall: medium
+    lessons:
+      - 预期充分的事件，落地时没有意外可交易
+      - 信托折价收敛后的赎回是机械性卖压，规模和时间都可以事前估计
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.investmentnews.com/etfs/bitcoin-down-20-since-spot-etfs-began-trading/248342"
+        - "https://cointelegraph.com/news/bitcoin-price-down-39k-grayscale-gbtc-bleeding-outflow"
+      notes: "价格另对照了公开的日线行情。"
+
+  - id: eth_etf_pivot_2024
+    title: 现货以太坊 ETF 获批预期突变
+    start_date: 2024-05-20
+    end_date: 2024-05-23
+    location: 美国
+    categories: [macro_policy]
+    summary: >-
+      市场原本认为获批希望渺茫。5 月 20 日有分析师把获批概率从约 25%
+      上调到 75%，价格当日大涨。5 月 23 日交易所的规则变更申请获批时
+      反应平淡，当时产品还不能上市交易。
+    observations:
+      - asset: 以太坊
+        asset_id: ETH
+        direction: up
+        window: 1d
+        note: 5月20日单日上涨约两成
+        recall: high
+      - asset: 以太坊
+        asset_id: ETH
+        direction: flat
+        window: 1d-3d
+        note: 5月23日正式获批后价格反应平淡
+        recall: medium
+    lessons:
+      - 真正的事件是概率的跳变，而不是日历上的批准日
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.theblock.co/post/295474/ethereum-etfs-odds-of-approval-improve-as-it-appears-biden-admin-perhaps-wants-to-appear-more-crypto-friendly-bloomberg-etf-analyst"
+        - "https://www.fxempire.com/forecasts/article/crypto-news-today-ethereum-eth-eyes-4000-on-spot-etf-approval-hopes-1432024"
+        - "https://cointelegraph.com/news/ether-etf-approved-ethereum-price-sluggish"
+
+  - id: crypto_liquidation_oct_2025
+    title: 2025 年 10 月加密市场清算潮
+    start_date: 2025-10-10
+    end_date: 2025-10-11
+    location: 全球
+    categories: [market_structure_liquidity, macro_policy]
+    summary: >-
+      美国总统宣布对华加征 100% 关税，消息出在美股收盘前后、流动性稀薄的
+      时段。约 190 亿美元的杠杆头寸被清算，为有记录以来最大。山寨币
+      出现极端的瞬时下跌，个别交易所内的抵押资产价格严重偏离。
+    observations:
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 1d
+        note: 从约 12.2 万美元一度跌到约 10.5 万美元附近
+        recall: medium
+      - asset: 山寨币整体
+        direction: down
+        window: 1d
+        note: 小市值山寨币普遍瞬时下跌五成到九成，个别在币安上一度接近归零；大市值山寨币下跌约两成到五成
+        recall: medium
+      - asset: USDe
+        direction: down
+        window: 1d
+        note: 在币安一度跌到约 0.65 美元，其他场所基本维持锚定
+        recall: medium
+    lessons:
+      - 清算潮里的最低价多是插针，能成交的量很小，回测时不能当成可得价格
+      - 单一交易所内的价格偏离来自该所的抵押品定价方式，属于场所风险
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.galaxy.com/insights/research/cryptos-flash-crash-liquidation-binance-adl-auto-deleveraging"
+        - "https://www.coingecko.com/learn/october-10-crypto-crash-explained"
+        - "https://www.sentora.com/research/articles/structural-shifts-in-crypto-the-black-friday-drawdown-and-hyperliquid-s-bid-to-challenge-cexs"
+      notes: "山寨币的跌幅因统计口径而异，核对后按市值大小分开表述；收回了多少跌幅没有找到可靠数字。"
+
+  - id: crypto_crash_may_2021
+    title: 2021 年 5 月加密市场暴跌
+    start_date: 2021-05-19
+    location: 全球
+    categories: [market_structure_liquidity, macro_policy]
+    summary: >-
+      中国行业协会重申对加密业务的限制，此前一周特斯拉已宣布暂停接受
+      比特币付款。杠杆多头被集中清算，多家交易所出现宕机或延迟。
+    observations:
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 1d
+        note: 盘中从约 4.3 万美元跌到约 3 万美元，随后收回部分跌幅
+        recall: medium
+      - asset: 以太坊
+        asset_id: ETH
+        direction: down
+        window: 1d
+        note: 盘中跌幅超过四成
+        recall: medium
+    lessons:
+      - 交易所在最需要交易的时候可能无法下单
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.aljazeera.com/amp/economy/2021/5/19/wild-ride-bitcoin-plunges-31-at-breakfast-surges-33-at-lunch"
+        - "https://fortune.com/2021/05/19/coinbase-binance-outage-crypto-bitcoin-crash/"
+      notes: "价格另对照了公开的日线行情。"
+
+  - id: black_thursday_2020
+    title: 2020 年 3 月 12 日加密市场崩盘
+    start_date: 2020-03-12
+    end_date: 2020-03-13
+    location: 全球
+    categories: [market_structure_liquidity]
+    summary: >-
+      全球市场恐慌性抛售，加密市场的杠杆头寸连环清算。链上拥堵使去中心化
+      借贷协议的清算拍卖失灵，出现零出价成交并产生坏账。
+    observations:
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 2d
+        note: 从约 7900 美元跌到3月13日盘中的约 3800 至 4000 美元
+        recall: medium
+      - asset: 以太坊
+        asset_id: ETH
+        direction: down
+        window: 2d
+        note: 跌幅与比特币相当或更深
+        recall: medium
+      - asset: DAI
+        direction: up
+        window: 1d-3d
+        note: 清算潮中需求激增，一度升水到约 1.1 美元
+        recall: medium
+    lessons:
+      - 用于偿还债务的稳定币在清算潮中会升水，方向与一般的脱锚相反
+      - 链上拥堵本身是一种流动性机制的失效
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://cointelegraph.com/news/bitcoin-up-1-800-after-2020-covid-19-btc-price-crash"
+        - "https://insights.glassnode.com/what-really-happened-to-makerdao"
+      notes: "最低价因交易所而异。"

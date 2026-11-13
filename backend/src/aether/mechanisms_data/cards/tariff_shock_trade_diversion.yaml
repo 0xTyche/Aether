@@ -1,0 +1,69 @@
+id: tariff_shock_trade_diversion
+name: 关税冲击与贸易转移
+statement: >-
+  加征关税不消灭需求，只改变流向。被征税的出口品及其生产商受损，
+  第三国的替代供应方受益，供应链在被征税国的进口品牌承压。
+  加征方货币的方向并不稳定。
+categories: [macro_policy, industry_supply_chain]
+shock_nature: [supply_side, risk_premium]
+keywords: [关税, 加征, 贸易战, 对等关税, 豁免, 暂停, tariff, trade war, reciprocal, exemption]
+preconditions:
+  - 关税幅度或范围超出市场预期
+  - 被征税商品有第三国的替代供应
+failure_conditions:
+  - 暂停、豁免或达成协议
+  - 被征税国货币贬值抵消了关税
+  - 通过第三国转口绕开
+effects:
+  - role: direct_target
+    target: 被加征关税的出口品及其生产商
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1w-8w}
+    crowding: high
+  - role: producer_outside_zone
+    target: 第三国的替代供应方
+    direction: up
+    magnitude: medium
+    lag: {onset: 1w-4w, peak: 4w-12w}
+    crowding: low
+    examples: [中美贸易摩擦时的巴西大豆]
+  - role: downstream_buyer
+    target: 供应链在被征税国的进口品牌与零售商
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-1w}
+    crowding: high
+  - role: usd
+    target: 加征方的货币
+    direction: mixed
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-2w}
+    crowding: high
+    condition: 传统上加征方货币升值；关税动摇了对加征国资产的信心时反而贬值，2025 年 4 月属于后者
+  - role: risk_assets
+    target: 全球股指
+    direction: down
+    magnitude: medium
+    lag: {onset: 5m-1h, peak: 1d-1w, fade: 1w-4w}
+    crowding: high
+leads_to:
+  - forced_deleveraging_spiral
+  - crypto_leverage_liquidation_cascade
+cases:
+  - id: trade_war_soybeans_2018
+    outcome: supports
+    note: 美国大豆下跌，巴西大豆升水走高
+  - id: liberation_day_tariffs_2025
+    outcome: mixed
+    note: 股指与进口品牌如期下跌，但美元下跌、美债遭抛售，与常见结论相反
+prior: 0.55
+evidence_tier: C
+critique:
+  - 政策反复是常态，每条消息都可能被下一条推翻
+  - 2018 年与 2025 年的美元反应相反，说明这条链的符号本身不稳定
+  - 替代供应方的受益体现在升贴水上而不是期货基准上，可交易性差
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

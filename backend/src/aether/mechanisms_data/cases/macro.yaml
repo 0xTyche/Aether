@@ -1,0 +1,322 @@
+# 宏观政策、利率冲击、挤兑与被迫去杠杆类案例。
+cases:
+  - id: us_cpi_sept_2022
+    title: 美国 8 月通胀数据超预期
+    start_date: 2022-09-13
+    location: 美国
+    categories: [macro_policy]
+    summary: >-
+      市场原本预期通胀回落，结果核心通胀环比远高于预期，加息预期大幅上修。
+      股债同跌、美元走强，是鹰派意外冲击的典型一日。
+    observations:
+      - asset: 标普500
+        asset_id: SPX
+        direction: down
+        window: 1d
+        note: 单日下跌约 4.3%，为 2020 年 6 月以来最大
+        recall: high
+      - asset: 纳斯达克综指
+        direction: down
+        window: 1d
+        note: 单日下跌约 5.2%
+        recall: high
+      - asset: 美国 2 年期国债收益率
+        asset_id: US2Y
+        direction: up
+        window: 1d
+        note: 上行约 18 至 20 个基点，到 3.75% 附近
+        recall: medium
+      - asset: 美元指数
+        direction: up
+        window: 1d
+        note: 上涨超过 1%
+        recall: medium
+    lessons:
+      - 反应的大小取决于意外值，当时市场的头寸偏向通胀回落，所以落差特别大
+      - 直接资产在数秒到数分钟内定价完毕，这是纯粹的速度竞争
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.nbcnews.com/business/markets/stock-market-open-to-close-september-13-rcna47504"
+        - "https://www.axios.com/2022/09/13/cpi-inflation-august"
+        - "https://www.kitco.com/opinion/2022-09-13/gold-slides-163-dollar-strength-accounting-almost-100-move"
+
+  - id: svb_collapse_2023
+    title: 硅谷银行倒闭
+    start_date: 2023-03-08
+    end_date: 2023-03-13
+    location: 美国
+    categories: [market_structure_liquidity, company_specific]
+    summary: >-
+      硅谷银行披露出售债券的亏损并计划增资，引发存款挤兑，两天后被接管。
+      恐慌扩散到存款结构相似的区域银行，存款流向大型银行。当局全额保障
+      存款后，市场转而定价降息。稳定币 USDC 因部分储备存放于该行而脱锚。
+    observations:
+      - asset: 硅谷银行
+        direction: down
+        window: 1d
+        note: 3月9日下跌约 60%，3月10日被监管接管
+        recall: high
+      - asset: 区域银行 ETF（KRE）
+        direction: down
+        window: 1w
+        note: 3月8日至13日累计下跌超过两成
+        recall: medium
+      - asset: 第一共和银行
+        direction: down
+        window: 1d
+        note: 3月13日下跌约 62%
+        recall: high
+      - asset: 美国 2 年期国债收益率
+        asset_id: US2Y
+        direction: down
+        window: 3d
+        note: 三个交易日下行约 100 个基点，为 1987 年以来最大的三日降幅
+        recall: high
+      - asset: USDC
+        direction: down
+        window: 2d
+        note: 约 33 亿美元储备存放在硅谷银行，3月11日一度跌到约 0.87 至 0.88 美元；3月12日当局宣布全额保障存款后回锚
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: up
+        window: 1w-2w
+        note: 约十天内从约 2 万美元升到约 2.8 万美元
+        recall: medium
+      - asset: 黄金
+        asset_id: GOLD
+        direction: up
+        window: 1w
+        note: 避险与降息预期共同推动上涨
+        recall: medium
+    lessons:
+      - 加息利好银行净息差这条链在存款不稳、资产久期过长时会反过来
+      - 传染沿着"与出事者相似"的维度扩散，这里的维度是未保险存款占比和债券浮亏
+      - 政策兜底是挤兑类冲击最重要的转折点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://fortune.com/2023/03/13/us-regional-banks-first-republic-pacwest-plunge-silicon-valley-bank-collapse-fallout-continues/"
+        - "https://www.circle.com/pressroom/3-3-billion-of-usdc-reserve-risk-removed-dollar-de-peg-closes"
+        - "https://www.bnnbloomberg.ca/bonds-surge-u-s-futures-erase-gains-on-svb-fallout-1.1894468"
+      notes: "区域银行 ETF 的累计跌幅由各日涨跌推算，没有单一来源直接给出。"
+
+  - id: credit_suisse_at1_2023
+    title: 瑞信被收购与 AT1 债券清零
+    start_date: 2023-03-19
+    location: 瑞士
+    categories: [market_structure_liquidity, macro_policy]
+    summary: >-
+      瑞银在当局撮合下收购瑞信，约 160 亿瑞郎的额外一级资本债券被全额
+      减记，而股东仍拿到部分对价，打破了市场对清偿顺序的预期。
+    observations:
+      - asset: 瑞信 AT1 债券
+        direction: down
+        window: 1d
+        note: 约 160 亿瑞郎全额减记
+        recall: high
+      - asset: 其他欧洲银行的 AT1 债券
+        direction: down
+        window: 1d
+        note: 3月20日价格大幅下跌
+        recall: medium
+      - asset: 其他欧洲银行的 AT1 债券
+        direction: up
+        window: 1w-4w
+        note: 欧盟与英国监管机构声明股权先于 AT1 吸收损失，价格逐步修复
+        recall: medium
+    lessons:
+      - 规则被打破时，受冲击的是整个同类资产，而不只是出事的那一家
+      - 其他辖区监管者的澄清是可以预期的修复触发点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.cnbc.com/2023/03/23/swiss-regulator-says-central-bank-loan-to-credit-suisse-justified-at1-bond-writedown.html"
+        - "https://www.bnnbloomberg.ca/eu-authorities-say-holders-of-risky-bonds-should-bear-losses-only-after-equity-1.1897863"
+        - "https://insights.arthurcox.com/post/102iavy/credit-suisse-treatment-of-at1s-controversial-and-prompts-ecb-and-bank-of-englan"
+      notes: "其他银行 AT1 的修复幅度未核对。"
+
+  - id: yen_carry_unwind_2024
+    title: 日元套息交易平仓
+    start_date: 2024-07-31
+    end_date: 2024-08-06
+    location: 日本、全球
+    categories: [macro_policy, market_structure_liquidity]
+    summary: >-
+      日本央行加息后，美国就业数据又显疲弱，日元急升迫使以日元融资的
+      杠杆头寸平仓。日本股市出现 1987 年以来最大的单日跌幅，次日大幅
+      反弹，全球风险资产同步波动。
+    observations:
+      - asset: 日经225
+        asset_id: NKY
+        direction: down
+        window: 1d
+        note: 8月5日下跌约 12.4%，为 1987 年以来最大的单日跌幅
+        recall: high
+      - asset: 日经225
+        asset_id: NKY
+        direction: up
+        window: 1d
+        note: 8月6日反弹约 10%
+        recall: high
+      - asset: 美元/日元
+        asset_id: USD/JPY
+        direction: down
+        window: 4w
+        note: 从 7 月上旬的约 161 至 162 跌到8月5日盘中的约 142
+        recall: high
+      - asset: 波动率指数（VIX）
+        direction: up
+        window: 1d
+        note: 8月5日盘前一度超过 65
+        recall: high
+      - asset: 比特币
+        asset_id: BTC
+        direction: down
+        window: 3d
+        note: 一度跌到约 4.9 万美元
+        recall: high
+      - asset: 韩国与台湾股指
+        direction: down
+        window: 1d
+        note: 8月5日均下跌 8% 以上
+        recall: high
+    lessons:
+      - 被迫平仓造成的下跌，在卖盘出清后常有同样猛烈的反弹
+      - 受冲击最重的是最拥挤的头寸，与基本面关系不大
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://fortune.com/asia/2024/08/05/asia-markets-meltdown-japan-nikkei-topix-korea-kospi-taiwan-taiex-shares-drop/"
+        - "https://www.kitco.com/news/off-the-wire/2024-08-05/dollar-down-us-rate-cut-bets-rise-yen-surges"
+        - "https://coindesk.com/markets/2024/08/05/bitcoin-continues-to-bleed-falls-below-50k"
+
+  - id: uk_gilt_crisis_2022
+    title: 英国迷你预算与国债危机
+    start_date: 2022-09-23
+    end_date: 2022-10-14
+    location: 英国
+    categories: [macro_policy, market_structure_liquidity]
+    summary: >-
+      政府公布无资金来源的减税方案，英镑与国债同时遭抛售。采用负债驱动
+      策略的养老金被追加保证金，只能卖出国债，形成自我强化的下跌。
+      英格兰银行宣布临时购债后才止住。
+    observations:
+      - asset: 英镑/美元
+        asset_id: GBP/USD
+        direction: down
+        window: 2d
+        note: 9月26日亚洲时段一度跌到约 1.035 的历史低点
+        recall: high
+      - asset: 英国 30 年期国债收益率
+        direction: up
+        window: 3d
+        note: 数日内上行超过 100 个基点，一度升破 5%
+        recall: high
+      - asset: 英国 30 年期国债收益率
+        direction: down
+        window: 1d
+        note: 9月28日英格兰银行宣布临时购债，当日下行约 100 个基点
+        recall: high
+    lessons:
+      - 保证金机制会把价格下跌变成被迫卖出，再变成更大的下跌
+      - 央行出手的那一刻是方向反转的节点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.bankofengland.co.uk/quarterly-bulletin/2023/2023/financial-stability-buy-sell-tools-a-gilt-market-case-study"
+        - "https://m.uk.investing.com/news/economy/cracks-appear-in-uk-gilt-market-as-longdated-yields-hit-5-2764248?ampMode=1"
+        - "https://www.businesslive.co.za/bd/markets/2022-09-26-pound-falls-to-lowest-level-in-37-years/"
+
+  - id: liberation_day_tariffs_2025
+    title: 美国宣布对等关税
+    start_date: 2025-04-02
+    end_date: 2025-04-09
+    location: 美国
+    categories: [macro_policy]
+    summary: >-
+      关税幅度远超预期，美股两日急跌。与教科书结论相反，美元下跌、
+      长端美债遭抛售。4 月 9 日宣布对多数国家暂停 90 天后，股市单日暴涨。
+    observations:
+      - asset: 标普500
+        asset_id: SPX
+        direction: down
+        window: 2d
+        note: 4月3日与4日合计下跌约 10.5%
+        recall: high
+      - asset: 标普500
+        asset_id: SPX
+        direction: up
+        window: 1d
+        note: 4月9日宣布暂停后单日上涨约 9.5%
+        recall: high
+      - asset: 美元指数
+        direction: down
+        window: 1w-2w
+        note: 持续走弱，与"加关税利好美元"的常见结论相反
+        recall: high
+      - asset: 美国 10 年期国债收益率
+        asset_id: US10Y
+        direction: up
+        window: 1w
+        note: 4月7日至11日一周上行约 50 个基点
+        recall: high
+      - asset: 黄金
+        asset_id: GOLD
+        direction: up
+        window: 2w-3w
+        note: 创历史新高
+        recall: high
+      - asset: 供应链在海外的美国消费品牌（苹果、耐克）
+        direction: down
+        window: 1d
+        note: 4月3日苹果下跌约 9%，耐克下跌约 14%
+        recall: medium
+    lessons:
+      - 加关税利好美元这条链在 2025 年失效，资本流出的力量盖过了贸易条件的力量
+      - 政策可以在一条消息内逆转，暂停本身是又一个事件
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://fidelity.com/news/article/default/202504041652RTRSNEWSCOMBINED_L2N3QI13M_1"
+        - "https://news.bloomberglaw.com/international-trade/us-treasuries-slide-with-selloff-worst-since-2019-repo-blowout"
+        - "https://www.schaeffersresearch.com/content/ezines/2025/04/03/stocks-log-worst-day-since-2020-as-selloff-reaches-fever-pitch"
+
+  - id: trade_war_soybeans_2018
+    title: 中国对美国大豆加征关税
+    start_date: 2018-06-15
+    end_date: 2018-07-16
+    location: 中国、美国、巴西
+    categories: [macro_policy, industry_supply_chain]
+    summary: >-
+      中国宣布并于 7 月 6 日对美国大豆加征 25% 关税，买盘转向巴西。
+      美国大豆价格下跌，巴西大豆的港口升水大幅走高。
+    observations:
+      - asset: 芝加哥大豆期货
+        asset_id: SOYBEAN
+        direction: down
+        window: 6w-8w
+        note: 5月底至7月中下跌约两成，到约十年低位
+        recall: medium
+      - asset: 巴西大豆港口升贴水
+        direction: up
+        window: 4w-12w
+        note: 中国买盘转向巴西，升水大幅走高
+        recall: medium
+    lessons:
+      - 关税不消灭需求，只是改变流向，区域外的替代供应方受益
+      - 受益方的价格体现在升贴水上，而不是期货基准上
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.country-guide.ca/daily/u-s-grains-soy-sinks-to-new-lows-as-trade-war-seen-swelling-supply"
+        - "https://www.bloomberg.com/news/articles/2018-06-15/china-targets-u-s-farm-imports-with-tariffs-on-soybeans-corn"
+        - "https://www.bloomberg.com/news/articles/2018-07-05/u-s-soy-prices-are-crumbling-as-trade-war-sparks-brazil-rally"

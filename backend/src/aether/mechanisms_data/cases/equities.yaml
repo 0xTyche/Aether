@@ -1,0 +1,270 @@
+# 个股财报溢出、指数纳入与科技出口管制类案例。
+cases:
+  - id: nvda_guidance_may_2023
+    title: 英伟达大幅上调营收指引
+    start_date: 2023-05-24
+    location: 美国
+    categories: [company_specific, industry_supply_chain]
+    summary: >-
+      盘后给出的下一季营收指引远高于市场预期，确认了人工智能算力需求。
+      次日同业与代工厂同步大涨，被视为份额流失方的英特尔下跌。更远的
+      供应链环节在随后数周到数月才被陆续重新定价。
+    observations:
+      - asset: 英伟达
+        asset_id: NVDA
+        direction: up
+        window: 1d
+        note: 次日上涨约 24%
+        recall: high
+      - asset: 超威半导体
+        asset_id: AMD
+        direction: up
+        window: 1d
+        note: 次日上涨约 11%
+        recall: high
+      - asset: 台积电 ADR
+        asset_id: TSM
+        direction: up
+        window: 1d
+        note: 次日上涨约 12%
+        recall: medium
+      - asset: 英特尔
+        asset_id: INTC
+        direction: down
+        window: 1d
+        note: 次日下跌约 5.5%
+        recall: medium
+      - asset: 光模块、服务器、电源与散热等二三线供应链
+        direction: up
+        window: 4w-24w
+        note: 在随后数周到数月被陆续重新定价
+        recall: medium
+    lessons:
+      - 最直接的同业当天就反应完毕，越远的环节被定价得越晚
+      - 同一条利好对份额流失方是利空
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.bnnbloomberg.ca/intel-risks-being-left-behind-as-nvidia-ups-ai-lead-1.1925235"
+        - "https://finance.technews.tw/2023/05/26/tsmc-stock-price-568/"
+      notes: "二三线供应链的后续走势未核对。个股涨跌幅另对照了公开的日线行情。"
+
+  - id: asml_orders_miss_2024
+    title: 阿斯麦订单远低于预期
+    start_date: 2024-10-15
+    location: 荷兰
+    categories: [company_specific, industry_supply_chain]
+    summary: >-
+      财报因技术失误提前一天发布，新增订单不到市场预期的一半，并下调
+      次年指引。设备同业当日普跌，日本同业在次日开盘后跟跌。
+    observations:
+      - asset: 阿斯麦
+        direction: down
+        window: 1d
+        note: 当日下跌约 16%
+        recall: high
+      - asset: 美国半导体设备同业（应用材料、泛林、科磊）
+        direction: down
+        window: 1d
+        note: 各自下跌约一成到一成五
+        recall: medium
+      - asset: 东京电子
+        direction: down
+        window: 1d
+        note: 次日下跌约 9%
+        recall: medium
+      - asset: 英伟达
+        asset_id: NVDA
+        direction: down
+        window: 1d
+        note: 当日下跌约 4.7%；同日另有美国考虑限制人工智能芯片出口的报道，不能只归因于阿斯麦
+        recall: medium
+    lessons:
+      - 消息出在某个时区收盘之后，另一个时区的同业到开盘才反应，中间有数小时
+      - 未按预定时间发布的信息没有人提前布局，反应更剧烈
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://finance.technews.tw/2024/10/16/usa-stock-market-16th-october/"
+        - "https://www.bloomberg.com/news/articles/2024-10-15/asml-orders-miss-as-chip-industry-weakness-weighs-on-demand"
+        - "https://theprint.in/tech/chip-stocks-fall-on-asml-forecast-cut-potential-us-ai-chip-export-cap/2313255"
+
+  - id: tesla_sp500_inclusion_2020
+    title: 特斯拉被纳入标普500
+    start_date: 2020-11-16
+    end_date: 2020-12-21
+    location: 美国
+    categories: [market_structure_liquidity, company_specific]
+    summary: >-
+      标普道琼斯指数公司在 11 月 16 日盘后宣布，12 月 21 日生效。
+      宣布到生效之间股价持续上涨，生效当日下跌。
+    observations:
+      - asset: 特斯拉
+        asset_id: TSLA
+        direction: up
+        window: 1d
+        note: 宣布后的首个交易日上涨约 8%
+        recall: high
+      - asset: 特斯拉
+        asset_id: TSLA
+        direction: up
+        window: 5w
+        note: 宣布到纳入前累计上涨约 70%
+        recall: medium
+      - asset: 特斯拉
+        asset_id: TSLA
+        direction: down
+        window: 1d
+        note: 纳入生效的首个交易日下跌约 6.5%
+        recall: high
+    lessons:
+      - 宣布日和生效日之间的被动买盘是时间和方向都可知的资金流
+      - 生效日本身常是买盘出清的时点
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.brecorder.com/news/40043572"
+        - "https://www.aljazeera.com/economy/2020/11/16/tesla-shares-up-12-after-announcement-it-will-zoom-onto-sp-500"
+      notes: "涨跌幅另对照了公开的日线行情。约 70% 的累计涨幅是从宣布日收盘算起，从次日收盘算起约为 57%。"
+
+  - id: coinbase_sp500_inclusion_2025
+    title: Coinbase 被纳入标普500
+    start_date: 2025-05-12
+    end_date: 2025-05-19
+    location: 美国
+    categories: [market_structure_liquidity, company_specific]
+    summary: >-
+      5 月 12 日盘后宣布，5 月 19 日生效。宣布到生效只隔一周。
+    observations:
+      - asset: Coinbase
+        asset_id: COIN
+        direction: up
+        window: 1d
+        note: 宣布后的首个交易日上涨约 24%
+        recall: medium
+    lessons:
+      - 宣布日的跳涨几乎没有给事后入场留下空间
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.nbcnewyork.com/news/business/money-report/coinbase-joining-sp-500-replacing-discover-financial/6261119/"
+        - "https://www.zacks.com/stock/news/2469931/coinbase-soars-24-on-sp-500-inclusion-what-lies-ahead-for-etfs"
+      notes: "生效日的收盘价只比宣布次日高约 3% 到 4%。"
+
+  - id: huawei_entity_list_2019
+    title: 华为被列入实体清单
+    start_date: 2019-05-15
+    location: 美国、中国
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      美国商务部限制向华为供货，对华为收入依赖度高的美国零部件供应商
+      下跌，半导体板块全月走弱。
+    observations:
+      - asset: 华为的美国供应商（Lumentum、Qorvo、Skyworks、美光等）
+        direction: down
+        window: 1w
+        note: 多数在一周内下跌一成到两成，其中 Lumentum 约两成
+        recall: medium
+      - asset: 费城半导体指数
+        direction: down
+        window: 4w
+        note: 5 月全月下跌约 16.7%，其中5月15日之后的跌幅约 11%，其余来自此前的关税升级
+        recall: medium
+      - asset: A 股国产替代相关板块
+        direction: up
+        window: 1w-4w
+        note: 自主可控概念上涨
+        recall: low
+    lessons:
+      - 管制对出口方供应商的打击按其对被管制客户的收入占比排序，这份占比是公开数据
+      - 被管制方的本土替代者是反向受益方
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.cov.com/-/media/files/corporate/publications/2019/05/commerce_department_adds_huawei_and_68_huawei_affiliates_to_entity_list.pdf"
+        - "https://www.bloombergquint.com/markets/tech-loses-half-a-trillion-in-market-cap-in-a-month-to-forget"
+        - "https://www.nbd.com.cn/articles/2019-05-17/1332680.html"
+      notes: "Qorvo 的确切跌幅未能取得。核对后补充了指数跌幅的归因。"
+
+  - id: us_chip_export_rules_2022
+    title: 美国对华先进芯片出口管制
+    start_date: 2022-10-07
+    location: 美国、中国
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      美国商务部限制先进芯片、制造设备与美籍人员对华提供支持。
+      美国设备商随后披露营收影响，中国半导体股在长假后首日大跌。
+    observations:
+      - asset: 费城半导体指数
+        direction: down
+        window: 2d
+        note: 10月7日与10日两个交易日合计下跌约 9%；10月7日同时受到超威半导体营收预警的影响
+        recall: medium
+      - asset: 美国半导体设备商（应用材料、泛林、科磊）
+        direction: down
+        window: 1w-4w
+        note: 随后下调营收预期，各自披露数亿到二十余亿美元的影响
+        recall: medium
+      - asset: 中国半导体设备与制造股
+        direction: down
+        window: 1d
+        note: 10月10日长假后首个交易日大跌，部分个股跌停
+        recall: medium
+      - asset: 中国国产设备与材料股
+        direction: up
+        window: 20w-28w
+        note: 以北方华创为例，12 周后仍在低位，回升出现在 2023 年 3 月到 4 月
+        recall: low
+    lessons:
+      - 规则在美国周五公布，中国市场要到下周一才能交易，周末和假期造成了定价延迟
+      - 短期利空与中期替代受益可以落在同一批公司身上，方向随窗口翻转
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.advisorperspectives.com/articles/2022/10/10/us-chipmakers-stocks-join-global-rout-as-biden-expands-curbs"
+        - "https://www.chronicle.lu/category/international-news/42821-china-tech-shares-sink-as-us-export-curbs-raise-chip-sector-hurdles"
+        - "https://www.sec.gov/Archives/edgar/data/319201/000162828022027311/klac-20220930.htm"
+      notes: "国产设备股的回升只核对了北方华创一只，板块整体未能核实；核对后把回升的时间窗口向后调整。"
+
+  - id: china_gallium_germanium_2023
+    title: 中国对镓、锗实施出口管制
+    start_date: 2023-07-03
+    end_date: 2023-08-01
+    location: 中国
+    categories: [geopolitical, industry_supply_chain]
+    summary: >-
+      中国宣布自 8 月 1 日起对镓、锗相关物项实行出口许可，中国在这两种
+      金属的全球产量中占绝大多数。
+    observations:
+      - asset: A 股镓、锗相关公司
+        direction: up
+        window: 1d
+        note: 宣布后的首个交易日，云南锗业涨停，驰宏锌锗盘中触及涨停后收涨约 6%
+        recall: medium
+      - asset: 镓、锗的海外现货价
+        direction: up
+        window: 4w-12w
+        note: 生效前后海外价格走高
+        recall: medium
+      - asset: 中国以外的小型生产商
+        direction: up
+        window: 1d-1w
+        note: 短线上涨
+        recall: low
+    lessons:
+      - 宣布日到生效日之间有四周，海外买家抢购备货的行为可以预判
+      - 管制方的本土生产商和区域外的生产商都可能上涨，原因不同
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://yicaiglobal.com/news/20230704-02-chinese-gallium-germanium-giants-soar-as-china-says-to-control-export-of-key-semiconductor-materials"
+        - "https://www.aol.com/beijing-jabs-us-china-tech-030638393.html"
+        - "https://fortune.com/2023/07/07/china-export-controls-gallium-price-jump-tech-industries/"
+      notes: "中国在两种金属产量中的占比只找到一个来源。"
