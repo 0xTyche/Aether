@@ -1,0 +1,76 @@
+id: export_node_outage_commodity
+name: 出口节点中断推高商品价格
+statement: >-
+  关键的出口港、出口通道或集中产区中断，或被政策关闭，该商品的可出口供给
+  减少，价格上涨。区域内的生产商有货运不出去，区域外的生产商和替代品受益，
+  下游用户承担成本。
+categories: [industry_supply_chain, natural_environmental, geopolitical]
+shock_nature: [supply_side]
+keywords: [港口关闭, 出口中断, 出口禁令, 停产, 封港, port closure, export ban, outage]
+preconditions:
+  - 该节点在这种商品的全球可贸易量中占比高
+  - 短期内没有替代的出口路线或闲置产能
+  - 消费地库存偏低
+failure_conditions:
+  - 库存或战略储备充足，政府宣布释放储备
+  - 预计一周内恢复
+  - 需求同时受损
+  - 节点只对个别企业重要，占全球份额很小
+effects:
+  - role: commodity_price
+    target: 受影响商品的基准价格
+    direction: up
+    magnitude: medium
+    lag: {onset: 5m-4h, peak: 1d-5d, fade: 1w-4w}
+    crowding: high
+  - role: producer_in_zone
+    target: 依赖该节点出货的生产商
+    direction: down
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 1d-2w}
+    crowding: medium
+    examples: [依赖巴尔的摩港出口的煤炭企业]
+  - role: producer_outside_zone
+    target: 不经过该节点的同类生产商
+    direction: up
+    magnitude: medium
+    lag: {onset: 1h-2d, peak: 2d-2w}
+    crowding: medium
+  - role: substitute
+    target: 可替代的商品
+    direction: up
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-1w}
+    crowding: medium
+    examples: [棕榈油受限时的豆油]
+  - role: downstream_buyer
+    target: 以该商品为主要成本的下游企业
+    direction: down
+    magnitude: small
+    lag: {onset: 1d-1w, peak: 1w-8w}
+    crowding: low
+leads_to:
+  - hawkish_surprise_duration_repricing
+cases:
+  - id: hurricane_katrina_2005
+    outcome: supports
+    note: 产量与出口设施同时受损，油气价格上涨，释放储备后回落
+  - id: indonesia_palm_oil_ban_2022
+    outcome: supports
+    note: 政策关闭出口，棕榈油与替代品豆油同涨，解禁后回落
+  - id: abqaiq_attack_2019
+    outcome: mixed
+    note: 价格如期跳涨，但产能恢复得快，两周内全部回吐
+  - id: baltimore_bridge_2024
+    outcome: mixed
+    note: 依赖该港的企业下跌，但全球煤价几乎没有反应
+prior: 0.65
+evidence_tier: B
+critique:
+  - 基准价格的跳涨在数分钟到数小时内完成，这一段是速度竞争
+  - 涨幅能否保住取决于恢复速度，而恢复速度在事发时是最难判断的变量
+  - 能传导到通胀和利率预期的只有规模很大的能源冲击，多数案例到不了那一步
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

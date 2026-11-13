@@ -1,0 +1,53 @@
+id: disaster_currency_direction
+name: 灾后本币方向取决于净债权地位
+statement: >-
+  大灾之后本币不一定贬值。海外净债权国的保险公司和企业可能卖出海外资产
+  汇回资金，市场抢先交易这一预期，本币反而急升。依赖外资流入的债务国
+  更可能贬值。汇率受管理的国家可能看不出变化。
+categories: [natural_environmental, macro_policy]
+shock_nature: [risk_premium, liquidity]
+keywords: [汇率, 资金回流, 干预, 日元, 净债权国, repatriation, intervention, currency]
+preconditions:
+  - 灾害规模大到足以改变跨境资金流的预期
+  - 汇率可以自由浮动
+failure_conditions:
+  - 央行或多国联合干预
+  - 汇率受到管理
+  - 灾害规模相对经济体量很小
+effects:
+  - role: local_currency
+    target: 受灾国的货币
+    direction: mixed
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 2d-1w, fade: 1w-4w}
+    crowding: medium
+    condition: 海外净债权国倾向升值；依赖外资流入的债务国倾向贬值；汇率受管理时可能不动
+  - role: local_equities
+    target: 受灾国的出口企业，本币升值时
+    direction: down
+    magnitude: small
+    lag: {onset: 1d-3d, peak: 2d-1w, fade: 1w-4w}
+    crowding: medium
+    condition: 只在本币确实升值时成立
+leads_to:
+  - forced_deleveraging_spiral
+cases:
+  - id: tohoku_2011
+    outcome: supports
+    note: 日元数日内急升到当时的历史高位，直到联合干预
+  - id: kobe_1995
+    outcome: mixed
+    note: 日元随后数月升值，但同期还有其他重要驱动因素
+  - id: turkey_earthquake_2023
+    outcome: mixed
+    note: 里拉受管理，没有出现方向性的跳变
+prior: 0.5
+evidence_tier: C
+critique:
+  - 1995 年与 2011 年的日元升值都有其他解释，"资金回流"是市场的预期，并不是被证实的实际流动
+  - 正例只来自日本一个国家
+  - 对巴西这类债务国的推断没有任何直接案例，完全是逻辑外推
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

@@ -1,0 +1,63 @@
+id: forced_deleveraging_spiral
+name: 被迫去杠杆的螺旋与反弹
+statement: >-
+  拥挤的杠杆头寸遇到保证金追缴时被迫平仓，价格下跌又引发更多平仓，
+  跌幅与基本面无关。卖盘出清或当局出手后，价格常在数日内大幅反弹。
+categories: [market_structure_liquidity]
+shock_nature: [liquidity]
+keywords: [平仓, 追加保证金, 踩踏, 套息, 去杠杆, 熔断, margin call, unwind, deleveraging, circuit breaker]
+preconditions:
+  - 某类头寸高度拥挤并带杠杆
+  - 出现了触发保证金追缴的价格变动，如融资货币急升或抵押品急跌
+failure_conditions:
+  - 基本面同步恶化，下跌不只是技术性的
+  - 当局拒绝或无力提供流动性
+  - 交易所停市或取消成交
+effects:
+  - role: risk_assets
+    target: 最拥挤的杠杆头寸所在的资产
+    direction: down
+    magnitude: large
+    lag: {onset: 1h-1d, peak: 1d-3d, fade: 2d-2w}
+    crowding: high
+  - role: volatility
+    target: 隐含波动率
+    direction: up
+    magnitude: large
+    lag: {onset: 1h-1d, peak: 1d-2d, fade: 1w-2w}
+    crowding: high
+  - role: safe_haven
+    target: 融资货币，如日元与瑞郎
+    direction: up
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 1d-3d, fade: 1w-4w}
+    crowding: high
+  - role: risk_assets
+    target: 卖盘出清之后的同一批资产
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-3d, peak: 2d-2w}
+    crowding: medium
+    condition: 基本面没有同步恶化，或当局提供了流动性
+leads_to:
+  - crypto_leverage_liquidation_cascade
+cases:
+  - id: yen_carry_unwind_2024
+    outcome: supports
+    note: 日经单日暴跌后次日反弹约一成
+  - id: uk_gilt_crisis_2022
+    outcome: supports
+    note: 养老金被迫抛售国债，央行购债后收益率单日骤降
+  - id: russia_ukraine_2022
+    outcome: mixed
+    note: 镍的逼空符合螺旋的特征，但交易所取消成交，无法兑现
+prior: 0.65
+evidence_tier: B
+critique:
+  - 反弹交易的前提是卖盘已经出清，这在事中无法确认，过早接手就是接下落的刀
+  - 2008 年和 2020 年 3 月的被迫平仓持续了数周，而不是数日
+  - 交易所可能停市或取消成交
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

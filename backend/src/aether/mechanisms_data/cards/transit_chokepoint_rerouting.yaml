@@ -1,0 +1,65 @@
+id: transit_chokepoint_rerouting
+name: 航运通道受阻后的绕行
+statement: >-
+  运河或海峡受阻，船只被迫绕行，航程拉长相当于运力减少，运价上涨。
+  货物没有消失，所以商品价格通常不变；受益的是承运方，受损的是货主和
+  靠通行费吃饭的一方。
+categories: [industry_supply_chain, geopolitical, natural_environmental]
+shock_nature: [supply_side]
+keywords: [运河, 海峡, 绕行, 好望角, 运价, 限行, canal, strait, reroute, freight rates]
+preconditions:
+  - 中断预计持续数周以上
+  - 绕行路线明显更长
+  - 事发前运力并不宽松
+failure_conditions:
+  - 数日内恢复通行
+  - 运力严重过剩，多绕的航程被闲置船只吸收
+  - 护航或停火让船公司恢复原航线
+effects:
+  - role: freight
+    target: 受影响航线的运价与未受损的承运方
+    direction: up
+    magnitude: large
+    lag: {onset: 1d-2w, peak: 2w-8w, fade: 8w-24w}
+    crowding: medium
+    examples: [集装箱班轮公司, 油轮船东]
+  - role: downstream_buyer
+    target: 依赖该航线的货主，如进口零售商与整车厂
+    direction: down
+    magnitude: small
+    lag: {onset: 2w-4w, peak: 4w-12w}
+    crowding: low
+  - role: commodity_price
+    target: 途经该通道的商品价格
+    direction: mixed
+    magnitude: small
+    lag: {onset: 5m-1d, peak: 1d-1w, fade: 1w-2w}
+    crowding: high
+    condition: 货物可以绕行时基本不变；只有被堵的是产地唯一出口、货物运不出来时才上涨
+  - role: direct_target
+    target: 通道的运营方与依赖通行费的国家
+    direction: down
+    magnitude: small
+    lag: {onset: 1w-4w, peak: 4w-24w}
+    crowding: low
+leads_to: []
+cases:
+  - id: red_sea_houthi_2023
+    outcome: supports
+    note: 宣布绕行后运价升到原来的三倍左右，油价基本不动
+  - id: panama_canal_drought_2023
+    outcome: supports
+    note: 限行后名额拍卖价与相关航线运费上涨
+  - id: suez_ever_given_2021
+    outcome: mixed
+    note: 只堵了 6 天，油价当日跳涨后回吐，没有持续影响
+prior: 0.7
+evidence_tier: B
+critique:
+  - 运价是在船公司宣布绕行之后才大涨的，而不是首次袭击之后，触发点选错就会早一个月
+  - 2021 年与 2023 年的运价都叠加了疫情后的运力周期，单独归因困难
+  - 班轮股对运价的弹性取决于长约占比，现货运价涨三倍不等于利润涨三倍
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

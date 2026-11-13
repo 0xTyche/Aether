@@ -1,0 +1,66 @@
+id: stablecoin_depeg_flight
+name: 稳定币脱锚后的资金出逃
+statement: >-
+  稳定币脱锚后，持有者换成其他资产。结果因机制而异：储备只是暂时受困时，
+  资金逃向比特币和以太坊，脱锚的稳定币随后回锚；算法稳定币崩溃时，
+  护盘抛售储备会把大盘一起拖下去。重仓该稳定币的机构在数周后才暴露。
+categories: [market_structure_liquidity]
+shock_nature: [liquidity, risk_premium]
+keywords: [脱锚, 稳定币, 储备, 赎回, 折价, 死亡螺旋, depeg, stablecoin, reserves, redemption]
+preconditions:
+  - 稳定币的价格明显偏离锚定值
+  - 储备的安全性或赎回渠道受到质疑
+failure_conditions:
+  - 发行方或当局迅速确认储备完好
+  - 偏离只发生在单一交易所
+effects:
+  - role: stablecoin
+    target: 出事的稳定币
+    direction: down
+    magnitude: large
+    lag: {onset: 1m-1h, peak: 1h-2d}
+    crowding: high
+  - role: stablecoin
+    target: 其他稳定币
+    direction: mixed
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-3d, fade: 3d-2w}
+    crowding: medium
+    condition: 储备透明、可以即时赎回的受益于资金转入；机制相似或储备存疑的被连带抛售
+  - role: crypto_majors
+    target: 比特币与以太坊
+    direction: mixed
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 1d-1w}
+    crowding: medium
+    condition: 抵押充足、储备只是暂时受困时上涨；算法稳定币崩溃并抛售储备时下跌
+  - role: crypto_alts
+    target: 山寨币，尤其是与出事稳定币同一生态的代币
+    direction: down
+    magnitude: large
+    lag: {onset: 1h-1d, peak: 1d-1w}
+    crowding: medium
+  - role: counterparty
+    target: 重仓该稳定币的协议与机构
+    direction: down
+    magnitude: large
+    lag: {onset: 1d-2w, peak: 2w-8w}
+    crowding: low
+leads_to:
+  - crypto_leverage_liquidation_cascade
+cases:
+  - id: terra_ust_2022
+    outcome: supports
+    note: 算法稳定币归零，比特币被拖累，机构在一两个月后相继出事
+  - id: svb_collapse_2023
+    outcome: supports
+    note: 储备暂时受困，脱锚两日后回锚，比特币同期上涨
+prior: 0.6
+evidence_tier: B
+critique:
+  - 两个案例里比特币的方向相反，必须先分清机制，而这在事发当时未必看得清
+  - 回锚交易的盈亏比诱人，但遇上一次归零就会抹掉全部收益
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

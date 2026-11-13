@@ -1,0 +1,54 @@
+id: index_inclusion_flow
+name: 指数纳入带来的被动资金流
+statement: >-
+  股票被宣布纳入主要指数后，跟踪该指数的被动资金必须在生效日前买入。
+  宣布日和生效日都是已知的时间，买盘的方向也确定。生效之后买盘消失，
+  价格常有回落。
+categories: [market_structure_liquidity, company_specific]
+shock_nature: [liquidity, idiosyncratic]
+keywords: [纳入指数, 调样, 成分股, 被动资金, 生效日, index inclusion, rebalance, constituent]
+preconditions:
+  - 指数的被动跟踪规模相对该股票的流通盘足够大
+  - 纳入没有被市场提前完全预期
+failure_conditions:
+  - 纳入早已被预期，资金已提前布局
+  - 宣布日的跳涨一次性走完全部空间
+  - 生效前大盘转向
+effects:
+  - role: direct_target
+    target: 被纳入的股票，宣布到生效之间
+    direction: up
+    magnitude: medium
+    lag: {onset: 1m-1h, peak: 1d-4w}
+    crowding: high
+  - role: direct_target
+    target: 被纳入的股票，生效之后
+    direction: down
+    magnitude: small
+    lag: {onset: 1w-5w, peak: 1w-6w}
+    crowding: medium
+    condition: 宣布到生效之间已经大幅上涨
+  - role: sector_peer
+    target: 被剔除出指数的股票
+    direction: down
+    magnitude: small
+    lag: {onset: 1m-1d, peak: 1d-2w}
+    crowding: medium
+leads_to: []
+cases:
+  - id: tesla_sp500_inclusion_2020
+    outcome: supports
+    note: 宣布到生效之间大涨，生效首日下跌
+  - id: coinbase_sp500_inclusion_2025
+    outcome: supports
+    note: 宣布次日大涨，间隔只有一周
+prior: 0.6
+evidence_tier: B
+critique:
+  - 研究显示指数纳入效应在近二十年明显减弱
+  - 宣布日的跳涨发生在盘后，事后入场拿不到这一段
+  - 两个案例都是关注度极高的个股，不能代表普通的纳入
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

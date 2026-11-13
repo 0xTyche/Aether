@@ -1,0 +1,71 @@
+id: crypto_leverage_liquidation_cascade
+name: 加密市场的杠杆清算级联
+statement: >-
+  未平仓合约和资金费率处于高位时，一条利空消息就能触发连环清算。
+  山寨币的跌幅远大于比特币，最低价多是成交量极小的插针。加密市场全天
+  交易，而美股里的代理标的只在美股时段交易，两者之间有时间差。
+categories: [market_structure_liquidity]
+shock_nature: [liquidity]
+keywords: [清算, 爆仓, 资金费率, 未平仓合约, 插针, 自动减仓, liquidation, funding rate, open interest]
+preconditions:
+  - 未平仓合约与资金费率处于高位
+  - 触发消息出现在流动性稀薄的时段
+failure_conditions:
+  - 杠杆水平不高
+  - 现货买盘充足，承接住了卖压
+effects:
+  - role: crypto_majors
+    target: 比特币与以太坊
+    direction: down
+    magnitude: medium
+    lag: {onset: 1m-1h, peak: 1h-1d, fade: 1d-2w}
+    crowding: high
+  - role: crypto_alts
+    target: 山寨币
+    direction: down
+    magnitude: large
+    lag: {onset: 1m-1h, peak: 1h-1d, fade: 1d-2w}
+    crowding: high
+  - role: leveraged_proxy
+    target: 美股里的加密代理标的
+    direction: down
+    magnitude: medium
+    lag: {onset: 1m-3d, peak: 1d-3d}
+    crowding: medium
+    examples: [COIN, MSTR]
+  - role: stablecoin
+    target: 稳定币
+    direction: mixed
+    magnitude: small
+    lag: {onset: 1m-1h, peak: 1h-1d, fade: 1d-3d}
+    crowding: medium
+    condition: 用于偿还债务的稳定币升水；本身被当作抵押品的合成稳定币在个别交易所折价
+  - role: crypto_majors
+    target: 清算出清之后的比特币与以太坊
+    direction: up
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-1w}
+    crowding: medium
+    condition: 触发因素没有持续恶化
+leads_to:
+  - stablecoin_depeg_flight
+cases:
+  - id: crypto_liquidation_oct_2025
+    outcome: supports
+    note: 有记录以来最大的清算，小市值山寨币瞬时腰斩或更深
+  - id: crypto_crash_may_2021
+    outcome: supports
+    note: 比特币盘中下跌约三成，多家交易所宕机
+  - id: black_thursday_2020
+    outcome: supports
+    note: 两日内腰斩，链上清算拍卖失灵
+prior: 0.7
+evidence_tier: B
+critique:
+  - 插针价格的成交量极小，回测和实盘都拿不到
+  - 交易所宕机和自动减仓会让对冲的那条腿失效
+  - 每次的触发因素都不同，可以预判的只是市场处于脆弱状态，而不是时点
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

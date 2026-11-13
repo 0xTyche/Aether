@@ -1,0 +1,64 @@
+id: epidemic_mobility_shock
+name: 疫情扩散冲击人员流动
+statement: >-
+  传染病跨境扩散后，政府限制流动或民众自发减少外出，出行与线下服务的
+  需求骤降，居家与防疫相关的需求上升。从疫情消息公开到市场开始定价，
+  中间可能隔着数周。
+categories: [natural_environmental, market_structure_liquidity]
+shock_nature: [supply_side, risk_premium]
+keywords: [疫情, 封城, 传染病, 病例, 隔离, epidemic, pandemic, lockdown, outbreak]
+preconditions:
+  - 病原体人传人的能力强，并且已经跨境
+  - 政府已经或即将采取限制流动的措施
+failure_conditions:
+  - 传播在早期被控制在局部
+  - 已有疫苗或有效药物
+  - 社会不再接受限制流动的措施
+effects:
+  - role: direct_target
+    target: 出行与线下服务，如航空、邮轮、酒店
+    direction: down
+    magnitude: large
+    lag: {onset: 1w-4w, peak: 4w-8w, fade: 24w-52w}
+    crowding: low
+  - role: substitute
+    target: 居家、远程办公、线上消费与防疫物资
+    direction: up
+    magnitude: large
+    lag: {onset: 1w-4w, peak: 4w-12w}
+    crowding: low
+  - role: commodity_price
+    target: 与出行相关的能源需求，如原油与航空燃油
+    direction: down
+    magnitude: large
+    lag: {onset: 1w-4w, peak: 8w-12w, fade: 24w-52w}
+    crowding: medium
+  - role: rates
+    target: 主要经济体的国债收益率
+    direction: down
+    magnitude: medium
+    lag: {onset: 1w-4w, peak: 4w-6w}
+    crowding: medium
+  - role: risk_assets
+    target: 全球股指
+    direction: down
+    magnitude: large
+    lag: {onset: 2w-4w, peak: 4w-5w, fade: 12w-24w}
+    crowding: low
+leads_to:
+  - forced_deleveraging_spiral
+  - single_source_component_outage
+cases:
+  - id: covid_early_2020
+    outcome: supports
+    note: 封城后近四周美股仍创新高，随后一个月下跌约三分之一
+prior: 0.5
+evidence_tier: C
+critique:
+  - 只有一个完整样本
+  - 2020 年之后市场对疫情消息的反应方式已经改变，同样长的忽视不太可能重演
+  - 入场过早要经历数周的反向走势，时间成本和回撤都不小
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

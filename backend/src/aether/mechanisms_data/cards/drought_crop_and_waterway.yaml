@@ -1,0 +1,72 @@
+id: drought_crop_and_waterway
+name: 干旱压低作物产量并限制内河航运
+statement: >-
+  持续干旱沿两条路径起作用。一是作物在关键生长期减产，价格上涨，用它做
+  饲料或原料的企业成本上升。二是河流与运河水位下降，船只减载或限行，
+  运费上涨，沿岸依赖水运的工厂受限。两条路径都按周兑现，节奏可以预知。
+categories: [natural_environmental, industry_supply_chain]
+shock_nature: [supply_side]
+keywords: [干旱, 低水位, 减产, 单产, 驳船, 限行, drought, low water, crop yield, barge]
+preconditions:
+  - 干旱落在作物的关键生长期，或落在承担大量货运的水道上
+  - 受旱产区在该作物的全球出口中占比高
+  - 期末库存偏低
+failure_conditions:
+  - 关键期之后及时降雨
+  - 其他产区丰收，或库存充足
+  - 货物可以改走铁路和管道
+effects:
+  - role: commodity_price
+    target: 受旱作物的价格
+    direction: up
+    magnitude: large
+    lag: {onset: 1w-2w, peak: 4w-12w, fade: 24w-52w}
+    crowding: medium
+    examples: [玉米, 大豆]
+  - role: downstream_buyer
+    target: 以该作物为饲料或原料的企业，如肉类加工与乙醇
+    direction: down
+    magnitude: medium
+    lag: {onset: 2w-4w, peak: 8w-24w}
+    crowding: low
+  - role: freight
+    target: 内河驳船与受限运河的运费
+    direction: up
+    magnitude: medium
+    lag: {onset: 1w-4w, peak: 4w-8w, fade: 8w-16w}
+    crowding: low
+  - role: producer_in_zone
+    target: 依赖水运进出原料的沿岸工厂
+    direction: down
+    magnitude: small
+    lag: {onset: 2w-4w, peak: 4w-12w}
+    crowding: low
+    examples: [莱茵河沿岸的化工企业]
+  - role: upstream_supplier
+    target: 化肥、种子与农机企业，受益于次年扩种
+    direction: up
+    magnitude: small
+    lag: {onset: 8w-24w, peak: 24w-52w}
+    crowding: low
+leads_to:
+  - transit_chokepoint_rerouting
+cases:
+  - id: us_drought_2012
+    outcome: supports
+    note: 玉米与大豆先后创历史新高
+  - id: rhine_low_water_2022
+    outcome: supports
+    note: 驳船运费升到平时数倍，沿岸化工企业物流受限
+  - id: panama_canal_drought_2023
+    outcome: supports
+    note: 运河限行，名额拍卖价与相关运费上涨
+prior: 0.65
+evidence_tier: B
+critique:
+  - 农产品交易商盯着每一份天气预报和单产报告，作物价格这一段并不被忽略
+  - 天气预报两周以外基本不可靠，一场雨就能推翻整个推演
+  - 下游企业多有套期保值，成本上升到利润受损之间的时滞因公司而异
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

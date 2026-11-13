@@ -1,0 +1,70 @@
+id: processing_hub_outage_spread
+name: 加工枢纽停产拉开原料与成品价差
+statement: >-
+  炼厂、石化装置这类加工枢纽停产时，成品供给减少而价格上涨，原料因少了
+  买家而走弱，两者的价差走阔。未受灾的加工企业吃到这部分价差。飓风的
+  路径预报会提前数日给出，后果在登陆前就可以推演。
+categories: [natural_environmental, industry_supply_chain]
+shock_nature: [supply_side]
+keywords: [炼厂, 石化, 停产, 飓风, 寒潮, 裂解价差, refinery, hurricane, outage, crack spread]
+preconditions:
+  - 停产的加工能力在区域或全国占比高
+  - 上游原料的产量没有同等幅度地受损
+  - 成品库存偏低
+failure_conditions:
+  - 上游产量同时大幅受损，原料也跟着涨
+  - 成品库存充足，或可以迅速从其他地区进口
+  - 停产时间短于市场预期
+effects:
+  - role: commodity_price
+    target: 成品价格，如汽油、柴油与石化产品
+    direction: up
+    magnitude: medium
+    lag: {onset: 1h-1d, peak: 2d-2w, fade: 2w-8w}
+    crowding: high
+  - role: feedstock_price
+    target: 加工环节的原料，如原油
+    direction: mixed
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 2d-1w, fade: 1w-4w}
+    crowding: medium
+    condition: 只损失加工能力时下跌；上游产量同时受损时上涨
+  - role: producer_outside_zone
+    target: 未受灾的加工企业
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-3d, peak: 1w-4w}
+    crowding: medium
+  - role: producer_in_zone
+    target: 装置在受灾区的加工企业
+    direction: down
+    magnitude: small
+    lag: {onset: 1h-1d, peak: 1d-2w, fade: 2w-8w}
+    crowding: medium
+  - role: downstream_buyer
+    target: 成品的大用户，如塑料加工、航空与物流
+    direction: down
+    magnitude: small
+    lag: {onset: 1w-2w, peak: 2w-8w}
+    crowding: low
+leads_to: []
+cases:
+  - id: hurricane_harvey_2017
+    outcome: supports
+    note: 汽油涨、原油跌，未受灾炼厂受益
+  - id: texas_freeze_2021
+    outcome: supports
+    note: 石化装置停车后，聚丙烯创历史新高，聚乙烯升到约七年高位
+  - id: hurricane_katrina_2005
+    outcome: mixed
+    note: 成品如期上涨，但海上产量同时受损，原油也涨
+prior: 0.7
+evidence_tier: B
+critique:
+  - 能源交易商对飓风路径的跟踪非常成熟，成品和原料的第一反应没有信息优势可言
+  - 受灾企业的股价常在复产后因高价差而修复，做空的窗口很短
+  - 区域现货的错位未必体现在全国性的期货基准上，能交易的工具有限
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

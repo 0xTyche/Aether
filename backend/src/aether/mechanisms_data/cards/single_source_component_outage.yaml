@@ -1,0 +1,66 @@
+id: single_source_component_outage
+name: 高集中度零部件产地中断
+statement: >-
+  某种零部件的产能高度集中在一家工厂或一个产业带，一旦中断，下游整机厂
+  在库存耗尽后被迫减产，产能在区外的直接竞争者获得涨价和份额。
+  影响沿着供应链一级一级向下传，每一级都晚于上一级。
+categories: [industry_supply_chain, natural_environmental, company_specific]
+shock_nature: [supply_side, idiosyncratic]
+keywords: [工厂火灾, 洪水, 停产, 缺货, 供应中断, 独家供应, fire, flood, shortage, sole supplier]
+preconditions:
+  - 该工厂或产业带在全球产能中占比高，通常在两成以上
+  - 认证周期长，无法快速转到其他工厂生产
+  - 渠道库存偏低
+failure_conditions:
+  - 下游库存充足，可以撑过修复期
+  - 可以在其他工厂转产
+  - 终端需求本身在下行，缺货反而帮助去库存
+effects:
+  - role: producer_in_zone
+    target: 出事工厂的所有者
+    direction: mixed
+    magnitude: medium
+    lag: {onset: 5m-1d, peak: 1d-2w, fade: 2w-12w}
+    crowding: high
+    condition: 产品可以涨价且自身份额稳固时，利润率的改善可能抵消销量损失；否则下跌
+  - role: producer_outside_zone
+    target: 产能在区外的直接竞争者
+    direction: up
+    magnitude: medium
+    lag: {onset: 1d-1w, peak: 2w-12w}
+    crowding: medium
+  - role: commodity_price
+    target: 该零部件的现货价格
+    direction: up
+    magnitude: large
+    lag: {onset: 1d-1w, peak: 2w-8w, fade: 12w-52w}
+    crowding: medium
+  - role: downstream_buyer
+    target: 依赖该零部件的整机厂
+    direction: down
+    magnitude: medium
+    lag: {onset: 1w-4w, peak: 4w-12w, fade: 12w-24w}
+    crowding: low
+    examples: [个人电脑厂商, 整车厂]
+leads_to:
+  - bellwether_earnings_read_through
+cases:
+  - id: thai_floods_2011
+    outcome: supports
+    note: 硬盘涨价，工厂未被淹的竞争者受益，下游减产
+  - id: tohoku_2011
+    outcome: supports
+    note: 车用芯片与零件断供，海外车厂减产数周到数月
+  - id: renesas_fire_2021
+    outcome: supports
+    note: 库存本已见底，单点火灾放大了车企的减产
+prior: 0.7
+evidence_tier: B
+critique:
+  - 下游何时减产取决于各家库存，公开信息很少，容易错判谁先受影响
+  - 受益的竞争者可能同样依赖灾区的上游零件，2011 年未被淹的硬盘厂也因零部件供应商受灾而减产
+  - 零部件现货价多数没有可交易的工具，只能通过相关公司的股票间接表达
+review:
+  status: draft
+  drafted_by: claude
+  drafted_on: 2026-11-13

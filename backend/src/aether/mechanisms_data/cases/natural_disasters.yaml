@@ -1,0 +1,383 @@
+# 自然灾害与疫情类案例。
+# 所有数字先凭模型记忆写入（recall 标注把握程度），核对情况见各案例的 verification。
+cases:
+  - id: tohoku_2011
+    title: 东日本大地震与海啸
+    start_date: 2011-03-11
+    location: 日本东北地区太平洋沿岸
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      9 级海底强震引发海啸，沿岸港口、工厂与福岛第一核电站受损。
+      金融市场的反应分成几条互不相同的链：日元因资金回流预期急升，
+      日本股市暴跌，核电与铀相关资产下跌，海外的日系车厂因缺件减产。
+    observations:
+      - asset: 美元/日元
+        asset_id: USD/JPY
+        direction: down
+        window: 4d-1w
+        note: 日元急升，3月17日一度触及约 76.25 的当时历史低点；3月18日七国集团联合干预后回到 80 上方
+        recall: high
+      - asset: 日经225
+        asset_id: NKY
+        direction: down
+        window: 2d
+        note: 3月14日与15日两个交易日合计下跌约 16%，其中15日单日约 -10.6%
+        recall: high
+      - asset: 核电与铀相关股票（东京电力、铀矿商）
+        direction: down
+        window: 1w-4w
+        note: 福岛核事故持续恶化，东京电力连续跌停，铀矿股与铀现货价在一周内大幅下跌
+        recall: medium
+      - asset: 日系车企的全球产量（丰田、本田等）
+        direction: down
+        window: 2w-12w
+        note: 瑞萨那珂工厂等零部件厂停产，车用芯片与零件短缺，海外工厂也被迫减产
+        recall: high
+      - asset: 日本建筑与建材股
+        direction: up
+        window: 1w-4w
+        note: 重建预期推动建筑股在震后数日逆势大涨
+        recall: medium
+    lessons:
+      - 净债权国遭灾后本币可能升值，与"灾害利空本币"的直觉相反
+      - 受影响最久的二阶标的在海外的下游客户，而不在灾区本身
+      - 物理损毁与核事故是两条不同的链，方向和持续时间都不同
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://ibtimes.com/yen-retreats-record-peak-g7-talks-loom-457028"
+        - "https://thinkadvisor.com/2011/03/15/nikkei-plunges-10-6-as-hedge-funds-flee-market-on-radiation-fears"
+        - "https://www.bloomberg.com/news/articles/2011-03-14/kajima-japan-s-construction-shares-surge-on-reconstruction-demand-outlook"
+
+  - id: kobe_1995
+    title: 阪神大地震
+    start_date: 1995-01-17
+    location: 日本神户
+    categories: [natural_environmental]
+    summary: >-
+      直下型强震摧毁神户市区与港口。神户港当时是全球前列的集装箱港，
+      震后货量转移到釜山等港，此后排名未能恢复。巴林银行的交易员在震后
+      继续加码日经指数多头，2 月底巴林倒闭。
+    observations:
+      - asset: 日经225
+        asset_id: NKY
+        direction: down
+        window: 1w
+        note: 震后一周下跌约 7% 到 8%，其中1月23日单日跌幅超过 5%
+        recall: medium
+      - asset: 美元/日元
+        asset_id: USD/JPY
+        direction: down
+        window: 8w-12w
+        note: 日元在随后三个月升值，4月美元/日元跌破 80（当时历史低点约 79.75）；同期还有墨西哥危机与美日贸易摩擦，不能只归因于地震
+        recall: medium
+    lessons:
+      - 港口一旦失去货量，份额可能永久转移，受益方是邻近的竞争港口
+      - 巴林的教训是不要在已被证伪的前提上加码补救
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.fool.com/investing/international/2011/03/15/revisiting-the-1995-kobe-earthquake.aspx"
+        - "https://media.rakuten-sec.net/articles/-/52172"
+        - "https://moneyweek.com/381786/26-february-1995-rogue-trader-nick-leeson-breaks-barings-bank"
+
+  - id: indian_ocean_tsunami_2004
+    title: 印度洋海啸
+    start_date: 2004-12-26
+    location: 印尼苏门答腊外海，波及泰国、斯里兰卡、印度
+    categories: [natural_environmental]
+    summary: >-
+      人员伤亡极其惨重，但受灾地区多为渔村与海滨旅游带，在各国上市资产、
+      出口与保险覆盖中占比很小，主要股指与再保险股几乎没有反应。
+    observations:
+      - asset: 泰国与印尼股指
+        direction: flat
+        window: 1w
+        note: 灾后一周基本持平，印尼综指随后续创新高
+        recall: medium
+      - asset: 全球再保险股
+        direction: flat
+        window: 1w
+        note: 受灾地区保险渗透率低，保险损失有限；大型再保险公司首日下跌不到 2%，次日基本持平
+        recall: medium
+      - asset: 泰国、斯里兰卡旅游相关股票
+        direction: down
+        window: 1w-4w
+        note: 旅游业集中受损，但在各自市场中权重很小
+        recall: low
+    lessons:
+      - 人道损失与市场损失是两回事
+      - 规模核查要看受灾区在上市资产、出口和保险覆盖中的占比，而不是灾害本身的大小
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.thestar.com.my/business/business-news/2004/12/28/selling-wave-hits-tsunamiaffected-region"
+        - "https://www.asianews.it/news-en/Tsunami:-a-disaster-at-the-human-level,-but-less-so-for-the-economy-2233.html"
+        - "https://archive.thedailystar.net/2004/12/31/d41231051058.htm"
+      notes: "斯里兰卡旅游股未能核实。"
+
+  - id: turkey_earthquake_2023
+    title: 土耳其与叙利亚地震
+    start_date: 2023-02-06
+    location: 土耳其东南部
+    categories: [natural_environmental]
+    summary: >-
+      两次强震造成重大伤亡。伊斯坦布尔交易所在两天大跌后停市约一周，
+      复牌时有政策性买盘托市，水泥等重建相关板块领涨。
+    observations:
+      - asset: 伊斯坦布尔 BIST100 指数
+        direction: down
+        window: 2d
+        note: 2月6日与7日大跌并触发熔断；2月8日开盘再跌后停市，当日成交被取消，2月15日恢复交易
+        recall: high
+      - asset: 伊斯坦布尔 BIST100 指数（复牌后）
+        direction: up
+        window: 1d-1w
+        note: 复牌首日在养老金等政策性买盘支持下大涨约一成
+        recall: medium
+      - asset: 土耳其水泥股
+        direction: up
+        window: 1w-4w
+        note: 水泥股在停市前的两天里已经大涨，复牌后与钢铁股一起继续领涨
+        recall: medium
+      - asset: 美元/里拉
+        asset_id: USD/TRY
+        direction: flat
+        window: 1w
+        note: 里拉延续受控的缓慢贬值，没有出现跳变
+        recall: medium
+    lessons:
+      - 停市会让可买入性变成零，推演再正确也无法执行
+      - 政策干预可以改写灾后市场的方向
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.kitco.com/news/off-the-wire/2023-02-15/update-3-istanbul-bourse-jumps-nearly-10-after-quake-closure-lira-hits"
+        - "https://www.kitco.com/news/off-the-wire/2023-02-08/update-5-turkish-bourse-shuts-five-days-cancels-trades-after"
+        - "https://www.kitco.com/news/off-the-wire/2023-02-20/turkeyaposs-cement-and-steel-maker-stocks-climb-reconstruction-hopes"
+      notes: "复牌首日水泥板块是否领涨未能核实，领涨见于 2 月 20 日的报道。"
+
+  - id: sichuan_earthquake_2008
+    title: 汶川地震
+    start_date: 2008-05-12
+    location: 中国四川
+    categories: [natural_environmental]
+    summary: >-
+      强震后数十家四川、重庆上市公司临时停牌。市场炒作重建概念，
+      水泥、医药、路桥等板块短线上涨，大盘整体影响有限。
+    observations:
+      - asset: A 股水泥、医药、路桥板块
+        direction: up
+        window: 1d-1w
+        note: 重建与救灾概念短线上涨
+        recall: medium
+      - asset: 四川、重庆上市公司
+        direction: flat
+        window: 1d-1w
+        note: 5月13日起数十家公司临时停牌，无法交易
+        recall: medium
+      - asset: 上证综指
+        asset_id: SHCOMP
+        direction: flat
+        window: 1w
+        note: 次日小幅下跌，随后一周没有明显的方向性反应
+        recall: low
+    lessons:
+      - 直接受灾的公司往往停牌，可交易的只剩区域外的受益方
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.nbd.com.cn/articles/2008-05-15/195054.html"
+        - "https://finance.sina.com.cn/head/stock20080513pm.shtml"
+        - "https://www.dawn.com/news/303603"
+      notes: "钢铁板块的涨幅未能核实，已从观察中删去。"
+
+  - id: hurricane_katrina_2005
+    title: 卡特里娜飓风
+    start_date: 2005-08-29
+    location: 美国墨西哥湾沿岸
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      飓风同时打击了墨西哥湾的海上油气产量和沿岸炼厂，所以原油与成品油
+      都上涨。国际能源署协同释放储备后油价回落。保险业损失创当时纪录，
+      次年续保费率大涨。
+    observations:
+      - asset: WTI 原油
+        asset_id: WTI
+        direction: up
+        window: 1d-3d
+        note: 8月29日首次突破 70 美元，8月30日盘中创约 70.85 美元的当时纪录；9月2日国际能源署宣布协同释放储备后回落
+        recall: high
+      - asset: 美国汽油（期货与零售）
+        direction: up
+        window: 1w
+        note: 汽油期货飙升，零售均价首次超过每加仑 3 美元
+        recall: high
+      - asset: 美国天然气
+        asset_id: NATGAS
+        direction: up
+        window: 1w-8w
+        note: 海湾产量长期受损，叠加随后的丽塔飓风，价格在秋季升到历史高位区间
+        recall: medium
+      - asset: 大型再保险公司（慕尼黑再保险、瑞士再保险）
+        direction: up
+        window: 2w
+        note: 登陆后两周内不跌反涨，市场直接去交易费率走硬的预期
+        recall: low
+      - asset: 损失集中的小型再保险公司（PXRE 等）
+        direction: down
+        window: 1d-2w
+        note: 个别公司单日下跌约 17%
+        recall: low
+      - asset: 美国巨灾再保险费率（2006 年续保）
+        direction: up
+        window: 16w-52w
+        note: 2006年1月续保的涨幅低于预期，大幅上调出现在年中续保，全年美国费率上涨约七成半；百慕大新设了十余家再保险公司
+        recall: medium
+    lessons:
+      - 同时损失产量和加工能力时，原料与成品一起涨；只损失加工能力时两者方向相反
+      - 政府释放储备是此类冲击最常见的失效条件
+      - 再保险股的反应因公司而异，资本充足的大公司灾后反而上涨，这与起草时凭记忆写的"普遍下跌"相反
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.arabnews.com/node/272322"
+        - "https://www.royalgazette.com/?p=190726"
+        - "https://www.propertycasualty360.com/amp/2006/01/17/no-startup-impact-on-re-business-for-now/"
+      notes: "核对后改正三处：突破 70 美元的日期、再保险股的方向、2006 年续保涨价的时点。"
+
+  - id: hurricane_harvey_2017
+    title: 哈维飓风
+    start_date: 2017-08-25
+    location: 美国德克萨斯州沿岸
+    categories: [natural_environmental, industry_supply_chain]
+    summary: >-
+      暴雨洪水使美国约四分之一的炼油产能一度停产，而原油产量受损较小。
+      成品油上涨，原油反而因炼厂需求下降而走弱。
+    observations:
+      - asset: 美国汽油期货
+        direction: up
+        window: 1w
+        note: 升至约两年高位
+        recall: high
+      - asset: WTI 原油
+        asset_id: WTI
+        direction: down
+        window: 1w
+        note: 炼厂停工使原油需求下降，WTI 走弱，与布伦特的价差走阔
+        recall: high
+      - asset: 未受灾的炼油企业
+        direction: up
+        window: 1w
+        note: 裂解价差走阔，炼油股普遍上涨，中部炼厂受益最明显
+        recall: medium
+    lessons:
+      - 同一事件里，原料价格和成品价格可以方向相反
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://foxbusiness.com/markets/gasoline-jumps-crude-down-harvey-shuts-24-of-u-s-refining"
+        - "https://www.hydrocarbonprocessing.com/news/2017/08/oil-markets-roiled-as-harvey-hits-us-petroleum-industry/"
+        - "https://www.hydrocarbonprocessing.com/news/2017/08/us-midwest-refiners-eye-best-quarter-in-two-years-as-harvey-hits-rivals"
+      notes: "西海岸炼厂受益一说未能核实，已删去。"
+
+  - id: hurricane_ian_2022
+    title: 伊恩飓风
+    start_date: 2022-09-28
+    location: 美国佛罗里达州
+    categories: [natural_environmental]
+    summary: >-
+      保险损失达数百亿美元量级。再保险股短暂走弱，但 2023 年初续保时
+      财产巨灾费率大幅上调，行业盈利预期反而改善。资本薄弱的佛州本土
+      保险公司受到重创。
+    observations:
+      - asset: 全球再保险股
+        direction: down
+        window: 1w-2w
+        note: 瑞士再保险与 SCOR 在登陆前一周已下跌约一成，登陆后再跌数个百分点；慕尼黑再保险与汉诺威再保险的跌幅小得多
+        recall: low
+      - asset: 美国财产巨灾再保险费率（2023 年 1 月续保）
+        direction: up
+        window: 12w-24w
+        note: 佛州与全美财产巨灾费率大幅上涨，普遍报道的涨幅达数十个百分点
+        recall: medium
+      - asset: 佛州本土财险公司
+        direction: down
+        window: 1w-24w
+        note: 多家资本薄弱的本土保险公司股价暴跌，其中有公司在 2023 年初被接管清算
+        recall: medium
+    lessons:
+      - 巨灾对再保险是先利空后利多，方向随时间窗口翻转
+      - 同一行业里，资本充足者受益于涨价，资本薄弱者被淘汰
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.intelligentinsurer.com/insurance/european-stock-investors-opt-buy-hard-market-over-sell-ian-losses-30689"
+        - "https://www.reinsurancene.ws/us-property-cat-reinsurance-rates-on-line-up-30-1-at-january-renewals-guy-carpenter/"
+        - "https://insurancejournal.com/news/southeast/2023/02/20/708627.htm"
+      notes: "佛州本土保险公司的股价跌幅未能核实，被清算一事已核实。核对后改正了再保险股的跌幅。"
+
+  - id: covid_early_2020
+    title: 新冠疫情早期
+    start_date: 2020-01-23
+    end_date: 2020-04-20
+    location: 始于中国武汉，随后扩散至全球
+    categories: [natural_environmental, market_structure_liquidity]
+    summary: >-
+      武汉封城是公开信息，后果可以推演，但美股此后近四周仍创新高，
+      直到 2 月下旬意大利出现本土传播才开始下跌。这是"事件已公开、
+      后果未到"的标准样本，也说明市场的忽视可以持续很久。
+    observations:
+      - asset: 标普500
+        asset_id: SPX
+        direction: up
+        window: 4w
+        note: 1月23日武汉封城后继续上涨，2月19日创历史新高
+        recall: high
+      - asset: 标普500
+        asset_id: SPX
+        direction: down
+        window: 4w-5w
+        note: 2月19日至3月23日下跌约 34%
+        recall: high
+      - asset: 航空、邮轮、酒店股
+        direction: down
+        window: 4w-8w
+        note: 跌幅远大于大盘
+        recall: high
+      - asset: 居家与防疫受益股（视频会议、口罩、检测）
+        direction: up
+        window: 4w-12w
+        note: 逆势大涨
+        recall: high
+      - asset: WTI 原油
+        asset_id: WTI
+        direction: down
+        window: 12w
+        note: 需求骤降叠加储存空间告急，4月20日近月合约结算价跌到负值（约 -37.6 美元）
+        recall: high
+      - asset: 美国 10 年期国债收益率
+        asset_id: US10Y
+        direction: down
+        window: 6w
+        note: 3月9日盘中跌破 0.5%
+        recall: high
+    lessons:
+      - 忽视可以持续数周，过早入场要付出时间成本和中途的回撤
+      - 市场开始反应的触发点往往是一个更近、更具体的后续事件，而不是最初的那条消息
+    verification:
+      status: web_checked
+      checked_on: 2026-11-13
+      sources:
+        - "https://www.investing.com/news/stock-market-news/say-goodbye-to-the-shortest-bear-market-in-sp-500-history-2270085"
+        - "https://www.cnbc.com/2020/03/09/10-year-treasury-yield-plunges.html"
+        - "https://www.csmonitor.com/Business/2020/0224/Dow-drops-1-000-points-as-virus-fear-spreads-globally?icid=rss"
+      notes: "酒店股与口罩、检测类个股未逐一核对。"
