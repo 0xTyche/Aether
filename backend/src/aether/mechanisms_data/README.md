@@ -98,6 +98,17 @@ for chain in lib.chains("seismic_tsunami_coastal_damage", max_hops=2):
 
 三张卡各自有六七成把握，连起来只有约三成。故事讲得通顺不代表它成立。
 
+## 线上怎么用
+
+`aether/mechanisms/catalog.py` 把没被否决的卡片渲染成一份精简目录，附在 LLM 系统提示词的末尾。每张卡一段：id、名称、因果陈述，以及各角色的方向、拥挤度和峰值时滞。目录约六千字，随系统提示词一起被缓存。
+
+模型输出里引用卡片的地方有两处：
+
+- `mechanisms`：主传导链用到的卡，按先后顺序。流水线据此算出整链把握（各卡 `prior` 相乘），连同卡片的等级和审核状态存进 `events.analysis`。
+- 每条影响的 `mechanism_id` 和 `role`：这条预测来自哪张卡的哪个角色，存进 `impact_predictions`。以后可以按卡统计命中率，作为升降 `evidence_tier` 的依据。
+
+库里不存在的 id 会被丢弃并记日志。卡片在进程启动时加载一次，改了卡片要重启后端才会生效。
+
 ## 审核一张卡
 
 1. 读 `statement`、`preconditions`、`failure_conditions`，判断逻辑是否成立。

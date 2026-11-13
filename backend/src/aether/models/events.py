@@ -82,6 +82,12 @@ class ImpactPrediction(Base):
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
     timeframe_min: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
+    # LLM-only metadata, NULL on rule-engine predictions. `mechanism_id` names
+    # a card in aether/mechanisms_data so outcomes can be scored per card;
+    # `crowding` is how fast the market is expected to price the move.
+    crowding: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    mechanism_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    role: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
     event: Mapped[Event] = relationship(back_populates="predictions")
     outcome: Mapped["ImpactOutcome | None"] = relationship(

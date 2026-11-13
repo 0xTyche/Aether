@@ -194,10 +194,78 @@ async def test_llm_unknown_asset_ids_filtered():
             )
     assert eid is not None
     async with db_module.session_scope() as session:
+        evt = await session.get(Event, eid)
         preds = (await session.scalars(
             select(ImpactPrediction).where(ImpactPrediction.event_id == eid)
         )).all()
     assert [p.asset_id for p in preds] == ["SPX"]
+    # The unknown id is not scored, but it is kept for display.
+    assert [o["name"] for o in evt.analysis["off_pool"]] == ["FAKE_NOT_REAL_ASSET"]
+
+
+def _fake_llm_client(payload: str) -> SimpleNamespace:
+    completions = AsyncMock(create=AsyncMock(return_value=SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=payload))]
+    )))
+    return SimpleNamespace(chat=SimpleNamespace(completions=completions))
+
+
+@pytest.mark.usefixtures("fresh_pipeline_state")
+async def test_llm_prediction_persists_horizon_and_mechanism_fields():
+    nid = await _insert_news("Reuters", "Headline for mechanism fields Q7", "")
+    payload = json.dumps({
+        "is_market_relevant": True,
+        "severity": "high",
+        "mechanisms": ["seismic_tsunami_coastal_damage"],
+        "impacts": [
+            {"asset_id": "USD/BRL", "direction": "up", "horizon": "1d",
+             "crowding": "low", "mechanism_id": "disaster_currency_direction",
+             "role": "local_currency"},
+        ],
+    })
+    with patch.object(llm, "_get_client", return_value=_fake_llm_client(payload)):
+        async with db_module.session_scope() as session:
+            news = await session.get(RawNews, nid)
+            eid = await impact.analyze_raw_news(
+                news, session, rules=[], system_prompt="sys",
+            )
+    assert eid is not None
+    async with db_module.session_scope() as session:
+        evt = await session.get(Event, eid)
+        pred = (await session.scalars(
+            select(ImpactPrediction).where(ImpactPrediction.event_id == eid)
+        )).one()
+    assert pred.timeframe_min == 1440
+    assert (pred.crowding, pred.role) == ("low", "local_currency")
+    assert pred.mechanism_id == "disaster_currency_direction"
+    assert evt.analysis["mechanisms"][0]["id"] == "seismic_tsunami_coastal_damage"
+
+
+@pytest.mark.usefixtures("fresh_pipeline_state")
+async def test_llm_event_with_only_off_pool_assets_is_kept():
+    nid = await _insert_news("Reuters", "Brazil sugar port headline Z9", "")
+    payload = json.dumps({
+        "is_market_relevant": True,
+        "severity": "medium",
+        "impacts": [],
+        "off_pool": [{"name": "Raw sugar futures", "ticker": "SB", "market": "ICE",
+                      "direction": "up", "horizon": "1w"}],
+    })
+    with patch.object(llm, "_get_client", return_value=_fake_llm_client(payload)):
+        async with db_module.session_scope() as session:
+            news = await session.get(RawNews, nid)
+            eid = await impact.analyze_raw_news(
+                news, session, rules=[], system_prompt="sys",
+            )
+    assert eid is not None
+    async with db_module.session_scope() as session:
+        evt = await session.get(Event, eid)
+        preds = (await session.scalars(
+            select(ImpactPrediction).where(ImpactPrediction.event_id == eid)
+        )).all()
+    assert preds == []
+    assert evt.analysis["off_pool"][0]["ticker"] == "SB"
+    assert evt.analysis["off_pool"][0]["timeframe_min"] == 10080
 
 
 @pytest.mark.usefixtures("fresh_pipeline_state")

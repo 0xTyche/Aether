@@ -26,16 +26,58 @@ export interface ImpactPrediction {
   confidence: number | null;
   rationale: string | null;
   timeframe_min: number;
+  /** LLM-only fields; null or absent on rule-engine predictions. */
+  crowding?: Crowding | null;
+  mechanism_id?: string | null;
+  role?: string | null;
 }
+
+/** How fast the market is expected to price a move. "low" = easily missed. */
+export type Crowding = "high" | "medium" | "low";
 
 export interface EventClassification {
   primary_category: string;
   shock_nature: string[];
 }
 
+/** A mechanism card the LLM used, resolved against the library. */
+export interface MechanismRef {
+  id: string;
+  name: string;
+  prior: number;
+  evidence_tier: "A" | "B" | "C";
+  review_status: "draft" | "approved" | "rejected";
+}
+
+/** An affected asset outside the seeded pool: shown, never scored. */
+export interface OffPoolImpact {
+  name: string;
+  ticker: string | null;
+  market: string;
+  direction: "up" | "down" | "neutral";
+  magnitude: "small" | "medium" | "large";
+  confidence: number;
+  timeframe_min: number;
+  crowding: Crowding | null;
+  mechanism_id: string | null;
+  role: string | null;
+  rationale: string;
+}
+
+export interface RejectedCandidate {
+  target: string;
+  reason: string;
+}
+
 export interface EventAnalysis {
   classification?: EventClassification;
+  premise_check?: string;
+  mechanisms?: MechanismRef[];
+  /** Product of the mechanisms' priors. Drafts, not calibrated odds. */
+  chain_prior?: number | null;
   transmission_chain?: string[];
+  off_pool?: OffPoolImpact[];
+  rejected?: RejectedCandidate[];
 }
 
 export interface Event {

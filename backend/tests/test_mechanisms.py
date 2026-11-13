@@ -357,3 +357,45 @@ def test_shipped_observation_asset_ids_exist_in_the_seed(shipped: MechanismLibra
         }
     )
     assert unknown == []
+
+
+# ---------- prompt catalogue --------------------------------------------
+
+def test_squash_cjk_spaces_only_between_cjk_characters():
+    from aether.mechanisms.catalog import squash_cjk_spaces
+
+    assert squash_cjk_spaces("跨洋海啸从地震到 登陆有数小时，") == "跨洋海啸从地震到登陆有数小时，"
+    assert squash_cjk_spaces("现货 BTC ETF 资金流入") == "现货 BTC ETF 资金流入"
+    assert squash_cjk_spaces("  首尾空白  ") == "首尾空白"
+
+
+def test_catalog_lists_every_card_with_its_effects(shipped: MechanismLibrary):
+    from aether.mechanisms.catalog import render_catalog
+
+    text = render_catalog(shipped)
+    for card in shipped.cards.values():
+        assert text.count(f"- {card.id}｜{card.name}\n") == 1
+    assert "downstream_buyer↓ 易忽略 峰值 2w-8w" in text
+    # Folded YAML must not leave spaces between Chinese characters.
+    assert "到 登陆" not in text
+
+
+def test_catalog_leaves_out_rejected_cards(shipped: MechanismLibrary):
+    from aether.mechanisms.catalog import render_catalog
+
+    card = shipped.cards["epidemic_mobility_shock"]
+    rejected = card.model_copy(
+        update={"review": card.review.model_copy(update={"status": "rejected"})}
+    )
+    library = MechanismLibrary(
+        cards={**shipped.cards, rejected.id: rejected}, cases=shipped.cases
+    )
+    assert "epidemic_mobility_shock" not in render_catalog(library)
+
+
+def test_catalog_stays_small_enough_for_the_cached_prompt(shipped: MechanismLibrary):
+    from aether.mechanisms.catalog import render_catalog
+
+    # Roughly 1 token per Chinese character: the catalogue should stay a
+    # few thousand tokens. Raise this deliberately if the library grows.
+    assert len(render_catalog(shipped)) < 12_000

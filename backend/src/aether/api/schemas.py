@@ -50,6 +50,10 @@ class ImpactPredictionDTO(BaseModel):
     confidence: float | None
     rationale: str | None
     timeframe_min: int
+    # LLM-only; None on rule-engine predictions.
+    crowding: str | None = None
+    mechanism_id: str | None = None
+    role: str | None = None
 
 
 class EventDTO(BaseModel):

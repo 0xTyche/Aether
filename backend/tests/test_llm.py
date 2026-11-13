@@ -26,6 +26,15 @@ def test_build_system_prompt_deterministic_and_includes_lists():
     assert "eurozone, g7" in prompt
 
 
+def test_build_system_prompt_appends_roles_and_mechanism_catalog():
+    prompt = llm.build_system_prompt(asset_ids=["BTC"], region_ids=["g7"])
+    roles_at = prompt.index("Available role ids:")
+    cards_at = prompt.index("Available mechanism cards:")
+    assert roles_at < cards_at
+    assert "downstream_buyer" in prompt[roles_at:cards_at]
+    assert "- seismic_tsunami_coastal_damage｜强震与海啸损毁沿岸设施" in prompt[cards_at:]
+
+
 def test_build_system_prompt_dedupes_inputs():
     a = llm.build_system_prompt(asset_ids=["X", "X"], region_ids=["g7"])
     b = llm.build_system_prompt(asset_ids=["X"], region_ids=["g7"])
@@ -69,6 +78,107 @@ def test_parse_or_none_returns_none_on_invalid_json():
 
 def test_parse_or_none_returns_none_on_schema_violation():
     bad = json.dumps({"is_market_relevant": "not-a-bool"})
+    assert llm._parse_or_none(bad) is None
+
+
+def _full_payload(**overrides) -> str:
+    base = {
+        "is_market_relevant": True,
+        "severity": "high",
+        "origin_country_iso2": "BR",
+        "explanation": "跨洋海啸",
+        "affected_regions": [],
+        "premise_check": "震源在大西洋中脊，海啸到巴西沿岸约需 6 小时",
+        "mechanisms": ["seismic_tsunami_coastal_damage", "export_node_outage_commodity"],
+        "transmission_chain": ["地震", "海啸", "港口停摆", "糖价上涨"],
+        "impacts": [
+            {"asset_id": "USD/BRL", "direction": "up", "magnitude": "medium",
+             "horizon": "1d", "confidence": 0.6, "crowding": "medium",
+             "mechanism_id": "disaster_currency_direction", "role": "local_currency",
+             "rationale": "雷亚尔承压"},
+        ],
+        "off_pool": [
+            {"name": "原糖期货", "ticker": "SB", "market": "ICE", "direction": "up",
+             "horizon": "1w", "confidence": 0.55, "crowding": "low",
+             "mechanism_id": "export_node_outage_commodity", "role": "commodity_price",
+             "rationale": "桑托斯港出口中断"},
+        ],
+        "rejected": [{"target": "巴西股指", "reason": "已被定价"}],
+    }
+    return json.dumps(base | overrides, ensure_ascii=False)
+
+
+def test_parse_accepts_the_mechanism_aware_schema():
+    result = llm._parse_or_none(_full_payload())
+    assert result is not None
+    imp = result.impacts[0]
+    assert (imp.horizon, imp.horizon_min) == ("1d", 1440)
+    assert (imp.crowding, imp.role) == ("medium", "local_currency")
+    assert imp.mechanism_id == "disaster_currency_direction"
+    assert result.premise_check.startswith("震源")
+    assert result.mechanisms == [
+        "seismic_tsunami_coastal_damage", "export_node_outage_commodity",
+    ]
+    off = result.off_pool[0]
+    assert (off.name, off.ticker, off.market, off.horizon_min) == ("原糖期货", "SB", "ICE", 10080)
+    assert result.rejected[0].reason == "已被定价"
+
+
+def test_parse_still_accepts_the_old_schema():
+    old = json.dumps({
+        "is_market_relevant": True,
+        "impacts": [{"asset_id": "SPX", "direction": "up", "confidence": 0.7}],
+    })
+    result = llm._parse_or_none(old)
+    assert result is not None
+    imp = result.impacts[0]
+    assert (imp.horizon, imp.horizon_min, imp.crowding, imp.role) == (None, 60, None, None)
+    assert result.off_pool == [] and result.rejected == [] and result.mechanisms == []
+
+
+@pytest.mark.parametrize(
+    ("horizon", "minutes"),
+    [
+        (None, 60),
+        ("", 60),
+        ("soon", 60),
+        ("1-3d", 60),
+        ("4h", 240),
+        (" 3D ", 4320),
+        ("1m", 5),            # clamped up to the minimum
+        ("10w", 40320),       # clamped down to 4 weeks
+    ],
+)
+def test_horizon_minutes(horizon, minutes):
+    assert llm.horizon_minutes(horizon) == minutes
+
+
+def test_bad_auxiliary_fields_degrade_instead_of_failing():
+    payload = _full_payload(
+        premise_check=["前提一", "前提二"],
+        mechanisms=["a_card", "a_card", None, "null", "b", "c", "d", "e"],
+        impacts=[
+            {"asset_id": "SPX", "direction": "up", "horizon": 90,
+             "crowding": "extreme", "role": "banana", "mechanism_id": "null"},
+        ],
+        off_pool=[{"direction": "up"}] + [
+            {"name": f"asset {i}", "direction": "down"} for i in range(7)
+        ],
+        rejected="not a list",
+    )
+    result = llm._parse_or_none(payload)
+    assert result is not None
+    imp = result.impacts[0]
+    assert (imp.horizon_min, imp.crowding, imp.role, imp.mechanism_id) == (90, None, None, None)
+    assert result.premise_check == "前提一；前提二"
+    assert result.mechanisms == ["a_card", "b", "c", "d"]
+    # The nameless entry is dropped, then the list is capped.
+    assert [o.name for o in result.off_pool] == [f"asset {i}" for i in range(llm.MAX_OFF_POOL)]
+    assert result.rejected == []
+
+
+def test_core_impact_fields_stay_strict():
+    bad = _full_payload(impacts=[{"asset_id": "SPX", "direction": "sideways"}])
     assert llm._parse_or_none(bad) is None
 
 
